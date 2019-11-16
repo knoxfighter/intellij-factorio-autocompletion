@@ -11,7 +11,7 @@ All Factorio function, that have a return value, will be also autocompleted.
 
 As Base-LUA-Plugin [emmylua](https://plugins.jetbrains.com/plugin/9768-emmylua) is needed.
 
-Examples:
+Examples:  
 ![](example.gif)
 
 # Known Issues
