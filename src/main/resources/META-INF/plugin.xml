@@ -1,0 +1,30 @@
+<idea-plugin>
+    <id>moe.knox.factorio.autocompletion</id>
+    <name>Factorio LUA API Support</name>
+    <vendor email="knoxfighter@asdff45.de">knoxfighter</vendor>
+
+    <category></category>
+    <description><![CDATA[
+    Adds Support for the Factorio LUA API. This implements a full code completion.
+    EmmyLua has to be installed for this plugin to work.
+
+    To use the code completion, it has to be activated under `Settings > Languages & Frameworks > Factorio Autocompletion`
+    ]]></description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.tang</depends>
+
+    <idea-version since-build="182" until-build="192.*"/>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+        <projectConfigurable groupId="language" displayName="Factorio Autocompletion" id="preference.FactorioCompletionConfig" instance="moe.knox.factorio.FactorioAutocompletionConfig"/>
+        <projectService serviceImplementation="moe.knox.factorio.FactorioAutocompletionState" />
+        <additionalLibraryRootsProvider implementation="moe.knox.factorio.library.FactorioLibraryProvider"/>
+    </extensions>
+
+    <actions>
+    </actions>
+</idea-plugin>
