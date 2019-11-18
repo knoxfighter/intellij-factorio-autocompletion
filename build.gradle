@@ -24,10 +24,12 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
-        ## Initial Realease
-        ### Added
-        - Code completion for additional LUA files
-        - Download and parse the factorio-lua-api
-        - bultin-types as hardcoded library
+        <h2>Initial Realease</h2>
+        <h3> Added<h3>
+        <ul>
+        <li>Code completion for additional LUA files</li>
+        <li>Download and parse the factorio-lua-api</li>
+        <li>bultin-types as hardcoded library</li>
+        </ul>
     """
 }
