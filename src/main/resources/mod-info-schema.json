@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The internal name of mod. The game accepts anything as a mod name, however the mod portal restricts mod names to only consist of alphanumeric characters, dashes and underscores. Note that the mod folder or mod zip file name has to contain the mod name, where the restrictions of the file system apply."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^([0-9]{1,4}|[1-5][0-9]{4}|6[1-4][0-9]{3}|65[1-4][0-9]{2}|655[1-2][0-9]|6553[0-5])\\.([0-9]{1,4}|[1-5][0-9]{4}|6[1-4][0-9]{3}|65[1-4][0-9]{2}|655[1-2][0-9]|6553[0-5])\\.([0-9]{1,4}|[1-5][0-9]{4}|6[1-4][0-9]{3}|65[1-4][0-9]{2}|655[1-2][0-9]|6553[0-5])$",
+      "description": "Defines the version of the mod in the format \"number.number.number\" for \"main.major.minor\", for example \"0.6.4\". Each number can range from 0 to 65535."
+    },
+    "title": {
+      "type": "string",
+      "description": "The display name of the mod, so don't use someUgly_programmer-name here. Can be overwritten with a locale entry in the mod-name category, using the internal mod name as the key."
+    },
+    "author": {
+      "type": "string",
+      "description": "The author of the mod. Hopefully you."
+    },
+    "contact": {
+      "type": "string",
+      "description": "How the mod author can be contacted, for example an email address. Or maybe your house's address. Don't get robbed."
+    },
+    "homepage": {
+      "type": "string",
+      "description": "Where the mod can be found on the internet. Note that the in-game mod browser shows the mod portal link additionally to this field. Please don't put \"None\" here, it makes the field on the mod portal website look ugly. Just leave the field empty if your mod doesn't have a website/forum thread/discord."
+    },
+    "description": {
+      "type": "string",
+      "description": " A short description of what your mod does. This is all that people get to see in-game, so better make your mod sound appealing. Can be overwritten with a locale entry in the mod-description category, using the internal mod name as the key."
+    },
+    "factorio_version": {
+      "type": "string",
+      "default": "0.12",
+      "pattern": "^([0-9]{1,4}|[1-5][0-9]{4}|6[1-4][0-9]{3}|65[1-4][0-9]{2}|655[1-2][0-9]|6553[0-5])\\.([0-9]{1,4}|[1-5][0-9]{4}|6[1-4][0-9]{3}|65[1-4][0-9]{2}|655[1-2][0-9]|6553[0-5])$",
+      "description": "The major Factorio version that this mod supports. No you can't have more than one version here. Yes, the field is optional, but we have 0.17, not the default 0.12, so you'll have to add the field anyway. Adding a minor version, e.g. \"0.17.67\" will make the mod portal reject the mod and the game act weirdly. That means you shouldn't do that; use only main and major version \"main.major\", for example \"0.17\"."
+    },
+    "dependencies": {
+      "type": "array",
+      "default": ["0.12"],
+      "description": "Mods that this mod depends on or is incompatible with. If this mod depends on another, the other mod will load first, see Data-Lifecycle. An empty array allows get around the default and have no dependencies at all.",
+      "items": {
+        "type": "string",
+        "pattern": "^\\(?[?!]?\\)?\\ ?([a-zA-Z-_])+\\ ?[><=]{0,2}\\ ?(([0-9]{1,4}|[1-5][0-9]{4}|6[1-4][0-9]{3}|65[1-4][0-9]{2}|655[1-2][0-9]|6553[0-5])\\.([0-9]{1,4}|[1-5][0-9]{4}|6[1-4][0-9]{3}|65[1-4][0-9]{2}|655[1-2][0-9]|6553[0-5])\\.([0-9]{1,4}|[1-5][0-9]{4}|6[1-4][0-9]{3}|65[1-4][0-9]{2}|655[1-2][0-9]|6553[0-5]))?$"
+      }
+    }
+  },
+  "required": ["name", "version", "title", "author"]
+}

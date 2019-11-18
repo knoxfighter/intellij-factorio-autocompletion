@@ -19,10 +19,12 @@
     <idea-version since-build="182" until-build="192.*"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
         <projectConfigurable groupId="language" displayName="Factorio Autocompletion" id="preference.FactorioCompletionConfig" instance="moe.knox.factorio.FactorioAutocompletionConfig"/>
         <projectService serviceImplementation="moe.knox.factorio.FactorioAutocompletionState" />
         <additionalLibraryRootsProvider implementation="moe.knox.factorio.library.FactorioLibraryProvider"/>
+	</extensions>
+    <extensions defaultExtensionNs="JavaScript.JsonSchema">
+        <ProviderFactory implementation="moe.knox.factorio.completion.json.FactorioSchemaProviderFactory"/>
     </extensions>
 
     <actions>
