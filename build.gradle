@@ -24,7 +24,7 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
-        <h2>Initial Realease</h2>
+        <h2>Initial Realease - 1.0.0</h2>
         <h3> Added<h3>
         <ul>
         <li>Code completion for additional LUA files</li>
