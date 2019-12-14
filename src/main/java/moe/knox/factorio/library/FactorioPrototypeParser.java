@@ -230,7 +230,7 @@ public class FactorioPrototypeParser extends FactorioParser {
                 typeFileContent.append(" : ").append(this.parentType);
             }
             typeFileContent.append(newLine);
-            typeFileContent.append(this.name).append(" = {}").append(newLine).append(newLine);
+            typeFileContent.append("local ").append(this.name).append(" = {}").append(newLine).append(newLine);
 
             // add all properties
             for (Property property : properties) {

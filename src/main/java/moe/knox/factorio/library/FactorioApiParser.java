@@ -518,7 +518,7 @@ public class FactorioApiParser extends FactorioParser {
                 typeFileContent.append(" : ").append(this.parentType);
             }
             typeFileContent.append(newLine);
-            typeFileContent.append(this.name).append(" = {}").append(newLine).append(newLine);
+            typeFileContent.append("local ").append(this.name).append(" = {}").append(newLine).append(newLine);
 
             // add all methods
             for (Method method : this.methods) {
@@ -578,7 +578,7 @@ public class FactorioApiParser extends FactorioParser {
 
                     // define the new class
                     typeFileContent.append("---@class ").append(parameterClassName).append(newLine);
-                    typeFileContent.append(parameterClassName).append(" = {}").append(newLine);
+                    typeFileContent.append("local ").append(parameterClassName).append(" = {}").append(newLine);
 
                     // add the parameters to the class, so the structure is correct
                     for (Parameter returnParameter : attribute.returnParameters) {
@@ -814,7 +814,7 @@ public class FactorioApiParser extends FactorioParser {
         StringBuilder eventFilterContent = new StringBuilder();
         for (EventFilter eventFilter : eventFilters) {
             eventFilterContent.append("---@class ").append(eventFilter.name).append(newLine);
-            eventFilterContent.append(eventFilter.name).append(" = {}").append(newLine).append(newLine);
+            eventFilterContent.append("local ").append(eventFilter.name).append(" = {}").append(newLine).append(newLine);
 
             if (aliasEventFilter.length() > 0) {
                 aliasEventFilter.append("|");
@@ -975,11 +975,11 @@ public class FactorioApiParser extends FactorioParser {
         // save defines to file
         StringBuilder definesFileContent = new StringBuilder();
         definesFileContent.append("---@class defines").append(newLine);
-        definesFileContent.append("defines = {}").append(newLine).append(newLine).append(newLine);
+        definesFileContent.append("local defines = {}").append(newLine).append(newLine).append(newLine);
 
         for (String defineClass : defineClasses) {
             definesFileContent.append("---@class ").append(defineClass).append(newLine);
-            definesFileContent.append(defineClass).append(" = {}").append(newLine).append(newLine).append(newLine);
+            definesFileContent.append("local ").append(defineClass).append(" = {}").append(newLine).append(newLine).append(newLine);
         }
 
         for (Pair<String, String> defineValue : defineValues) {
@@ -1060,7 +1060,7 @@ public class FactorioApiParser extends FactorioParser {
             }
 
             conceptsFileContent.append("---@class ").append(conceptClass.name).append(newLine);
-            conceptsFileContent.append(conceptClass.name).append(" = {}").append(newLine).append(newLine);
+            conceptsFileContent.append("local ").append(conceptClass.name).append(" = {}").append(newLine).append(newLine);
 
             for (Parameter parameter : conceptClass.parameters) {
                 if (parameter.desc != null && !parameter.desc.isEmpty()) {
@@ -1093,7 +1093,7 @@ public class FactorioApiParser extends FactorioParser {
                 globalsFileContent.append("--- ").append(parameter.desc).append(newLine);
             }
             globalsFileContent.append("---@type ").append(parameter.type).append(newLine);
-            globalsFileContent.append(parameter.name).append(" = {}").append(newLine).append(newLine);
+            globalsFileContent.append("local ").append(parameter.name).append(" = {}").append(newLine).append(newLine);
         }
 
         String globalsFile = saveDir + "globals.lua";
