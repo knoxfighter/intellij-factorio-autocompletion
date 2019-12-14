@@ -18,6 +18,9 @@ import com.tang.intellij.lua.search.SearchContext;
 import com.tang.intellij.lua.ty.ITyClass;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FactorioPrototypeCompletionProvider extends CompletionProvider<CompletionParameters> {
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet resultSet) {
@@ -34,10 +37,21 @@ public class FactorioPrototypeCompletionProvider extends CompletionProvider<Comp
             // find the type of this table
             LuaTableField type = table.findField("type");
             if (type == null) {
-                // TODO only show `type` for completion
-                resultSet.addElement(new LuaLookupElement("type", true, null));
+                // only complete member `type`
+                LuaLookupElement element = new LuaLookupElement("type", true, null);
+                addInsertHandler(element);
+                resultSet.addElement(element);
                 return;
             }
+
+            // get list of all fields
+            List<String> luaTableFieldNames = new ArrayList<>();
+            List<LuaTableField> tableFieldList = table.getTableFieldList();
+            for (LuaTableField luaTableField : tableFieldList) {
+                luaTableFieldNames.add(luaTableField.getName());
+            }
+
+            // get the className for this type
             String typeText = type.getExprList().get(0).getFirstChild().getText();
             typeText = typeText.replace("\"", "");
             typeText = StringUtil.capitalizeWords(typeText, "-", true, false);
@@ -57,20 +71,12 @@ public class FactorioPrototypeCompletionProvider extends CompletionProvider<Comp
                 tyClass.lazyInit(searchContext);
                 tyClass.processMembers(searchContext, (curType, member) -> {
                     String memberName = member.getName();
-                    if (prefixMatcher.prefixMatches(memberName)) {
+
+                    if (prefixMatcher.prefixMatches(memberName) && !luaTableFieldNames.contains(memberName)) {
                         String className = curType.getDisplayName();
                         if (member instanceof LuaClassField) {
-                            LuaLookupElement element = LookupElementFactory.Companion.createFieldLookupElement(className, memberName, ((LuaClassField) member), null, curType == tyClass);
-                            element.setHandler((insertionContext, lookupElement) -> {
-                                Document document = insertionContext.getDocument();
-                                Editor editor = insertionContext.getEditor();
-
-                                document.insertString(insertionContext.getTailOffset(), " = ");
-                                document.insertString(insertionContext.getTailOffset(), "\"\"");
-                                editor.getCaretModel().moveToOffset(insertionContext.getTailOffset() - 1);
-                                document.insertString(insertionContext.getTailOffset(), ",");
-
-                            });
+                            LuaLookupElement element = LookupElementFactory.Companion.createFieldLookupElement(className, memberName, ((LuaClassField) member), null, false);
+                            addInsertHandler(element);
                             resultSet.addElement(PrioritizedLookupElement.withPriority(element, 15.0));
                         }
                     }
@@ -81,5 +87,17 @@ public class FactorioPrototypeCompletionProvider extends CompletionProvider<Comp
         }
 
         return;
+    }
+
+    private void addInsertHandler(LuaLookupElement element) {
+        element.setHandler((insertionContext, lookupElement) -> {
+            Document document = insertionContext.getDocument();
+            Editor editor = insertionContext.getEditor();
+
+            document.insertString(insertionContext.getTailOffset(), " = ");
+            document.insertString(insertionContext.getTailOffset(), "\"\"");
+            editor.getCaretModel().moveToOffset(insertionContext.getTailOffset() - 1);
+            document.insertString(insertionContext.getTailOffset(), ",");
+        });
     }
 }
