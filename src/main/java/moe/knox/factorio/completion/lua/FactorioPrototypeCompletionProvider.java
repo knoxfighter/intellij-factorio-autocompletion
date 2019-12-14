@@ -89,6 +89,14 @@ public class FactorioPrototypeCompletionProvider extends CompletionProvider<Comp
         return;
     }
 
+    /**
+     * Add ` = ` to the autocompletion.
+     * Also move the cursor to the correct position to just writer further.
+     *
+     * @// TODO: 14.12.19 add additional completion for different types
+     *
+     * @param element add the handler to
+     */
     private void addInsertHandler(LuaLookupElement element) {
         element.setHandler((insertionContext, lookupElement) -> {
             Document document = insertionContext.getDocument();
