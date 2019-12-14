@@ -4,20 +4,15 @@ import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import moe.knox.factorio.FactorioAutocompletionConfig;
 import moe.knox.factorio.FactorioAutocompletionState;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,11 +26,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class FactorioApiParser extends Task.Backgroundable {
+public class FactorioApiParser extends FactorioParser {
     public static String apiRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_api/";
     public static String factorioApiBaseLink = "https://lua-api.factorio.com/";
 
-    private static String newLine = System.lineSeparator();
     private static NotificationGroup notificationGroup = new NotificationGroup("Factorio API Download", NotificationDisplayType.STICKY_BALLOON, true);
     private static AtomicBoolean downloadInProgress = new AtomicBoolean(false);
 
@@ -686,7 +680,7 @@ public class FactorioApiParser extends Task.Backgroundable {
         }
 
         String version = mainPage.selectFirst(".version").text();
-        version = version.substring(9);
+        version = version.substring(9); // remove "Factorio " from version
         config.curVersion = version;
 
         // get links to full classes
@@ -753,31 +747,6 @@ public class FactorioApiParser extends Task.Backgroundable {
         parseGlobals(mainPage);
 
         updateIndicator();
-    }
-
-    /**
-     * Shows error in the balloon "Event Log" of the IDE. This is useful, to inform the user, that the download failed.
-     * Not all download fails report in an unusable autocompletion, some results in only partially unavailable autocompletion.
-     *
-     * @param isPart If the error only affects part of the autocompletion.
-     */
-    private void showDownloadingError(boolean isPart) {
-        String downloadingError;
-        if (!isPart) {
-            downloadingError = "Error downloading the factorio API. Please go online and try it again!" + newLine +
-                    "Integration is disabled until reloaded in Settings.";
-        } else {
-            downloadingError = "Error downloading parts of the factorio API. Please try again later!" + newLine +
-                    "Integration is partially disabled until reloaded in Settings.";
-        }
-        Notification notification = notificationGroup.createNotification(downloadingError, NotificationType.ERROR);
-        notification.addAction(new NotificationAction("Open Settings") {
-            @Override
-            public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                ShowSettingsUtil.getInstance().showSettingsDialog(myProject, FactorioAutocompletionConfig.class);
-            }
-        });
-        Notifications.Bus.notify(notification, myProject);
     }
 
     /**
@@ -933,12 +902,6 @@ public class FactorioApiParser extends Task.Backgroundable {
                 return generalBuilder.toString();
             }
         }
-    }
-
-    @NotNull
-    @Contract(pure = true)
-    private String removeNewLines(@NotNull String s) {
-        return s.replaceAll("(::)|(\\r\\n|\\r|\\n)", "");
     }
 
     /**
@@ -1103,7 +1066,7 @@ public class FactorioApiParser extends Task.Backgroundable {
                 if (parameter.desc != null && !parameter.desc.isEmpty()) {
                     conceptsFileContent.append("--- ").append(parameter.desc).append(newLine);
                 }
-                conceptsFileContent.append("--- @type ").append(parameter.type).append(newLine);
+                conceptsFileContent.append("---@type ").append(parameter.type).append(newLine);
                 conceptsFileContent.append(conceptClass.name).append(".").append(parameter.name).append(" = nil").append(newLine).append(newLine);
             }
             conceptsFileContent.append(newLine);
@@ -1135,34 +1098,5 @@ public class FactorioApiParser extends Task.Backgroundable {
 
         String globalsFile = saveDir + "globals.lua";
         saveStringToFile(globalsFile, globalsFileContent.toString());
-    }
-
-    /**
-     * Save the fileContent to the specified file. The file is saved within the main application and with write access.
-     * The result of this invoke of the main application is avaited.
-     *
-     * @param filePath    The Path to the file to save to
-     * @param fileContent The content of the file
-     */
-    private void saveStringToFile(String filePath, String fileContent) {
-        // create file
-        File file = new File(filePath);
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showDownloadingError(true);
-            return;
-        }
-
-        VirtualFile definesFileVirtualFile = VfsUtil.findFileByIoFile(file, true);
-
-        ApplicationManager.getApplication().invokeAndWait(() -> WriteAction.run(() -> {
-            try {
-                definesFileVirtualFile.setBinaryContent(fileContent.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }));
     }
 }

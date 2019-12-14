@@ -67,6 +67,21 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
             libList.add(new FactorioLibrary(dynDir, "Factorio API"));
         }
 
+        // protoDir for downloaded factorio prototypes
+        VirtualFile protoDir = null;
+        String downloadedProtoDir = FactorioPrototypeParser.getCurrentPrototypeLink(project);
+        if (downloadedProtoDir != null && !downloadedProtoDir.isEmpty()) {
+            File downloadedProtoFile = new File(downloadedProtoDir);
+            protoDir = VfsUtil.findFileByIoFile(downloadedProtoFile, true);
+            for (VirtualFile protoDirChild : protoDir.getChildren()) {
+                protoDirChild.putUserData(LuaFileUtil.INSTANCE.getPREDEFINED_KEY(), true);
+            }
+        }
+
+        if (protoDir != null) {
+            libList.add(new FactorioLibrary(protoDir, "Factorio Prototypes"));
+        }
+
         // return all libDirs as array
         return libList;
     }

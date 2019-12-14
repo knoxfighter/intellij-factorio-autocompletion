@@ -6,6 +6,7 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import moe.knox.factorio.library.FactorioApiParser;
 import moe.knox.factorio.library.FactorioLibraryProvider;
+import moe.knox.factorio.library.FactorioPrototypeParser;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -57,6 +58,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
         reloadButton.addActionListener(actionEvent -> {
             FactorioApiParser.removeCurrentAPI(project);
+            FactorioPrototypeParser.removeCurrentPrototypes();
             FactorioLibraryProvider.reload();
         });
     }
