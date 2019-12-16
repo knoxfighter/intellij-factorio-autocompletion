@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### Added
 - JSON Schema for info.json
+- Autocompletion for Prototypes (other autocompletions mostly deactivated)
+    - completion for prototype field (only names)
+    - completion for the type literal
+
+### Breaking changes
+- Incompatible with intellij < 2019.2
 
 ## [1.0.0] - Initial Release - 16.11.2019
 ### Added

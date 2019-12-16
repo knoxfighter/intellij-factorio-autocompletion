@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import moe.knox.factorio.FactorioAutocompletionConfig;
 import moe.knox.factorio.FactorioAutocompletionState;
+import moe.knox.factorio.FactorioPrototypeState;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,8 +29,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class FactorioPrototypeParser extends FactorioParser {
     private static NotificationGroup notificationGroup = new NotificationGroup("Factorio Prototype Download", NotificationDisplayType.STICKY_BALLOON, true);
 
-    public static String prototypeRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_prototypes/";
-    public static String prototypesBaseLink = "https://wiki.factorio.com";
+    public static final String prototypeRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_prototypes/";
+    private static final String prototypeLibPath = prototypeRootPath + "library/";
+    public static final String prototypesBaseLink = "https://wiki.factorio.com";
 
     private static AtomicBoolean downloadInProgress = new AtomicBoolean(false);
 
@@ -43,17 +45,15 @@ public class FactorioPrototypeParser extends FactorioParser {
     }
 
     public static String getCurrentPrototypeLink(Project project) {
-        FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-
         // check if prototypes are downloaded
-        File protoPathFile = new File(prototypeRootPath);
+        File protoPathFile = new File(prototypeLibPath);
         if (protoPathFile.exists()) {
-            return prototypeRootPath;
+            return prototypeLibPath;
         } else {
             // request download API
             if (!downloadInProgress.get()) {
                 downloadInProgress.set(true);
-                ProgressManager.getInstance().run(new FactorioPrototypeParser(project, prototypeRootPath, "Download and Parse Factorio Prototypes"));
+                ProgressManager.getInstance().run(new FactorioPrototypeParser(project, prototypeLibPath, "Download and Parse Factorio Prototypes"));
             }
             return null;
         }
@@ -132,13 +132,18 @@ public class FactorioPrototypeParser extends FactorioParser {
         maxTodo = prototypeElements.size();
         updateIndicator();
 
+        List<String> prototypeIds = new ArrayList<>();
+
         for (Element prototypeElement : prototypeElements) {
             Prototype prototype = new Prototype();
             if(!prototype.parsePrototype(prototypeElement.attr("href"))) {
                 break;
             }
+            prototypeIds.add(prototype.id);
             updateIndicator();
         }
+
+        FactorioPrototypeState.getInstance().setPrototypeTypes(prototypeIds);
     }
 
     private class Prototype {
@@ -148,6 +153,12 @@ public class FactorioPrototypeParser extends FactorioParser {
         List<String> description = new ArrayList<>();
         List<Property> properties = new ArrayList<>();
 
+        /**
+         * Parse the html page of a single prototype
+         *
+         * @param link Link to the prototype page
+         * @return true if the parsing was successful
+         */
         private boolean parsePrototype(String link) {
             String prototypeLink = prototypesBaseLink + link;
             Document prototypeDoc;
@@ -203,9 +214,6 @@ public class FactorioPrototypeParser extends FactorioParser {
                     }
                     property.description.add(removeNewLines(element.text().strip()).strip().replaceAll("^[:]+|[:]+$", "").strip());
                 } else if (element.is("p") && atProperties && !propertyFirst && property != null) {
-                    if (property == null) {
-                        System.out.println("kuckuck");
-                    }
                     property.description.add(element.text());
                 } else if (element.is("p") && !atProperties && property != null){
                     description.add(element.text());
@@ -217,6 +225,9 @@ public class FactorioPrototypeParser extends FactorioParser {
             return true;
         }
 
+        /**
+         * Save this prototype-class to a file, so it is accessible
+         */
         public void saveToFile() {
             // create new file content
             StringBuilder typeFileContent = new StringBuilder();
