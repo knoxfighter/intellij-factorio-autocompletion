@@ -139,7 +139,9 @@ public class FactorioPrototypeParser extends FactorioParser {
             if(!prototype.parsePrototype(prototypeElement.attr("href"))) {
                 break;
             }
-            prototypeIds.add(prototype.id);
+            if (!prototype.id.equals("abstract")) {
+                prototypeIds.add(prototype.id);
+            }
             updateIndicator();
         }
 
