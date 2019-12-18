@@ -15,7 +15,7 @@ Examples:
 ![](example.gif)
 
 # Known Issues
-Most of the issues occure, cause the html-API Documention is not consistent :(
+Most of the issues occur, cause the html-API Documention is not consistent :(
 - `table` inside `table` not parsed correctly. 
   All types of the sub-table is parsed as additional type for the parameter.
 - Some `literal types` are not parsed correctly, they are shown, but not correct. Example: `function LuaRemote.call(interface, func, LuaRemote_call_Param_2) end` where `interface` has 'interface' as literal type.
@@ -24,3 +24,7 @@ Most of the issues occure, cause the html-API Documention is not consistent :(
 - No autocompletion for functions, that are inside `script.on_event`.
 - Some Classes out of the `Concepts.html` is not fully parsable (missing elements, i.e. in `Position` and its child-classes.).
 - Version 0.12.35 is not correctly parsed, dont use it! I dont think anybody is still developing anything for that old version.
+
+# Planned features
+- Autocompletion for LocalizedStrings
+- Autocompletion for table<String, prototype> (e.g. data.recipe\["wooden-chest"\])
