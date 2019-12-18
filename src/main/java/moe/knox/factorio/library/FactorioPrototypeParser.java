@@ -23,7 +23,9 @@ import org.jsoup.select.Elements;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FactorioPrototypeParser extends FactorioParser {
@@ -38,6 +40,11 @@ public class FactorioPrototypeParser extends FactorioParser {
     private FactorioAutocompletionState config;
     private ProgressIndicator indicator;
     private String saveDir;
+
+    /**
+     * map of all propertyTypes `typeName` > `link`
+     */
+    private Map<String, String> propertyTypes = new HashMap<>();
 
     public FactorioPrototypeParser(@Nullable Project project, String saveDir, @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title) {
         super(project, title, false);
@@ -146,6 +153,13 @@ public class FactorioPrototypeParser extends FactorioParser {
         }
 
         FactorioPrototypeState.getInstance().setPrototypeTypes(prototypeIds);
+
+        // update indicator max value
+        maxTodo += propertyTypes.size();
+
+//        propertyTypes.forEach((typeName, typeLink) -> {
+//            System.out.println(typeName + " .. " + typeLink);
+//        });
     }
 
     private class Prototype {
@@ -188,43 +202,127 @@ public class FactorioPrototypeParser extends FactorioParser {
             boolean atProperties = false;
             Property property = null;
             boolean propertyFirst = false;
+            boolean isInlineType = false;
 
             while (true) {
                 element = element.nextElementSibling();
+
                 if (element == null) {
+                    // no element anymore, cancel endless loop
                     break;
                 } else if (element.hasClass("prototype-toc")) {
+                    // from here, the properties are starting
                     atProperties = true;
                 } else if (element.is("h3") && atProperties) {
+                    // parse the header and create a property
                     Element spanChild = element.selectFirst("span");
                     property = new Property(spanChild.attr("id"));
                     propertyFirst = true;
                     properties.add(property);
                 } else if (element.is("p") && atProperties && propertyFirst) {
+                    // Parse the properties description and more
                     propertyFirst = false;
+                    boolean firstLink = true;
+                    boolean isArray = false;
 
-                    for (Element child : element.children()) {
-                        if (child.is("a")) {
-                            if (property != null) {
-                                property.type = element.selectFirst("a").text();
+                    String elementHtml = element.html();
+                    String[] splittedElementHtml = elementHtml.split("<br>");
+                    for (int i = 0; i < splittedElementHtml.length; i++) {
+                        if (i == 0) {
+                            // First Element is always the type
+                            String elementType = splittedElementHtml[i].split(":")[1];
+                            Document typeDocument = Jsoup.parseBodyFragment(elementType);
+
+                            if (typeDocument.text().startsWith("table of ")) {
+                                isArray = true;
                             }
+
+                            // The last link is used to determine which Type it is
+                            Element lastLink = typeDocument.select("a").last();
+                            property.type = lastLink.text();
+
+                            // When type is table, the type is defined inline
+                            if (property.type.equals("table") || property.type.equals("tables")) {
+                                isInlineType = true;
+                                property.type = "Type_" + this.name + "_" + property.name;
+                            } else {
+                                propertyTypes.put(property.type, lastLink.attr("href"));
+                            }
+
+                            System.out.printf("%s#%s: %s .. %s%s", this.name, property.name, property.type, lastLink.attr("href"), newLine);
+                        } else {
+                            // The rest
+                            Document document = Jsoup.parseBodyFragment(splittedElementHtml[i]);
+                            Element body = document.body();
+                            property.description.add(removeNewLines(document.text().strip()).strip().replaceAll("^[:]+|[:]+$", "").strip());
                         }
-                        if (child.is("b") && child.text().equals("Default")) {
-                            property.optional = true;
-                        }
-                        child.remove();
                     }
-                    property.description.add(removeNewLines(element.text().strip()).strip().replaceAll("^[:]+|[:]+$", "").strip());
+                    if (isArray) {
+                        property.type += "[]";
+                    }
                 } else if (element.is("p") && atProperties && !propertyFirst && property != null) {
+                    // parse general property description
                     property.description.add(element.text());
-                } else if (element.is("p") && !atProperties && property != null){
+                } else if (element.is("p") && !atProperties){
+                    // parse general description
                     description.add(element.text());
+                } else if (element.is("ul") && isInlineType) {
+                    // parse inline type
+                    parseInlineType(element, property);
                 }
             }
 
             saveToFile();
 
             return true;
+        }
+
+        private void parseInlineType(@NotNull Element element, @NotNull Property property) {
+            Elements tableElements = element.children();
+
+            // tableElement is the <li> html element
+            for (Element tableElement : tableElements) {
+                // parse the <li> text
+                String elementComplete = tableElement.text();
+                String[] elementParts = elementComplete.split("\n")[0].split("-");
+
+                Property elemProperty = new Property();
+
+                for (int i = 0; i < elementParts.length; i++) {
+                    String elementPart = elementParts[i].strip();
+                    boolean breaker = false;
+                    switch (i) {
+                        case 0:
+                            elemProperty.name = elementPart;
+                            break;
+                        case 1:
+                            // This inlineType has its type defined inline!
+                            if (elementPart.startsWith("table")) {
+                                breaker = true;
+                                Element subElement = tableElement.selectFirst("ul");
+                                elemProperty.type = property.type + "_" + elemProperty.name;
+                                parseInlineType(subElement, elemProperty);
+                            } else {
+                                elemProperty.type = elementPart;
+                            }
+                            break;
+                        case 2:
+                            if (elementPart.equals("Optional.")) {
+                                elemProperty.optional = true;
+                                break;
+                            } else if (elementPart.equals("Mandatory.")) {
+                                break;
+                            }
+                        default:
+                            elemProperty.description.add(elementPart);
+                            break;
+                    }
+                    if (breaker) {
+                        break;
+                    }
+                }
+                property.inlineType.properties.add(elemProperty);
+            }
         }
 
         /**
@@ -234,44 +332,61 @@ public class FactorioPrototypeParser extends FactorioParser {
             // create new file content
             StringBuilder typeFileContent = new StringBuilder();
 
-            for (String s : this.description) {
-                typeFileContent.append("---").append(s).append(newLine);
-            }
-
-            typeFileContent.append("---@class ").append(this.name);
-            if (this.parentType != null && !this.parentType.isEmpty()) {
-                typeFileContent.append(" : ").append(this.parentType);
-            }
-            typeFileContent.append(newLine);
-            typeFileContent.append("local ").append(this.name).append(" = {}").append(newLine).append(newLine);
-
-            // add all properties
-            for (Property property : properties) {
-                for (String s : property.description) {
-                    typeFileContent.append("--- ").append(s).append(newLine);
-                }
-
-                // add type
-                typeFileContent.append("---@type ").append(property.type).append(newLine);
-
-                // add attribute definition
-                typeFileContent.append(this.name).append(".").append(property.name).append(" = nil").append(newLine).append(newLine).append(newLine);
-            }
+            saveTable(typeFileContent, this.description, this.name, this.parentType, this.properties);
 
             // create file
             String typeDir = saveDir + this.name + ".lua";
             saveStringToFile(typeDir, typeFileContent.toString());
+        }
+
+        private void saveTable(StringBuilder fileContent, List<String> description, String name, @Nullable String parentType, List<Property> properties) {
+            for (String s : description) {
+                fileContent.append("---").append(s).append(newLine);
+            }
+
+            fileContent.append("---@class ").append(name);
+            if (parentType != null && !parentType.isEmpty()) {
+                fileContent.append(" : ").append(parentType);
+            }
+            fileContent.append(newLine);
+            fileContent.append("local ").append(name).append(" = {}").append(newLine).append(newLine);
+
+            // add all properties
+            for (Property property : properties) {
+                for (String s : property.description) {
+                    fileContent.append("--- ").append(s).append(newLine);
+                }
+
+                // add type
+                fileContent.append("---@type ").append(property.type).append(newLine);
+
+                // add attribute definition
+                fileContent.append(name).append(".").append(property.name).append(" = nil").append(newLine).append(newLine);
+
+                if (property.inlineType.properties.size() > 0) {
+                    saveTable(fileContent, new ArrayList<>(), property.type, null, property.inlineType.properties);
+                }
+            }
         }
     }
 
     private class Property {
         String name;
         String type;
+        SubPrototype inlineType = new SubPrototype();
         List<String> description = new ArrayList<>();
         boolean optional = false;
+
+        public Property() {
+
+        }
 
         public Property(String name) {
             this.name = name;
         }
+    }
+
+    private class SubPrototype {
+        List<Property> properties = new ArrayList<>();
     }
 }
