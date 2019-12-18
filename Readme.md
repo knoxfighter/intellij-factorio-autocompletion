@@ -23,6 +23,7 @@ Most of the issues occur, cause the html-API Documention is not consistent :(
 - Built-in Types are hardcoded. It is not really possible to parse them from the website.
 - No autocompletion for functions, that are inside `script.on_event`.
 - Some Classes out of the `Concepts.html` is not fully parsable (missing elements, i.e. in `Position` and its child-classes.).
+- ProgrammableSpeaker#instruments not correctly parsed (has a different format than every other table in the wiki)
 - Version 0.12.35 is not correctly parsed, dont use it! I dont think anybody is still developing anything for that old version.
 
 # Planned features

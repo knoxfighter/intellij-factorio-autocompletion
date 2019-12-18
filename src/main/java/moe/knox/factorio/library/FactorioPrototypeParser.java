@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
 
 import java.io.File;
@@ -230,7 +231,12 @@ public class FactorioPrototypeParser extends FactorioParser {
                     for (int i = 0; i < splittedElementHtml.length; i++) {
                         if (i == 0) {
                             // First Element is always the type
-                            String elementType = splittedElementHtml[i].split(":")[1];
+                            // check if first element is really the type!!
+                            String[] splittedType = splittedElementHtml[i].split(":");
+                            if (!Jsoup.clean(splittedType[0], Whitelist.none()).equals("Type")) {
+                                break;
+                            }
+                            String elementType = splittedType[1];
                             Document typeDocument = Jsoup.parseBodyFragment(elementType);
 
                             if (typeDocument.text().startsWith("table of ")) {
@@ -248,8 +254,6 @@ public class FactorioPrototypeParser extends FactorioParser {
                             } else {
                                 propertyTypes.put(property.type, lastLink.attr("href"));
                             }
-
-                            System.out.printf("%s#%s: %s .. %s%s", this.name, property.name, property.type, lastLink.attr("href"), newLine);
                         } else {
                             // The rest
                             Document document = Jsoup.parseBodyFragment(splittedElementHtml[i]);
@@ -269,6 +273,12 @@ public class FactorioPrototypeParser extends FactorioParser {
                 } else if (element.is("ul") && isInlineType) {
                     // parse inline type
                     parseInlineType(element, property);
+                } else if (element.is("h2")) {
+                    // check if this header describes the "Differing defaults" category
+                    // stop here, nothing useful will come further
+                    if (element.selectFirst("span").id().equals("Differing_defaults")) {
+                        break;
+                    }
                 }
             }
 
@@ -301,7 +311,9 @@ public class FactorioPrototypeParser extends FactorioParser {
                                 breaker = true;
                                 Element subElement = tableElement.selectFirst("ul");
                                 elemProperty.type = property.type + "_" + elemProperty.name;
-                                parseInlineType(subElement, elemProperty);
+                                if (subElement != null) {
+                                    parseInlineType(subElement, elemProperty);
+                                }
                             } else {
                                 elemProperty.type = elementPart;
                             }
