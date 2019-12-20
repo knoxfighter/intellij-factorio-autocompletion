@@ -33,11 +33,9 @@ public class FactorioPrototypeTypeGuesser {
         LuaTableField type = table.findField("type");
         if (type == null) {
             // could be subtype .. guess type of parent
-            ITy test = guessType(table);
+            ITy tyGuess = guessType(table);
 
-            System.out.println("test");
-            typeText = ((TySerializedClass) test).getClassName();
-//            return test;
+            typeText = ((TySerializedClass) tyGuess).getClassName();
         } else {
             // get the className for this type
             typeText = type.getExprList().get(0).getFirstChild().getText();
