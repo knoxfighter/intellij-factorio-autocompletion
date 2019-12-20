@@ -10,8 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class FactorioPrototypePatternCondition extends PatternCondition<PsiElement> {
-    public FactorioPrototypePatternCondition(@Nullable String debugMethodName) {
+    boolean multipleAllowed;
+
+    public FactorioPrototypePatternCondition(@Nullable String debugMethodName, boolean multipleAllowed) {
         super(debugMethodName);
+        this.multipleAllowed = multipleAllowed;
     }
 
     /**
@@ -31,7 +34,7 @@ public class FactorioPrototypePatternCondition extends PatternCondition<PsiEleme
             }
         }
 
-        if (tableExprAmount == 2 && secondParent != null) {
+        if (secondParent != null && (tableExprAmount == 2 || this.multipleAllowed)) {
             localElement = secondParent;
             while ((localElement = localElement.getParent()) != null) {
                 if (localElement instanceof LuaCallExpr) {

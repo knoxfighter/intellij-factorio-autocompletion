@@ -22,11 +22,10 @@ import java.util.List;
 public class FactorioPrototypeCompletionProvider extends CompletionProvider<CompletionParameters> {
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet resultSet) {
-        String fieldName = PsiTreeUtil.getParentOfType(parameters.getPosition(), LuaTableField.class).getFieldName();
+//        String fieldName = PsiTreeUtil.getParentOfType(parameters.getPosition(), LuaTableField.class).getFieldName();
+        String fieldName = PsiTreeUtil.getParentOfType(parameters.getPosition(), LuaTableField.class, false, LuaTableExpr.class).getFieldName();
         if (fieldName != null) {
-            // this is a subelement :)
-            // TODO autocompletion for subelements
-            FactorioPrototypeTypeGuesser.guessType(parameters.getPosition());
+            // this is a subelement and therefore not relevant for now
         } else {
             resultSet.stopHere();
 

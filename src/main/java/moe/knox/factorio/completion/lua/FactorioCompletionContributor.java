@@ -13,23 +13,22 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
 public class FactorioCompletionContributor extends CompletionContributor {
     public FactorioCompletionContributor() {
         extend(CompletionType.BASIC,
-                psiElement().with(new FactorioIntegrationActiveCondition(null))
+                psiElement()
+                        .with(new FactorioIntegrationActiveCondition(null))
                         .andOr(
                                 psiElement()
                                         .withParent(
                                                 psiElement(LuaTypes.NAME_EXPR)
                                                         .withParent(LuaTableField.class)
                                         )
-//                        psiElement(LuaTypes.ID)
-//                                .withParent(LuaTableField.class)
-                        ).with(new FactorioPrototypePatternCondition(null)),
+                        ).with(new FactorioPrototypePatternCondition(null, true)),
                 new FactorioPrototypeCompletionProvider()
         );
 
         extend(CompletionType.BASIC,
                 psiElement(LuaTypes.STRING)
                         .with(new FactorioIntegrationActiveCondition(null))
-                        .with(new FactorioPrototypePatternCondition(null))
+                        .with(new FactorioPrototypePatternCondition(null, false))
                         .with(new FactorioPrototypeTypePatternCondition(null)),
                 new CompletionProvider<CompletionParameters>() {
                     @Override

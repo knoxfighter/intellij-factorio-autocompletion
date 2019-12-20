@@ -11,6 +11,7 @@ import com.tang.intellij.lua.psi.LuaTableField;
 import com.tang.intellij.lua.psi.search.LuaShortNamesManager;
 import com.tang.intellij.lua.search.SearchContext;
 import com.tang.intellij.lua.ty.ITy;
+import com.tang.intellij.lua.ty.TySerializedClass;
 import org.jetbrains.annotations.Nullable;
 
 public class FactorioPrototypeTypeGuesser {
@@ -26,18 +27,25 @@ public class FactorioPrototypeTypeGuesser {
         Project project = table.getProject();
         SearchContext searchContext = SearchContext.Companion.get(project);
 
+        String typeText;
+
         // find the type of this table
         LuaTableField type = table.findField("type");
         if (type == null) {
-            return null;
-        }
+            // could be subtype .. guess type of parent
+            ITy test = guessType(table);
 
-        // get the className for this type
-        String typeText = type.getExprList().get(0).getFirstChild().getText();
-        typeText = typeText.replace("\"", "");
-        typeText = StringUtil.capitalizeWords(typeText, "-", true, false);
-        typeText = typeText.replace(" ", "");
-        typeText = "Prototype_" + typeText;
+            System.out.println("test");
+            typeText = ((TySerializedClass) test).getClassName();
+//            return test;
+        } else {
+            // get the className for this type
+            typeText = type.getExprList().get(0).getFirstChild().getText();
+            typeText = typeText.replace("\"", "");
+            typeText = StringUtil.capitalizeWords(typeText, "-", true, false);
+            typeText = typeText.replace(" ", "");
+            typeText = "Prototype_" + typeText;
+        }
 
         // get the correct Class, for this prototype
         LuaClass luaClass = LuaShortNamesManager.Companion.getInstance(project).findClass(typeText, searchContext);
@@ -46,10 +54,14 @@ public class FactorioPrototypeTypeGuesser {
             return null;
         }
 
-        String fieldName = PsiTreeUtil.getParentOfType(element, LuaTableField.class).getFieldName();
-        if (fieldName != null && !fieldName.isEmpty()) {
-            LuaClassMember member = luaClass.getType().findMember(fieldName, searchContext);
-            return member.guessType(searchContext);
+        LuaTableField tableField = PsiTreeUtil.getParentOfType(element.getParent(), LuaTableField.class, false, LuaTableExpr.class);
+        if (tableField != null) {
+            String fieldName = tableField.getFieldName();
+
+            if (fieldName != null && !fieldName.isEmpty()) {
+                LuaClassMember member = luaClass.getType().findMember(fieldName, searchContext);
+                return member.guessType(searchContext);
+            }
         }
 
         return luaClass.getType();
