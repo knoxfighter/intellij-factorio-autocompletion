@@ -97,8 +97,13 @@ public class FactorioPrototypeCompletionProvider extends CompletionProvider<Comp
                 document.insertString(insertionContext.getTailOffset(), "{{}}");
                 offsetRemoval += 2;
             } else if (type.getKind().equals(TyKind.Class)) {
-                document.insertString(insertionContext.getTailOffset(), "{}");
-                offsetRemoval += 1;
+                if (type instanceof  TySerializedClass && ((TySerializedClass) type).getClassName().equals("LocalisedString")) {
+                    document.insertString(insertionContext.getTailOffset(), "{\"\"}");
+                    offsetRemoval += 2;
+                } else {
+                    document.insertString(insertionContext.getTailOffset(), "{}");
+                    offsetRemoval += 1;
+                }
             } else if (type.getKind().equals(TyKind.Primitive)) {
                 TyPrimitiveKind primitiveKind = null;
                 if (type instanceof TyPrimitive) {
