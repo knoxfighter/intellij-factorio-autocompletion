@@ -10,3 +10,4 @@
 ---@alias uint16 number
 ---@alias uint32 number
 ---@alias uint64 number
+---@alias bool boolean

@@ -9,6 +9,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
+import com.tang.intellij.lua.search.SearchContext;
 import moe.knox.factorio.FactorioAutocompletionConfig;
 import moe.knox.factorio.FactorioAutocompletionState;
 import moe.knox.factorio.FactorioPrototypeState;
@@ -42,10 +43,35 @@ public class FactorioPrototypeParser extends FactorioParser {
     private ProgressIndicator indicator;
     private String saveDir;
 
+    private static List<String> rootTypes = new ArrayList<>() {{
+        add("float");
+        add("double");
+        add("int");
+        add("int8");
+        add("int16");
+        add("int32");
+        add("int64");
+        add("uint");
+        add("uint8");
+        add("uint16");
+        add("uint32");
+        add("uint64");
+        add("string");
+        add("LocalisedString");
+        add("bool");
+    }};
+
+    private static List<String> prototypeTypeWhitelist = new ArrayList<>() {{
+        add("Types/ItemProductPrototype");
+        add("Types/ItemToPlace");
+        add("Types/DamagePrototype");
+    }};
+
     /**
      * map of all propertyTypes `typeName` > `link`
      */
     private Map<String, String> propertyTypes = new HashMap<>();
+
 
     public FactorioPrototypeParser(@Nullable Project project, String saveDir, @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title) {
         super(project, title, false);
@@ -109,9 +135,9 @@ public class FactorioPrototypeParser extends FactorioParser {
         });
         Notifications.Bus.notify(notification, myProject);
     }
-
     private double curTodo = 0;
     private double maxTodo = 0;
+
 
     private void updateIndicator() {
         indicator.setFraction(curTodo / maxTodo);
@@ -143,11 +169,11 @@ public class FactorioPrototypeParser extends FactorioParser {
         List<String> prototypeIds = new ArrayList<>();
 
         for (Element prototypeElement : prototypeElements) {
-            Prototype prototype = new Prototype();
-            if(!prototype.parsePrototype(prototypeElement.attr("href"))) {
+            Prototype prototype = new Prototype(true);
+            if (!prototype.parsePrototype(prototypeElement.attr("href"))) {
                 break;
             }
-            if (!prototype.id.equals("abstract")) {
+            if (prototype.id != null && !prototype.id.equals("abstract")) {
                 prototypeIds.add(prototype.id);
             }
             updateIndicator();
@@ -158,17 +184,36 @@ public class FactorioPrototypeParser extends FactorioParser {
         // update indicator max value
         maxTodo += propertyTypes.size();
 
-//        propertyTypes.forEach((typeName, typeLink) -> {
-//            System.out.println(typeName + " .. " + typeLink);
-//        });
+        SearchContext searchContext = SearchContext.Companion.get(getProject());
+
+        propertyTypes.forEach((typeName, typeLink) -> {
+            if (!rootTypes.contains(typeName)) {
+                // parse additional types, like normal Prototypes
+                Prototype prototype = new Prototype();
+                prototype.name = typeName;
+
+                // All unsuccessful types are hardcoded in the lua library
+                prototype.parsePrototype(typeLink);
+            }
+            updateIndicator();
+        });
     }
 
     private class Prototype {
         String name;
         String id;
         String parentType;
+        boolean catchTypes = false;
         List<String> description = new ArrayList<>();
         List<Property> properties = new ArrayList<>();
+
+        public Prototype() {
+
+        }
+
+        public Prototype(boolean catchTypes) {
+            this.catchTypes = catchTypes;
+        }
 
         /**
          * Parse the html page of a single prototype
@@ -188,8 +233,10 @@ public class FactorioPrototypeParser extends FactorioParser {
             }
 
             Element prototypeNameElement = prototypeDoc.selectFirst("td.caption");
-            name = prototypeNameElement.text().split("—")[0].strip().replace("/", "_");
-            id = prototypeNameElement.selectFirst("code").text();
+            if (prototypeNameElement != null) {
+                name = prototypeNameElement.text().split("—")[0].strip().replace("/", "_");
+                id = prototypeNameElement.selectFirst("code").text();
+            }
 
             // parse parentType
             Element parentTypeElement = prototypeDoc.selectFirst(".prototype-toc td.prototype-toc-section-title a");
@@ -198,12 +245,26 @@ public class FactorioPrototypeParser extends FactorioParser {
             }
 
             // parse elements
-            Element element = prototypeDoc.selectFirst(".prototype-parents");
-
             boolean atProperties = false;
             Property property = null;
             boolean propertyFirst = false;
             boolean isInlineType = false;
+
+            // get the element where to start from
+            Element element = prototypeDoc.selectFirst(".prototype-parents");
+            if (element == null) {
+                element = prototypeDoc.selectFirst("#toc");
+                atProperties = true;
+            }
+
+            if (element == null) {
+                element = prototypeDoc.selectFirst("#firstHeading");
+                if (element != null && prototypeTypeWhitelist.contains(element.text())) {
+                    element = prototypeDoc.selectFirst("#mw-content-text > .mw-parser-output > p:first-of-type");
+                } else {
+                    return false;
+                }
+            }
 
             while (true) {
                 element = element.nextElementSibling();
@@ -244,14 +305,19 @@ public class FactorioPrototypeParser extends FactorioParser {
                             }
 
                             // The last link is used to determine which Type it is
-                            Element lastLink = typeDocument.select("a").last();
+                            Elements links = typeDocument.select("a");
+                            if (links.size() == 0) {
+                                continue;
+                            }
+                            Element lastLink = links.last();
                             property.type = lastLink.text();
+                            property.type = property.type.replace("/Types/", "").replace("Types/", "");
 
                             // When type is table, the type is defined inline
                             if (property.type.equals("table") || property.type.equals("tables")) {
                                 isInlineType = true;
                                 property.type = "Type_" + this.name + "_" + property.name;
-                            } else {
+                            } else if (catchTypes) {
                                 propertyTypes.put(property.type, lastLink.attr("href"));
                             }
                         } else {
@@ -267,7 +333,7 @@ public class FactorioPrototypeParser extends FactorioParser {
                 } else if (element.is("p") && atProperties && !propertyFirst && property != null) {
                     // parse general property description
                     property.description.add(element.text());
-                } else if (element.is("p") && !atProperties){
+                } else if (element.is("p") && !atProperties) {
                     // parse general description
                     description.add(element.text());
                 } else if (element.is("ul") && isInlineType) {

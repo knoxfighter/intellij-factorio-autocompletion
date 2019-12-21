@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### Added
 - JSON Schema for info.json
-- Autocompletion for Prototypes (other autocompletions mostly deactivated)
+- Autocompletion for Prototypes (other autocompletion mostly deactivated)
     - completion for prototype field (only names)
     - completion for the type literal
 

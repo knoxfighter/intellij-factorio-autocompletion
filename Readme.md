@@ -16,16 +16,21 @@ Examples:
 
 # Known Issues
 Most of the issues occur, cause the html-API Documention is not consistent :(
+- Built-in Types are hardcoded. It is not really possible to parse them from the website.
+  Also some are additionally are added, cause the Prototype documentation is inconsistent.
+
+# Lua API
 - `table` inside `table` not parsed correctly. 
   All types of the sub-table is parsed as additional type for the parameter.
 - Some `literal types` are not parsed correctly, they are shown, but not correct. Example: `function LuaRemote.call(interface, func, LuaRemote_call_Param_2) end` where `interface` has 'interface' as literal type.
 - All `uint`, `uint8`,  `int`, `int8`, ... are shown as `number`.
-- Built-in Types are hardcoded. It is not really possible to parse them from the website.
 - No autocompletion for functions, that are inside `script.on_event`.
 - Some Classes out of the `Concepts.html` is not fully parsable (missing elements, i.e. in `Position` and its child-classes.).
-- ProgrammableSpeaker#instruments not correctly parsed (has a different format than every other table in the wiki)
 - Version 0.12.35 is not correctly parsed, dont use it! I dont think anybody is still developing anything for that old version.
+## Prototypes
+- ProgrammableSpeaker#instruments not correctly parsed (has a different format than every other table in the wiki)
+- Types of the Prototypes are completely inconsistent in layout at therefore only partially parsed!
 
 # Planned features
 - Autocompletion for LocalizedStrings
-- Autocompletion for table<String, prototype> (e.g. data.recipe\["wooden-chest"\])
+- Autocompletion for Strings in table<String, prototype> (e.g. data.recipe\["wooden-chest"\])
