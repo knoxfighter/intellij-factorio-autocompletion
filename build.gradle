@@ -33,7 +33,7 @@ patchPluginXml {
                 <ul>
                     <li>completion for prototype field (only names)</li>
                     <li>completion for the type literal</li>
-                <ul>
+                </ul>
             </li>
             <li>Compatibility with Jetbrains 2019.3 IDEs</li>
         </ul>
