@@ -39,7 +39,7 @@ patchPluginXml {
         </ul>
         
         <h2>Initial Realease - 1.0.0</h2>
-        <h3> Added<h3>
+        <h3>Added</h3>
         <ul>
             <li>Code completion for additional LUA files</li>
             <li>Download and parse the factorio-lua-api</li>
