@@ -25,17 +25,25 @@ intellij {
 
 patchPluginXml {
     changeNotes """
+        <h2>1.1.0</h2>
         <h3>Added</h3>
         <ul>
             <li>JSON Schema for info.json</li>
-            <li>Autocompletion for Prototypes (other autocompletion mostly deactivated)</li>
-            <li>
+            <li>Autocompletion for Prototypes (other autocompletion mostly deactivated)
                 <ul>
                     <li>completion for prototype field (only names)</li>
                     <li>completion for the type literal</li>
                 <ul>
             </li>
             <li>Compatibility with Jetbrains 2019.3 IDEs</li>
+        </ul>
+        
+        <h2>Initial Realease - 1.0.0</h2>
+        <h3> Added<h3>
+        <ul>
+            <li>Code completion for additional LUA files</li>
+            <li>Download and parse the factorio-lua-api</li>
+            <li>bultin-types as hardcoded library</li>
         </ul>
     """
 
