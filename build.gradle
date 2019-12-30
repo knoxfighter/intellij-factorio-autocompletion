@@ -26,7 +26,7 @@ intellij {
 patchPluginXml {
     changeNotes """
         <h2>1.1.1</h2>
-        <h3>Fixed</h3<
+        <h3>Fixed</h3>
         <ul>
             <li>Global Variable where defined `local`</li>
         </ul>
