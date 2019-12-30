@@ -1093,7 +1093,7 @@ public class FactorioApiParser extends FactorioParser {
                 globalsFileContent.append("--- ").append(parameter.desc).append(newLine);
             }
             globalsFileContent.append("---@type ").append(parameter.type).append(newLine);
-            globalsFileContent.append("local ").append(parameter.name).append(" = {}").append(newLine).append(newLine);
+            globalsFileContent.append(parameter.name).append(" = {}").append(newLine).append(newLine);
         }
 
         String globalsFile = saveDir + "globals.lua";
