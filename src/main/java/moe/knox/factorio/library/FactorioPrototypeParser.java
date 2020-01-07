@@ -123,17 +123,17 @@ public class FactorioPrototypeParser extends FactorioParser {
             if (dirFile.mkdirs()) {
                 // download and parse API
                 downloadAndParsePrototypes();
-                return;
+            } else {
+                Notification notification = notificationGroup.createNotification("Error creating the directories for the Factorio Prototypes.", NotificationType.ERROR);
+                notification.addAction(new NotificationAction("Open Settings") {
+                    @Override
+                    public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+                        ShowSettingsUtil.getInstance().showSettingsDialog(myProject, FactorioAutocompletionConfig.class);
+                    }
+                });
+                Notifications.Bus.notify(notification, myProject);
             }
         }
-        Notification notification = notificationGroup.createNotification("Error creating the directories for the Factorio Prototypes.", NotificationType.ERROR);
-        notification.addAction(new NotificationAction("Open Settings") {
-            @Override
-            public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                ShowSettingsUtil.getInstance().showSettingsDialog(myProject, FactorioAutocompletionConfig.class);
-            }
-        });
-        Notifications.Bus.notify(notification, myProject);
     }
     private double curTodo = 0;
     private double maxTodo = 0;
