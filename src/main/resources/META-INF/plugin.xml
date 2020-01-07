@@ -28,6 +28,10 @@
         <ProviderFactory implementation="moe.knox.factorio.completion.json.FactorioSchemaProviderFactory"/>
     </extensions>
 
+    <extensions defaultExtensionNs="com.tang.intellij.lua">
+        <luaFileResolver implementation="moe.knox.factorio.library.fileResolver.FactorioRootDir" order="first"/>
+    </extensions>
+
     <actions>
     </actions>
 </idea-plugin>
