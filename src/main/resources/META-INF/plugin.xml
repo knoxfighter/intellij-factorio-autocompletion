@@ -30,6 +30,7 @@
 
     <extensions defaultExtensionNs="com.tang.intellij.lua">
         <luaFileResolver implementation="moe.knox.factorio.library.fileResolver.FactorioRootDir" order="first"/>
+        <luaFileResolver implementation="moe.knox.factorio.library.fileResolver.FactorioLualib" order="first"/>
     </extensions>
 
     <actions>

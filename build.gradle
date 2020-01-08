@@ -20,7 +20,9 @@ dependencies {
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     version '2019.3.1'
-    plugins 'com.tang:1.3.1.136-IDEA182'
+    plugins = [
+            'com.tang:1.3.1.136-IDEA182'
+    ]
 }
 
 patchPluginXml {

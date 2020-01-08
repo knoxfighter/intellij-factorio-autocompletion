@@ -54,6 +54,7 @@ public class FactorioAutocompletionState implements PersistentStateComponent<Fac
     public boolean integrationActive = false;
     public String curVersion = "";
     public FactorioVersion selectedFactorioVersion = new FactorioVersion();
+    public String currentLualibVersion = "";
 
     @Nullable
     @Override
