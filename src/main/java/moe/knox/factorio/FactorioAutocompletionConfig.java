@@ -6,6 +6,7 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import moe.knox.factorio.library.FactorioApiParser;
 import moe.knox.factorio.library.FactorioLibraryProvider;
+import moe.knox.factorio.library.FactorioLualibParser;
 import moe.knox.factorio.library.FactorioPrototypeParser;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -59,6 +60,8 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
         reloadButton.addActionListener(actionEvent -> {
             FactorioApiParser.removeCurrentAPI(project);
             FactorioPrototypeParser.removeCurrentPrototypes();
+            FactorioLualibParser.removeCurrentLualib(project);
+            FactorioLualibParser.checkForUpdate(project);
             FactorioLibraryProvider.reload();
         });
     }
@@ -97,12 +100,20 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
         if (!enableIntegration && config.integrationActive) {
             // integration deactivated
             FactorioApiParser.removeCurrentAPI(project);
+            FactorioPrototypeParser.removeCurrentPrototypes();
+            FactorioLualibParser.removeCurrentLualib(project);
         }
 
         config.integrationActive = enableIntegration;
 
         if (!config.selectedFactorioVersion.equals(selectApiVersion.getSelectedItem())) {
+            // New Factorio Version selected
+            // remove old apis
             FactorioApiParser.removeCurrentAPI(project);
+            FactorioLualibParser.removeCurrentLualib(project);
+
+            // reload the lualib
+            FactorioLualibParser.checkForUpdate(project);
 
             // save new settings
             if (selectApiVersion.getSelectedItem() != null) {

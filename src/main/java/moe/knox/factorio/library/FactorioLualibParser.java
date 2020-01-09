@@ -69,7 +69,7 @@ public class FactorioLualibParser extends FactorioParser {
         return null;
     }
 
-    private static void removeCurrentLualib(Project project) {
+    public static void removeCurrentLualib(Project project) {
         if (!downloadInProgress.get()) {
             FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
             String apiPath = luaLibRootPath;
