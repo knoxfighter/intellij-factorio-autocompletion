@@ -10,13 +10,17 @@ import org.jetbrains.annotations.NotNull;
 public class FactorioStartupActivity implements StartupActivity {
     @Override
     public void runActivity(@NotNull Project project) {
-        boolean update = FactorioLualibParser.checkForUpdate(project);
-        FactorioApiParser.checkForUpdate(project);
+        FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
 
-        if (update) {
-            // reload Prototypes
-            FactorioPrototypeParser.removeCurrentPrototypes();
-            FactorioPrototypeParser.getCurrentPrototypeLink(project);
+        if (config.integrationActive) {
+            boolean update = FactorioLualibParser.checkForUpdate(project);
+            FactorioApiParser.checkForUpdate(project);
+
+            if (update) {
+                // reload Prototypes
+                FactorioPrototypeParser.removeCurrentPrototypes();
+                FactorioPrototypeParser.getCurrentPrototypeLink(project);
+            }
         }
     }
 }
