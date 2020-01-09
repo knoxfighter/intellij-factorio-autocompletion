@@ -1,15 +1,12 @@
 package moe.knox.factorio.library;
 
+import com.google.common.io.Files;
 import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import moe.knox.factorio.FactorioAutocompletionConfig;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nls;
@@ -84,20 +81,11 @@ public abstract class FactorioParser extends Task.Backgroundable {
         File file = new File(filePath);
         try {
             file.createNewFile();
+            Files.write(fileContent.getBytes(), file);
         } catch (IOException e) {
             e.printStackTrace();
             showDownloadingError(true);
             return;
         }
-
-        VirtualFile definesFileVirtualFile = VfsUtil.findFileByIoFile(file, true);
-
-        ApplicationManager.getApplication().invokeAndWait(() -> WriteAction.run(() -> {
-            try {
-                definesFileVirtualFile.setBinaryContent(fileContent.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }));
     }
 }

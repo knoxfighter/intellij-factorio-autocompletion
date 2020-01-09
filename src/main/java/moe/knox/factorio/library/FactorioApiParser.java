@@ -50,43 +50,21 @@ public class FactorioApiParser extends FactorioParser {
      * @return the path to the API or null
      */
     @Nullable
-    public static String getCurrentApiLink(Project project) {
+    synchronized public static String getCurrentApiLink(Project project) {
+        if (downloadInProgress.get()) {
+            return null;
+        }
+
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
         String apiPath = apiRootPath + config.selectedFactorioVersion.link;
 
         // check if API is downloaded
         File apiPathFile = new File(apiPath);
         if (apiPathFile.exists()) {
-            if (config.selectedFactorioVersion.desc.equals("Latest version")) {
-                Document doc = null;
-                try {
-                    doc = Jsoup.connect("https://lua-api.factorio.com/").get();
-                } catch (IOException e) {
-//                    e.printStackTrace();
-                    Notification notification = notificationGroup.createNotification("Error checking new Version. Manual update in the Settings.", NotificationType.WARNING);
-                    notification.addAction(new NotificationAction("Open Settings") {
-                        @Override
-                        public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                            ShowSettingsUtil.getInstance().showSettingsDialog(project, FactorioAutocompletionConfig.class);
-                        }
-                    });
-                    return apiPath;
-                }
-                if (!doc.select("a").get(1).text().equals(config.curVersion)) {
-                    // new version detected, update it
-                    removeCurrentAPI(project);
-                    if (!downloadInProgress.get()) {
-                        downloadInProgress.set(true);
-                        ProgressManager.getInstance().run(new FactorioApiParser(project, apiPath, "Download and Parse Factorio API", false));
-                    }
-                    return null;
-                }
-            }
             return apiPath;
         } else {
             // request download API
-            if (!downloadInProgress.get()) {
-                downloadInProgress.set(true);
+            if (downloadInProgress.compareAndSet(false, true)) {
                 ProgressManager.getInstance().run(new FactorioApiParser(project, apiPath, "Download and Parse Factorio API", false));
             }
             return null;
@@ -94,9 +72,40 @@ public class FactorioApiParser extends FactorioParser {
     }
 
     public static void removeCurrentAPI(Project project) {
+        if (!downloadInProgress.get()) {
+            FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
+            String apiPath = apiRootPath + config.selectedFactorioVersion.link;
+            FileUtil.delete(new File(apiPath));
+            FactorioLibraryProvider.reload();
+        }
+    }
+
+    public static void checkForUpdate(Project project) {
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
         String apiPath = apiRootPath + config.selectedFactorioVersion.link;
-        FileUtil.delete(new File(apiPath));
+
+        if (config.selectedFactorioVersion.desc.equals("Latest version")) {
+            Document doc = null;
+            try {
+                doc = Jsoup.connect("https://lua-api.factorio.com/").get();
+            } catch (IOException e) {
+//                    e.printStackTrace();
+                Notification notification = notificationGroup.createNotification("Error checking new Version. Manual update in the Settings.", NotificationType.WARNING);
+                notification.addAction(new NotificationAction("Open Settings") {
+                    @Override
+                    public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+                        ShowSettingsUtil.getInstance().showSettingsDialog(project, FactorioAutocompletionConfig.class);
+                    }
+                });
+            }
+            if (!doc.select("a").get(1).text().equals(config.curVersion)) {
+                // new version detected, update it
+                removeCurrentAPI(project);
+                if (downloadInProgress.compareAndSet(false, true)) {
+                    ProgressManager.getInstance().run(new FactorioApiParser(project, apiPath, "Download and Parse Factorio API", false));
+                }
+            }
+        }
     }
 
     /**

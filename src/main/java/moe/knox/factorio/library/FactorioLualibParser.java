@@ -27,19 +27,26 @@ public class FactorioLualibParser extends FactorioParser {
     private static NotificationGroup notificationGroup = new NotificationGroup("Factorio Lualib Download", NotificationDisplayType.STICKY_BALLOON, true);
 
     public static final String luaLibRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/lualib/";
-    public static final String lualibGithubTagsLink = "https://api.github.com/repos/wube/factorio-data/tags";
+    public static final String lualibGithubTagsLink = "https://api.github.com/repos/wube/factorio-data/git/refs/tags";
 
     private static AtomicBoolean downloadInProgress = new AtomicBoolean(false);
 
     private String saveDir;
-    private Tag tag;
+    private FactorioAutocompletionState config;
+    private RefTag tag;
 
-    public FactorioLualibParser(@Nullable Project project, String saveDir, Tag tag, @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title, boolean canBeCancelled) {
-        super(project, title);
-        this.saveDir = saveDir;
-        this.tag = tag;
+    public FactorioLualibParser(@Nullable Project project, String saveDir, @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title, boolean canBeCancelled) {
+        this(project, saveDir, null, title, canBeCancelled);
     }
 
+    public FactorioLualibParser(@Nullable Project project, String saveDir, RefTag tag, @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title, boolean canBeCancelled) {
+        super(project, title, canBeCancelled);
+        this.saveDir = saveDir;
+        this.tag = tag;
+        config = FactorioAutocompletionState.getInstance(project);
+    }
+
+    @Nullable
     public static String getCurrentLualibLink(Project project) {
         if (downloadInProgress.get()) {
             return null;
@@ -48,20 +55,53 @@ public class FactorioLualibParser extends FactorioParser {
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
         String lualibPath = luaLibRootPath + config.selectedFactorioVersion.link;
 
+        // check if lualib is existant
+        File lualibFile = new File(lualibPath);
+        if (lualibFile.exists()) {
+            return lualibPath;
+        } else {
+            // else request download
+            if (downloadInProgress.compareAndSet(false, true)) {
+                ProgressManager.getInstance().run(new FactorioLualibParser(project, lualibPath, "Download Factorio Lualib", false));
+            }
+        }
+
+        return null;
+    }
+
+    private static void removeCurrentLualib(Project project) {
+        if (!downloadInProgress.get()) {
+            FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
+            String apiPath = luaLibRootPath;
+            FileUtil.delete(new File(apiPath));
+        }
+    }
+
+    /**
+     * When an update is available it will also remove the old one and start the download of the new one.
+     *
+     * @param project
+     * @return true when an update is available or the API not existent
+     */
+    public static boolean checkForUpdate(Project project) {
+        FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
+        String lualibPath = luaLibRootPath + config.selectedFactorioVersion.link;
+
         File lualibFile = new File(lualibPath);
         if (lualibFile.exists()) {
             if (config.selectedFactorioVersion.desc.equals("Latest version")) {
-                Tag[] tags = downloadTags();
+                RefTag[] tags = downloadTags();
                 if (tags != null) {
-                    if (!tags[0].name.equals(config.currentLualibVersion)) {
+                    String tag = tags[tags.length - 1].ref;
+                    if (!tag.substring(tag.lastIndexOf("/")).equals(config.currentLualibVersion)) {
                         removeCurrentLualib(project);
 
-                        if (!downloadInProgress.get()) {
-                            downloadInProgress.set(true);
-                            ProgressManager.getInstance().run(new FactorioLualibParser(project, lualibPath, tags[0], "Download Factorio Lualib", false));
+                        // download new lualib
+                        if (downloadInProgress.compareAndSet(false, true)) {
+                            ProgressManager.getInstance().run(new FactorioLualibParser(project, lualibPath, tags[tags.length - 1], "Download Factorio Lualib", false));
                         }
 
-                        return null;
+                        return true;
                     }
                 } else {
                     // error
@@ -74,77 +114,65 @@ public class FactorioLualibParser extends FactorioParser {
                     });
                 }
             }
-            return lualibPath;
+            return false;
         } else {
-            // create dir
-            if (lualibFile.mkdirs()) {
-                // request download API
-                Tag[] tags = downloadTags();
-                if (tags != null) {
-                    // find correct Tag
-                    Tag correctTag = null;
-                    if (config.selectedFactorioVersion.desc.equals("Latest version")) {
-                        correctTag = tags[0];
-                    } else {
-                        for (Tag tag : tags) {
-                            if (tag.name == config.selectedFactorioVersion.desc) {
-                                correctTag = tag;
-                            }
-                        }
-                    }
-
-                    // only run, when Tag is found, when not, no factorio-data is available
-                    if (correctTag != null && !downloadInProgress.get()) {
-                        downloadInProgress.set(true);
-                        ProgressManager.getInstance().run(new FactorioLualibParser(project, lualibPath, correctTag, "Download and Parse Factorio API", false));
-                    }
-                } else {
-                    Notification notification = notificationGroup.createNotification("Error downloading Version overview", NotificationType.WARNING);
-                    notification.addAction(new NotificationAction("Open Settings") {
-                        @Override
-                        public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                            ShowSettingsUtil.getInstance().showSettingsDialog(project, FactorioAutocompletionConfig.class);
-                        }
-                    });
-                }
-            } else {
-                Notification notification = notificationGroup.createNotification("Error creating Lualib Directory", NotificationType.WARNING);
-                notification.addAction(new NotificationAction("Open Settings") {
-                    @Override
-                    public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                        ShowSettingsUtil.getInstance().showSettingsDialog(project, FactorioAutocompletionConfig.class);
-                    }
-                });
+            // api not there, request it...
+            if (downloadInProgress.compareAndSet(false, true)) {
+                ProgressManager.getInstance().run(new FactorioLualibParser(project, lualibPath, "Download Factorio Lualib", false));
             }
+            return true;
         }
-
-        return null;
     }
 
-    private static void removeCurrentLualib(Project project) {
-        FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-        String apiPath = luaLibRootPath + config.selectedFactorioVersion.link;
-        FileUtil.delete(new File(apiPath));
-    }
-
-    private static Tag[] downloadTags() {
-        Tag[] tags = null;
+    private static RefTag[] downloadTags() {
+        RefTag[] tags = null;
         try {
             URL url = new URL(lualibGithubTagsLink);
             InputStreamReader inputStream = new InputStreamReader(url.openStream());
             Gson gson = new Gson();
-            tags = gson.fromJson(inputStream, Tag[].class);
+            tags = gson.fromJson(inputStream, RefTag[].class);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return tags;
     }
 
-    @Override
-    public void run(@NotNull ProgressIndicator progressIndicator) {
+    private RefTag getCurrentTag() {
+        // request download API
+        RefTag[] tags = downloadTags();
+        if (tags != null) {
+            // find correct Tag
+            RefTag correctTag = null;
+            if (config.selectedFactorioVersion.desc.equals("Latest version")) {
+                correctTag = tags[tags.length - 1];
+            } else {
+                for (RefTag tag : tags) {
+                    if (tag.ref.substring(tag.ref.lastIndexOf("/")).equals(config.selectedFactorioVersion.desc)) {
+                        correctTag = tag;
+                        break;
+                    }
+                }
+            }
+
+            return correctTag;
+        } else {
+            Notification notification = notificationGroup.createNotification("Error downloading Version overview", NotificationType.WARNING);
+            notification.addAction(new NotificationAction("Open Settings") {
+                @Override
+                public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+                    ShowSettingsUtil.getInstance().showSettingsDialog(myProject, FactorioAutocompletionConfig.class);
+                }
+            });
+        }
+
+        return null;
+    }
+
+    private void downloadExtractZip(RefTag tag) {
         // download and extract zipball
         try {
-            URL url = new URL(tag.zipball_url);
+            String tagName = tag.ref.substring(tag.ref.lastIndexOf("/") + 1);
+            URL url = new URL("https://api.github.com/repos/wube/factorio-data/zipball/" + tagName);
             InputStream inputStream = url.openStream();
             ZipInputStream zipInputStream = new ZipInputStream(inputStream);
 
@@ -179,26 +207,47 @@ public class FactorioLualibParser extends FactorioParser {
                 }
             }
 
-            FactorioAutocompletionState.getInstance(myProject).currentLualibVersion = tag.name;
+            FactorioAutocompletionState.getInstance(myProject).currentLualibVersion = tagName;
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void run(@NotNull ProgressIndicator progressIndicator) {
+        if (this.tag == null) {
+            this.tag = getCurrentTag();
+        }
+
+        if (this.tag != null) {
+            // create directory where to save to
+            File file = new File(saveDir);
+            if (file.exists() || file.mkdirs()) {
+                downloadExtractZip(this.tag);
+            } else {
+                Notification notification = notificationGroup.createNotification("Error creating Lualib Directory", NotificationType.WARNING);
+                notification.addAction(new NotificationAction("Open Settings") {
+                    @Override
+                    public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+                        ShowSettingsUtil.getInstance().showSettingsDialog(myProject, FactorioAutocompletionConfig.class);
+                    }
+                });
+            }
+        } else {
+            Notification notification = notificationGroup.createNotification("Error getting current tags. Lualib not downloaded.", NotificationType.WARNING);
+            notification.addAction(new NotificationAction("Open Settings") {
+                @Override
+                public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+                    ShowSettingsUtil.getInstance().showSettingsDialog(myProject, FactorioAutocompletionConfig.class);
+                }
+            });
         }
         downloadInProgress.set(false);
     }
 
-    /**
-     * This is the json Design of the tags from github
-     */
-    private class Tag {
-        String name;
-        String zipball_url;
-        String tarball_url;
-        Commit commit;
-        String node_id;
-    }
-
-    private class Commit {
-        String sha;
+    private class RefTag {
+        String ref;
+        String mode_id;
         String url;
     }
 }

@@ -79,14 +79,17 @@ public class FactorioPrototypeParser extends FactorioParser {
     }
 
     public static String getCurrentPrototypeLink(Project project) {
+        // return null if download is in progress
+        if (downloadInProgress.get()) {
+            return null;
+        }
+
         // check if prototypes are downloaded
         File protoPathFile = new File(prototypeLibPath);
         if (protoPathFile.exists()) {
             return prototypeLibPath;
         } else {
-            // request download API
-            if (!downloadInProgress.get()) {
-                downloadInProgress.set(true);
+            if (downloadInProgress.compareAndSet(false, true)) {
                 ProgressManager.getInstance().run(new FactorioPrototypeParser(project, prototypeLibPath, "Download and Parse Factorio Prototypes"));
             }
             return null;
@@ -94,8 +97,11 @@ public class FactorioPrototypeParser extends FactorioParser {
     }
 
     public static void removeCurrentPrototypes() {
-        String apiPath = prototypeRootPath;
-        FileUtil.delete(new File(apiPath));
+        if (!downloadInProgress.get()) {
+            String apiPath = prototypeRootPath;
+            FileUtil.delete(new File(apiPath));
+            FactorioLibraryProvider.reload();
+        }
     }
 
     @Override
