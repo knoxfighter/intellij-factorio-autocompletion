@@ -1,4 +1,4 @@
-package moe.knox.factorio.library.fileResolver;
+package moe.knox.factorio.fileResolver;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
