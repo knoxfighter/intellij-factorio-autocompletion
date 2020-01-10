@@ -1,4 +1,4 @@
-package moe.knox.factorio.library;
+package moe.knox.factorio.parser;
 
 import com.google.common.io.Files;
 import com.intellij.notification.*;

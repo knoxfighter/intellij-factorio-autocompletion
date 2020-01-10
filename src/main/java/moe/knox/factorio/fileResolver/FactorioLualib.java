@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import moe.knox.factorio.FactorioAutocompletionState;
-import moe.knox.factorio.library.FactorioLualibParser;
+import moe.knox.factorio.parser.FactorioLualibParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,4 +1,4 @@
-package moe.knox.factorio.library;
+package moe.knox.factorio.parser;
 
 import com.google.gson.Gson;
 import com.intellij.notification.*;

@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
 import com.tang.intellij.lua.lang.type.LuaString;
-import moe.knox.factorio.library.FactorioLualibParser;
+import moe.knox.factorio.parser.FactorioLualibParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.SystemIndependent;
 

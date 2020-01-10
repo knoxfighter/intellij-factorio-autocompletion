@@ -1,4 +1,4 @@
-package moe.knox.factorio.library;
+package moe.knox.factorio.parser;
 
 import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -13,6 +13,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import moe.knox.factorio.FactorioAutocompletionConfig;
 import moe.knox.factorio.FactorioAutocompletionState;
+import moe.knox.factorio.library.FactorioLibraryProvider;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -3,7 +3,7 @@ package moe.knox.factorio;
 import com.intellij.openapi.util.JDOMUtil;
 import com.intellij.serialization.SerializationException;
 import com.intellij.util.xmlb.XmlSerializer;
-import moe.knox.factorio.library.FactorioPrototypeParser;
+import moe.knox.factorio.parser.FactorioPrototypeParser;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;

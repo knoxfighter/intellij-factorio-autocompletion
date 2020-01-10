@@ -16,6 +16,8 @@ import com.intellij.util.io.URLUtil;
 import com.tang.intellij.lua.lang.LuaIcons;
 import com.tang.intellij.lua.psi.LuaFileUtil;
 import moe.knox.factorio.FactorioAutocompletionState;
+import moe.knox.factorio.parser.FactorioApiParser;
+import moe.knox.factorio.parser.FactorioPrototypeParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

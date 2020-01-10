@@ -2,9 +2,9 @@ package moe.knox.factorio;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
-import moe.knox.factorio.library.FactorioApiParser;
-import moe.knox.factorio.library.FactorioLualibParser;
-import moe.knox.factorio.library.FactorioPrototypeParser;
+import moe.knox.factorio.parser.FactorioApiParser;
+import moe.knox.factorio.parser.FactorioLualibParser;
+import moe.knox.factorio.parser.FactorioPrototypeParser;
 import org.jetbrains.annotations.NotNull;
 
 public class FactorioStartupActivity implements StartupActivity {
