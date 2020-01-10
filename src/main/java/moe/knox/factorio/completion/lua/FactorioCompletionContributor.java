@@ -6,10 +6,7 @@ import com.intellij.patterns.PatternCondition;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
-import com.tang.intellij.lua.psi.LuaCallExpr;
-import com.tang.intellij.lua.psi.LuaNameExpr;
-import com.tang.intellij.lua.psi.LuaTableField;
-import com.tang.intellij.lua.psi.LuaTypes;
+import com.tang.intellij.lua.psi.*;
 import moe.knox.factorio.FactorioPrototypeState;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,6 +61,16 @@ public class FactorioCompletionContributor extends CompletionContributor {
                             }
                         }),
                 new FactorioPathCompletionProvider()
+        );
+
+        extend(CompletionType.BASIC,
+                psiElement(LuaTypes.STRING)
+                        .withParent(
+                                psiElement(LuaLiteralExpr.class)
+                                        .withParent(LuaIndexExpr.class)
+                        )
+                        .with(new FactorioIntegrationActiveCondition(null)),
+                new FactorioPrototypeTableCompletionProvider()
         );
     }
 }
