@@ -27,42 +27,58 @@ public class FactorioLualibParser extends FactorioParser {
     private static NotificationGroup notificationGroup = new NotificationGroup("Factorio Lualib Download", NotificationDisplayType.STICKY_BALLOON, true);
 
     public static final String luaLibRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/lualib/";
+    public static final String prototypeRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/core_prototypes/";
     public static final String lualibGithubTagsLink = "https://api.github.com/repos/wube/factorio-data/git/refs/tags";
 
     private static AtomicBoolean downloadInProgress = new AtomicBoolean(false);
 
     private String saveDir;
+    private String prototypeSaveDir;
     private FactorioAutocompletionState config;
     private RefTag tag;
 
-    public FactorioLualibParser(@Nullable Project project, String saveDir, @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title, boolean canBeCancelled) {
-        this(project, saveDir, null, title, canBeCancelled);
+    public FactorioLualibParser(@Nullable Project project, String saveDir, String prototypeSaveDir, @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title, boolean canBeCancelled) {
+        this(project, saveDir, prototypeSaveDir, null, title, canBeCancelled);
     }
 
-    public FactorioLualibParser(@Nullable Project project, String saveDir, RefTag tag, @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title, boolean canBeCancelled) {
+    public FactorioLualibParser(@Nullable Project project, String saveDir, String prototypeSaveDir, RefTag tag, @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title, boolean canBeCancelled) {
         super(project, title, canBeCancelled);
         this.saveDir = saveDir;
+        this.prototypeSaveDir = prototypeSaveDir;
         this.tag = tag;
         config = FactorioAutocompletionState.getInstance(project);
     }
 
     @Nullable
     public static String getCurrentLualibLink(Project project) {
+        return getCurrentLink(project, false);
+    }
+
+    public static String getCurrentPrototypeLink(Project project) {
+        return getCurrentLink(project, true);
+    }
+
+    private static String getCurrentLink(Project project, boolean isPrototype) {
         if (downloadInProgress.get()) {
             return null;
         }
 
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
         String lualibPath = luaLibRootPath + config.selectedFactorioVersion.link;
+        String prototypePath = prototypeRootPath + config.selectedFactorioVersion.link;
 
-        // check if lualib is existant
         File lualibFile = new File(lualibPath);
-        if (lualibFile.exists()) {
-            return lualibPath;
+        File prototypeFile = new File(prototypePath);
+        if (lualibFile.exists() && prototypeFile.exists()) {
+            if (isPrototype) {
+                return prototypePath;
+            } else {
+                return lualibPath;
+            }
         } else {
             // else request download
             if (downloadInProgress.compareAndSet(false, true)) {
-                ProgressManager.getInstance().run(new FactorioLualibParser(project, lualibPath, "Download Factorio Lualib", false));
+                ProgressManager.getInstance().run(new FactorioLualibParser(project, lualibPath, prototypePath, "Download Factorio Lualib", false));
             }
         }
 
@@ -74,6 +90,9 @@ public class FactorioLualibParser extends FactorioParser {
             FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
             String apiPath = luaLibRootPath;
             FileUtil.delete(new File(apiPath));
+
+            String prototypePath = prototypeRootPath;
+            FileUtil.delete(new File(prototypePath));
         }
     }
 
@@ -86,9 +105,11 @@ public class FactorioLualibParser extends FactorioParser {
     public static boolean checkForUpdate(Project project) {
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
         String lualibPath = luaLibRootPath + config.selectedFactorioVersion.link;
+        String prototypePath = prototypeRootPath + config.selectedFactorioVersion.link;
 
         File lualibFile = new File(lualibPath);
-        if (lualibFile.exists()) {
+        File prototypeFile = new File(prototypePath);
+        if (lualibFile.exists() && prototypeFile.exists()) {
             if (config.selectedFactorioVersion.desc.equals("Latest version")) {
                 RefTag[] tags = downloadTags();
                 if (tags != null) {
@@ -98,7 +119,7 @@ public class FactorioLualibParser extends FactorioParser {
 
                         // download new lualib
                         if (downloadInProgress.compareAndSet(false, true)) {
-                            ProgressManager.getInstance().run(new FactorioLualibParser(project, lualibPath, tags[tags.length - 1], "Download Factorio Lualib", false));
+                            ProgressManager.getInstance().run(new FactorioLualibParser(project, lualibPath, prototypePath, tags[tags.length - 1], "Download Factorio Lualib", false));
                         }
 
                         return true;
@@ -118,7 +139,7 @@ public class FactorioLualibParser extends FactorioParser {
         } else {
             // api not there, request it...
             if (downloadInProgress.compareAndSet(false, true)) {
-                ProgressManager.getInstance().run(new FactorioLualibParser(project, lualibPath, "Download Factorio Lualib", false));
+                ProgressManager.getInstance().run(new FactorioLualibParser(project, lualibPath, prototypePath, "Download Factorio Lualib", false));
             }
             return true;
         }
@@ -176,40 +197,59 @@ public class FactorioLualibParser extends FactorioParser {
             InputStream inputStream = url.openStream();
             ZipInputStream zipInputStream = new ZipInputStream(inputStream);
 
-            byte[] buffer = new byte[2048];
+            Path corePrototypeSubDir = Paths.get(prototypeSaveDir, "core");
+            if (!corePrototypeSubDir.toFile().exists()) {
+                corePrototypeSubDir.toFile().mkdirs();
+            }
+
+            Path basePrototypeSubDir = Paths.get(prototypeSaveDir, "base");
+            if (!basePrototypeSubDir.toFile().exists()) {
+                basePrototypeSubDir.toFile().mkdirs();
+            }
 
             // Iterate over all files in the zip and only save the needed
             ZipEntry zipEntry;
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                int lualibPos = zipEntry.getName().lastIndexOf("/lualib/");
-                if (lualibPos > -1) {
-                    // This is a thing inside lualib dir
-                    String filename = zipEntry.getName().substring(lualibPos + "/lualib/".length());
-                    if (filename.isEmpty()) {
-                        continue;
-                    }
-                    Path path = Paths.get(saveDir, filename);
-
-                    if (zipEntry.isDirectory()) {
-                        // create directory
-                        path.toFile().mkdir();
-                    } else {
-                        // save file
-                        try (FileOutputStream fos = new FileOutputStream(path.toFile());
-                             BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length)) {
-
-                            int len;
-                            while ((len = zipInputStream.read(buffer)) > 0) {
-                                bos.write(buffer, 0, len);
-                            }
-                        }
-                    }
-                }
+                saveZipEntry(zipInputStream, zipEntry, "/lualib/", saveDir);
+                saveZipEntry(zipInputStream, zipEntry, "/core/prototypes/", corePrototypeSubDir.toString());
+                saveZipEntry(zipInputStream, zipEntry, "/base/prototypes/", basePrototypeSubDir.toString());
             }
 
             FactorioAutocompletionState.getInstance(myProject).currentLualibVersion = tagName;
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void saveZipEntry(ZipInputStream zipInputStream, ZipEntry zipEntry, String inZipDir, String toSaveDir) {
+        int pos = zipEntry.getName().lastIndexOf(inZipDir);
+        if (pos > -1) {
+            // This thing is inside core-prototype
+            String filename = zipEntry.getName().substring(pos + inZipDir.length());
+            if (filename.isEmpty()) {
+                return;
+            }
+
+            Path path = Paths.get(toSaveDir, filename);
+
+            if (zipEntry.isDirectory()) {
+                path.toFile().mkdirs();
+            } else {
+                // save file
+                byte[] buffer = new byte[2048];
+                try (FileOutputStream fos = new FileOutputStream(path.toFile());
+                     BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length)) {
+
+                    int len;
+                    while ((len = zipInputStream.read(buffer)) > 0) {
+                        bos.write(buffer, 0, len);
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -222,7 +262,8 @@ public class FactorioLualibParser extends FactorioParser {
         if (this.tag != null) {
             // create directory where to save to
             File file = new File(saveDir);
-            if (file.exists() || file.mkdirs()) {
+            File prototypeFile = new File(prototypeSaveDir);
+            if ((file.exists() || file.mkdirs()) && (prototypeFile.exists() || prototypeFile.mkdirs())) {
                 downloadExtractZip(this.tag);
             } else {
                 Notification notification = notificationGroup.createNotification("Error creating Lualib Directory", NotificationType.WARNING);

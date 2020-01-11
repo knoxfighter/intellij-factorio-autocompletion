@@ -17,6 +17,7 @@ import com.tang.intellij.lua.lang.LuaIcons;
 import com.tang.intellij.lua.psi.LuaFileUtil;
 import moe.knox.factorio.FactorioAutocompletionState;
 import moe.knox.factorio.parser.FactorioApiParser;
+import moe.knox.factorio.parser.FactorioLualibParser;
 import moe.knox.factorio.parser.FactorioPrototypeParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -58,34 +59,34 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
         VirtualFile dynDir = null;
         String downloadedApiDir = FactorioApiParser.getCurrentApiLink(project);
         if (downloadedApiDir != null && !downloadedApiDir.isEmpty()) {
-            File downloadedApiFile = new File(downloadedApiDir);
-            dynDir = VfsUtil.findFileByIoFile(downloadedApiFile, true);
-            for (VirtualFile dynDirChild : dynDir.getChildren()) {
-                dynDirChild.putUserData(LuaFileUtil.INSTANCE.getPREDEFINED_KEY(), true);
-            }
-        }
-
-        if (dynDir != null) {
-            libList.add(new FactorioLibrary(dynDir, "Factorio API"));
+            libList.add(createLibrary(downloadedApiDir, "Factorio API"));
         }
 
         // protoDir for downloaded factorio prototypes
-        VirtualFile protoDir = null;
         String downloadedProtoDir = FactorioPrototypeParser.getCurrentPrototypeLink(project);
         if (downloadedProtoDir != null && !downloadedProtoDir.isEmpty()) {
-            File downloadedProtoFile = new File(downloadedProtoDir);
-            protoDir = VfsUtil.findFileByIoFile(downloadedProtoFile, true);
-            for (VirtualFile protoDirChild : protoDir.getChildren()) {
-                protoDirChild.putUserData(LuaFileUtil.INSTANCE.getPREDEFINED_KEY(), true);
-            }
+            libList.add(createLibrary(downloadedProtoDir, "Factorio Prototypes"));
         }
 
-        if (protoDir != null) {
-            libList.add(new FactorioLibrary(protoDir, "Factorio Prototypes"));
+        // corePrototypes "core" dir
+        String corePrototypesLink = FactorioLualibParser.getCurrentPrototypeLink(project);
+        if (corePrototypesLink != null && !corePrototypesLink.isEmpty()) {
+            libList.add(createLibrary(corePrototypesLink + "/core", "Core Prototypes"));
+            libList.add(createLibrary(corePrototypesLink + "/base", "Base Prototypes"));
         }
 
         // return all libDirs as array
         return libList;
+    }
+
+    private FactorioLibrary createLibrary(String downloadedDir, String libraryName) {
+        File downloadedProtoFile = new File(downloadedDir);
+        VirtualFile protoDir = VfsUtil.findFileByIoFile(downloadedProtoFile, true);
+        for (VirtualFile protoDirChild : protoDir.getChildren()) {
+            protoDirChild.putUserData(LuaFileUtil.INSTANCE.getPREDEFINED_KEY(), true);
+        }
+
+        return new FactorioLibrary(protoDir, libraryName);
     }
 
     public static void reload() {
