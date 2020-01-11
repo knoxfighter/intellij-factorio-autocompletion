@@ -3,6 +3,8 @@ package moe.knox.factorio.completion.lua;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.codeInsight.completion.PrioritizedLookupElement;
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -42,14 +44,21 @@ public class FactorioPrototypeTableCompletionProvider extends CompletionProvider
             }
 
             if (!typeString.isEmpty()) {
-                List<Set<String>> values = FileBasedIndex.getInstance().getValues(PrototypeFileIndexer.NAME, typeString, GlobalSearchScope.projectScope(project));
+                List<Set<String>> globalValues = FileBasedIndex.getInstance().getValues(PrototypeFileIndexer.NAME, typeString, GlobalSearchScope.allScope(project));
+                List<Set<String>> projectValues = FileBasedIndex.getInstance().getValues(PrototypeFileIndexer.NAME, typeString, GlobalSearchScope.projectScope(project));
 
-                for (Set<String> value : values) {
-                    for (String s : value) {
-                        resultSet.addElement(new LuaLookupElement(s, false, null));
-                    }
-                }
+                addLookupElements(projectValues, true, 15, resultSet);
+                addLookupElements(globalValues, false, 5, resultSet);
+            }
+        }
+    }
 
+    private void addLookupElements(@NotNull List<Set<String>> lookupStrings, boolean bold, double priority, CompletionResultSet resultSet) {
+        for (Set<String> lookupString : lookupStrings) {
+            for (String s : lookupString) {
+                LookupElement lookupElement = new LuaLookupElement(s, bold, null);
+                lookupElement = PrioritizedLookupElement.withPriority(lookupElement, priority);
+                resultSet.addElement(lookupElement);
             }
         }
     }
