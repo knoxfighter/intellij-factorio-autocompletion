@@ -49,11 +49,14 @@ public class FactorioCompletionContributor extends CompletionContributor {
                             public boolean accepts(@NotNull PsiElement psiElement, ProcessingContext processingContext) {
                                 // Only run when string inside require
                                 LuaCallExpr callExpr = PsiTreeUtil.getParentOfType(psiElement, LuaCallExpr.class);
-                                for (PsiElement callExprChild : callExpr.getChildren()) {
-                                    if (callExprChild instanceof LuaNameExpr) {
-                                        LuaNameExpr indexExpr = (LuaNameExpr) callExprChild;
-                                        if (indexExpr.getName().equals("require")) {
-                                            return true;
+
+                                if (callExpr != null) {
+                                    for (PsiElement callExprChild : callExpr.getChildren()) {
+                                        if (callExprChild instanceof LuaNameExpr) {
+                                            LuaNameExpr indexExpr = (LuaNameExpr) callExprChild;
+                                            if (indexExpr.getName().equals("require")) {
+                                                return true;
+                                            }
                                         }
                                     }
                                 }
