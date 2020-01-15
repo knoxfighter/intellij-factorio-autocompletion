@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+## [1.2.0] - 15.01.2020
 ### Added
 - Autocompletion for require statement. (autocompletes the path to lua files)
 - Download the factorio lualib (https://github.com/wube/factorio-data/tree/master/core/lualib)

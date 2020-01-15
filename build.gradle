@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'moe.knox.factorio'
-version '1.2.0-SNAPSHOT'
+version '1.2.0'
 
 sourceCompatibility = 1.11
 
@@ -27,6 +27,25 @@ intellij {
 
 patchPluginXml {
     changeNotes """
+        <h2>1.2.0</h2>
+        <h3>Added</h3>
+        <ul>
+            <li>Autocompletion for require statement. (autocompletes the path to lua files)</li>
+            <li>Download the factorio lualib (https://github.com/wube/factorio-data/tree/master/core/lualib)</li>
+            <li>Type infer is followed the require statements correctly to files. This is based on the two points above :)</li>
+            <li>Autocomplete Prototypes for tables (e.g. `LuaForce.recipe[String]LuaRecipe`)</li>
+            <li>Autocomplete Prototypes in data.raw table.</li>
+        </ul>
+        <h3>Fixed</h3>
+        <ul>
+            <li>Removed weird indexing of files (only happens now, when finished downloading)</li>
+        </ul>
+        <h3>Changed</h3>
+        <ul>
+            <li>Settings will reload Prototypes and Lualib too.</li>
+            <li>Check for updates is only done, when the Project is opened.</li>
+        </ul>
+        
         <h2>1.1.1</h2>
         <h3>Fixed</h3>
         <ul>
