@@ -11,6 +11,7 @@ import com.tang.intellij.lua.psi.search.LuaShortNamesManager;
 import com.tang.intellij.lua.search.SearchContext;
 import com.tang.intellij.lua.ty.ITy;
 import com.tang.intellij.lua.ty.Ty;
+import moe.knox.factorio.FactorioAutocompletionState;
 import moe.knox.factorio.util.FactorioTreeUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,6 +20,10 @@ public class DataRawTypeInfer implements ILuaTypeInfer {
     @Override
     public ITy inferType(@NotNull LuaTypeGuessable luaTypeGuessable, @NotNull SearchContext searchContext) {
         Project project = searchContext.getProject();
+
+        if (FactorioAutocompletionState.getInstance(project).integrationActive) {
+            return Ty.Companion.getUNKNOWN();
+        }
 
         // first literalExpr contains the prototype type
         LuaIndexExpr firstIndexExpr = PsiTreeUtil.findChildOfType(luaTypeGuessable, LuaIndexExpr.class);
