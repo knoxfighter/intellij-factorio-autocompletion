@@ -114,7 +114,7 @@ public class FactorioLualibParser extends FactorioParser {
                 RefTag[] tags = downloadTags();
                 if (tags != null) {
                     String tag = tags[tags.length - 1].ref;
-                    if (!tag.substring(tag.lastIndexOf("/")).equals(config.currentLualibVersion)) {
+                    if (!tag.substring(tag.lastIndexOf("/") + 1).equals(config.currentLualibVersion)) {
                         removeCurrentLualib(project);
 
                         // download new lualib
