@@ -985,11 +985,11 @@ public class FactorioApiParser extends FactorioParser {
         // save defines to file
         StringBuilder definesFileContent = new StringBuilder();
         definesFileContent.append("---@class defines").append(newLine);
-        definesFileContent.append("local defines = {}").append(newLine).append(newLine).append(newLine);
+        definesFileContent.append("defines = {}").append(newLine).append(newLine).append(newLine);
 
         for (String defineClass : defineClasses) {
             definesFileContent.append("---@class ").append(defineClass).append(newLine);
-            definesFileContent.append("local ").append(defineClass).append(" = {}").append(newLine).append(newLine).append(newLine);
+            definesFileContent.append(defineClass).append(" = {}").append(newLine).append(newLine).append(newLine);
         }
 
         for (Pair<String, String> defineValue : defineValues) {
