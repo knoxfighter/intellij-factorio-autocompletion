@@ -21,7 +21,7 @@ public class DataRawTypeInfer implements ILuaTypeInfer {
     public ITy inferType(@NotNull LuaTypeGuessable luaTypeGuessable, @NotNull SearchContext searchContext) {
         Project project = searchContext.getProject();
 
-        if (FactorioAutocompletionState.getInstance(project).integrationActive) {
+        if (!FactorioAutocompletionState.getInstance(project).integrationActive) {
             return Ty.Companion.getUNKNOWN();
         }
 
