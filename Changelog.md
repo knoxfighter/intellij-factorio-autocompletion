@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Fixed
+- Added missing log() and table_size() functions
+- Defines-Table is now available again (was defined local)
 
 ## [1.2.0] - 15.01.2020
 ### Added
