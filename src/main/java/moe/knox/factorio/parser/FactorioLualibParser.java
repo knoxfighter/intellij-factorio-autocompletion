@@ -3,6 +3,7 @@ package moe.knox.factorio.parser;
 import com.google.gson.Gson;
 import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -11,6 +12,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import moe.knox.factorio.FactorioAutocompletionConfig;
 import moe.knox.factorio.FactorioAutocompletionState;
+import moe.knox.factorio.indexer.BasePrototypesService;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -93,6 +95,8 @@ public class FactorioLualibParser extends FactorioParser {
 
             String prototypePath = prototypeRootPath;
             FileUtil.delete(new File(prototypePath));
+
+            BasePrototypesService.getInstance(project).reloadIndex();
         }
     }
 
@@ -284,6 +288,11 @@ public class FactorioLualibParser extends FactorioParser {
             });
         }
         downloadInProgress.set(false);
+
+        // Reload base prototype service indexes
+        ApplicationManager.getApplication().invokeLater(() ->
+                BasePrototypesService.getInstance(myProject).reloadIndex()
+        );
     }
 
     private class RefTag {

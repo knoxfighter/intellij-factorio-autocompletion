@@ -13,6 +13,7 @@ import com.tang.intellij.lua.search.SearchContext;
 import moe.knox.factorio.FactorioAutocompletionConfig;
 import moe.knox.factorio.FactorioAutocompletionState;
 import moe.knox.factorio.FactorioPrototypeState;
+import moe.knox.factorio.indexer.BasePrototypesService;
 import moe.knox.factorio.library.FactorioLibraryProvider;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;

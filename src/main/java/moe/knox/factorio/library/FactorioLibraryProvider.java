@@ -69,11 +69,11 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
         }
 
         // corePrototypes "core" dir
-        String corePrototypesLink = FactorioLualibParser.getCurrentPrototypeLink(project);
-        if (corePrototypesLink != null && !corePrototypesLink.isEmpty()) {
-            libList.add(createLibrary(corePrototypesLink + "/core", "Core Prototypes"));
-            libList.add(createLibrary(corePrototypesLink + "/base", "Base Prototypes"));
-        }
+//        String corePrototypesLink = FactorioLualibParser.getCurrentPrototypeLink(project);
+//        if (corePrototypesLink != null && !corePrototypesLink.isEmpty()) {
+//            libList.add(createLibrary(corePrototypesLink + "/core", "Core Prototypes"));
+//            libList.add(createLibrary(corePrototypesLink + "/base", "Base Prototypes"));
+//        }
 
         // return all libDirs as array
         return libList;

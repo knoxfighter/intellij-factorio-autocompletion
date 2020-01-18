@@ -13,6 +13,7 @@ import com.intellij.util.ProcessingContext;
 import com.intellij.util.indexing.FileBasedIndex;
 import com.tang.intellij.lua.editor.completion.LuaLookupElement;
 import com.tang.intellij.lua.psi.LuaIndexExpr;
+import moe.knox.factorio.indexer.BasePrototypesService;
 import moe.knox.factorio.indexer.PrototypeFileIndexer;
 import moe.knox.factorio.util.FactorioTreeUtil;
 import org.jetbrains.annotations.NotNull;
@@ -50,29 +51,30 @@ public class SubPrototypeCompletionProvider extends CompletionProvider<Completio
                 // get Prototypes from Indexer
                 List<Set<String>> projectPrototypes = fileBasedIndex.getValues(PrototypeFileIndexer.NAME, prototypeType, GlobalSearchScope.projectScope(project));
                 List<Set<String>> globalPrototypes = fileBasedIndex.getValues(PrototypeFileIndexer.NAME, prototypeType, GlobalSearchScope.allScope(project));
+                Set<String> basePrototypes = BasePrototypesService.getInstance(project).getValues(prototypeType);
 
                 // Iterate over all Prototypes and add them with LookupElements
                 for (Set<String> projectPrototype : projectPrototypes) {
-                    for (String s : projectPrototype) {
-                        if (isStringLiteral || !s.contains("-") && !s.contains(".")) {
-                            LookupElement element = new LuaLookupElement(s, true, null);
-                            element = PrioritizedLookupElement.withPriority(element, 15);
-                            resultSet.addElement(element);
-                        }
-                    }
+                    addToResult(resultSet, projectPrototype, true, 15);
                 }
 
                 for (Set<String> globalPrototype : globalPrototypes) {
-                    for (String s : globalPrototype) {
-                        if (isStringLiteral || !s.contains("-") && !s.contains(".")) {
-                            LookupElement element = new LuaLookupElement(s, false, null);
-                            element = PrioritizedLookupElement.withPriority(element, 10);
-                            resultSet.addElement(element);
-                        }
-                    }
+                    addToResult(resultSet, globalPrototype, false, 10);
                 }
 
+                addToResult(resultSet, basePrototypes, false, 10);
+
                 resultSet.stopHere();
+            }
+        }
+    }
+
+    private void addToResult(CompletionResultSet resultSet, Set<String> stringEements, boolean bold, double priority) {
+        for (String stringElement : stringEements) {
+            if (isStringLiteral || !stringElement.contains("-") && !stringElement.contains(".")) {
+                LookupElement element = new LuaLookupElement(stringElement, bold, null);
+                element = PrioritizedLookupElement.withPriority(element, priority);
+                resultSet.addElement(element);
             }
         }
     }

@@ -10,10 +10,12 @@ import com.tang.intellij.lua.psi.LuaIndexExpr;
 import com.tang.intellij.lua.psi.LuaLiteralExpr;
 import com.tang.intellij.lua.psi.LuaTypes;
 import moe.knox.factorio.completion.lua.FactorioIntegrationActiveCondition;
+import moe.knox.factorio.indexer.BasePrototypesService;
 import moe.knox.factorio.indexer.PrototypeFileIndexer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.Set;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
@@ -41,6 +43,14 @@ public class DataRawCompletionContributor extends CompletionContributor {
                             }
                         }
 
+
+                        Set<String> baseKeys = BasePrototypesService.getInstance(project).getAllKeys();
+                        for (String baseKey : baseKeys) {
+                            if (!baseKey.contains("-") && !baseKey.contains(".")) {
+                                resultSet.addElement(new LuaLookupElement(baseKey, false, null));
+                            }
+                        }
+
                         resultSet.stopHere();
                     }
                 }
@@ -65,6 +75,11 @@ public class DataRawCompletionContributor extends CompletionContributor {
 
                         for (String key : allKeys) {
                             resultSet.addElement(new LuaLookupElement(key, false, null));
+                        }
+
+                        Set<String> baseKeys = BasePrototypesService.getInstance(project).getAllKeys();
+                        for (String baseKey : baseKeys) {
+                            resultSet.addElement(new LuaLookupElement(baseKey, false, null));
                         }
                     }
                 }
