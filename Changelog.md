@@ -4,9 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+## [1.2.1] - 18.01.2020
 ### Fixed
 - Added missing log() and table_size() functions
 - Defines-Table is now available again (was defined local)
+- functions and variables inside base/core Prototype definitions are not shown in autocompletion anymore.
 
 ## [1.2.0] - 15.01.2020
 ### Added

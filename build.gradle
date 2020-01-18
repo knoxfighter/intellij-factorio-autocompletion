@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'moe.knox.factorio'
-version '1.2.1-SNAPSHOT'
+version '1.2.1'
 
 sourceCompatibility = 1.11
 
@@ -27,6 +27,14 @@ intellij {
 
 patchPluginXml {
     changeNotes """
+        <h2>1.2.1</h2>
+        <h3>Fixed</h3>
+        <ul>
+            <li>Added missing log() and table_size() functions</li>
+            <li>Defines-Table is now available again (was defined local)</li>
+            <li>functions and variables inside base/core Prototype definitions are not shown in autocompletion anymore.</li>
+        </ul>
+
         <h2>1.2.0</h2>
         <h3>Added</h3>
         <ul>
