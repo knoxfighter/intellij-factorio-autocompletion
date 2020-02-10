@@ -214,7 +214,7 @@ public class FactorioLualibParser extends FactorioParser {
             // Iterate over all files in the zip and only save the needed
             ZipEntry zipEntry;
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                saveZipEntry(zipInputStream, zipEntry, "/lualib/", saveDir);
+                saveZipEntry(zipInputStream, zipEntry, "/core/lualib/", saveDir);
                 saveZipEntry(zipInputStream, zipEntry, "/core/prototypes/", corePrototypeSubDir.toString());
                 saveZipEntry(zipInputStream, zipEntry, "/base/prototypes/", basePrototypeSubDir.toString());
             }
