@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Fixed
+- endless "Download Factorio LuaApi" on startup
+- download of lualib and core prototypes failed
+
 ## [1.2.1] - 18.01.2020
 ### Fixed
 - Added missing log() and table_size() functions
