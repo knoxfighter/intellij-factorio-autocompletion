@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'moe.knox.factorio'
-version '1.2.2-SNAPSHOT'
+version '1.2.2'
 
 sourceCompatibility = 1.11
 
@@ -27,6 +27,13 @@ intellij {
 
 patchPluginXml {
     changeNotes """
+        <h2>1.2.2</h2>
+        <h3>Fixed</h3>
+        <ul>
+            <li>endless "Download Factorio LuaApi" on startup</li>
+            <li>download of lualib and core prototypes failed</li>
+        </ul>
+
         <h2>1.2.1</h2>
         <h3>Fixed</h3>
         <ul>
