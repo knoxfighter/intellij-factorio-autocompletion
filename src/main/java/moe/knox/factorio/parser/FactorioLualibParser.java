@@ -5,6 +5,7 @@ import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,6 +29,7 @@ import java.util.zip.ZipInputStream;
 
 public class FactorioLualibParser extends FactorioParser {
     private static NotificationGroup notificationGroup = new NotificationGroup("Factorio Lualib Download", NotificationDisplayType.STICKY_BALLOON, true);
+    private static final Logger LOG = Logger.getInstance(FactorioParser.class);
 
     public static final String luaLibRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/lualib/";
     public static final String prototypeRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/core_prototypes/";
@@ -172,7 +175,7 @@ public class FactorioLualibParser extends FactorioParser {
                 correctTag = tags[tags.length - 1];
             } else {
                 for (RefTag tag : tags) {
-                    if (tag.ref.substring(tag.ref.lastIndexOf("/")).equals(config.selectedFactorioVersion.desc)) {
+                    if (tag.ref.substring(tag.ref.lastIndexOf("/") + 1).equals(config.selectedFactorioVersion.desc)) {
                         correctTag = tag;
                         break;
                     }
@@ -202,14 +205,10 @@ public class FactorioLualibParser extends FactorioParser {
             ZipInputStream zipInputStream = new ZipInputStream(inputStream);
 
             Path corePrototypeSubDir = Paths.get(prototypeSaveDir, "core");
-            if (!corePrototypeSubDir.toFile().exists()) {
-                corePrototypeSubDir.toFile().mkdirs();
-            }
-
             Path basePrototypeSubDir = Paths.get(prototypeSaveDir, "base");
-            if (!basePrototypeSubDir.toFile().exists()) {
-                basePrototypeSubDir.toFile().mkdirs();
-            }
+
+            Files.createDirectories(corePrototypeSubDir);
+            Files.createDirectories(basePrototypeSubDir);
 
             // Iterate over all files in the zip and only save the needed
             ZipEntry zipEntry;
@@ -237,7 +236,11 @@ public class FactorioLualibParser extends FactorioParser {
             Path path = Paths.get(toSaveDir, filename);
 
             if (zipEntry.isDirectory()) {
-                path.toFile().mkdirs();
+                try {
+                    Files.createDirectories(path);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } else {
                 // save file
                 byte[] buffer = new byte[2048];
@@ -265,18 +268,28 @@ public class FactorioLualibParser extends FactorioParser {
 
         if (this.tag != null) {
             // create directory where to save to
-            File file = new File(saveDir);
-            File prototypeFile = new File(prototypeSaveDir);
-            if ((file.exists() || file.mkdirs()) && (prototypeFile.exists() || prototypeFile.mkdirs())) {
+            Path saveDirPath = Paths.get(saveDir);
+            Path prototypeSaveDirPath = Paths.get(prototypeSaveDir);
+
+            try {
+                Files.createDirectories(saveDirPath);
+                Files.createDirectories(prototypeSaveDirPath);
                 downloadExtractZip(this.tag);
-            } else {
-                Notification notification = notificationGroup.createNotification("Error creating Lualib Directory", NotificationType.WARNING);
-                notification.addAction(new NotificationAction("Open Settings") {
-                    @Override
-                    public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                        ShowSettingsUtil.getInstance().showSettingsDialog(myProject, FactorioAutocompletionConfig.class);
-                    }
-                });
+
+                // Reload base prototype service indexes
+                ApplicationManager.getApplication().invokeLater(() ->
+                        BasePrototypesService.getInstance(myProject).reloadIndex()
+                );
+            } catch (IOException e) {
+                e.printStackTrace();
+                LOG.error(e);
+//                Notification notification = notificationGroup.createNotification("Error creating Lualib Directory", NotificationType.WARNING);
+//                notification.addAction(new NotificationAction("Open Settings") {
+//                    @Override
+//                    public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+//                        ShowSettingsUtil.getInstance().showSettingsDialog(myProject, FactorioAutocompletionConfig.class);
+//                    }
+//                });
             }
         } else {
             Notification notification = notificationGroup.createNotification("Error getting current tags. Lualib not downloaded.", NotificationType.WARNING);
@@ -288,11 +301,6 @@ public class FactorioLualibParser extends FactorioParser {
             });
         }
         downloadInProgress.set(false);
-
-        // Reload base prototype service indexes
-        ApplicationManager.getApplication().invokeLater(() ->
-                BasePrototypesService.getInstance(myProject).reloadIndex()
-        );
     }
 
     private class RefTag {
