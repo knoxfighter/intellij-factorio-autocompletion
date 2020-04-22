@@ -20,7 +20,7 @@ import java.util.*;
 // FileBasedIndex.getInstance().getValues(Test.NAME, "recipe", GlobalSearchScope.projectScope(parameters.getPosition().getProject()))
 
 public class PrototypeFileIndexer extends FileBasedIndexExtension<String, Set<String>> {
-    public static final ID<String, Set<String>> NAME = ID.create("lua.call.string.param");
+    public static final ID<String, Set<String>> NAME = ID.create("factorio.prototypes");
 
     @NotNull
     @Override

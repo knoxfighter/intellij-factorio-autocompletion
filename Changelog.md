@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.3.0] - 22.04.2020
+### Added
+- Compatibility with jetbrains IDEs 2020.1.*
+
 ## [1.2.2] - 11.02.2020
 ### Fixed
 - endless "Download Factorio LuaApi" on startup

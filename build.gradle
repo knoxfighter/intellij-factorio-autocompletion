@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'moe.knox.factorio'
-version '1.2.2'
+version '1.2.3'
 
 sourceCompatibility = 1.11
 
@@ -19,14 +19,20 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2019.3.1'
+    version '2020.1'
     plugins = [
-            'com.tang:1.3.1.136-IDEA182'
+            'com.tang:1.3.3.150-IDEA201'
     ]
 }
 
 patchPluginXml {
     changeNotes """
+        <h2>1.3.0</h2>
+        <h3>Added</h3>
+        <ul>
+            <li>Added compatibility with jetbrains IDEs 2020.1.*</li>
+        </ul>
+        
         <h2>1.2.2</h2>
         <h3>Fixed</h3>
         <ul>
@@ -89,6 +95,6 @@ patchPluginXml {
         </ul>
     """
 
-    sinceBuild "192.3852"
-    untilBuild "193.*"
+    sinceBuild "201"
+    untilBuild "201.*"
 }
