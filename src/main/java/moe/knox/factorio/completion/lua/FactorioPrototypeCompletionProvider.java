@@ -37,6 +37,9 @@ public class FactorioPrototypeCompletionProvider extends CompletionProvider<Comp
                 addInsertHandler(element);
                 resultSet.addElement(element);
                 return;
+            } else if (luaClass.equals(TyPrimitive.Companion.getUNKNOWN())) {
+                // The class is unknown and it already has a `type` field, so simply do nothing...
+                return;
             }
 
             SearchContext searchContext = SearchContext.Companion.get(parameters.getPosition().getProject());
@@ -86,7 +89,14 @@ public class FactorioPrototypeCompletionProvider extends CompletionProvider<Comp
             SearchContext searchContext = SearchContext.Companion.get(insertionContext.getProject());
 
             // Get Type
-            ITy type = ((LuaFieldLookupElement) lookupElement).getType();
+            ITy type;
+            if (lookupElement instanceof LuaFieldLookupElement) {
+                type = ((LuaFieldLookupElement) lookupElement).getType();
+            } else if (lookupElement.getLookupString().equals("type")) {
+                type = TyPrimitive.Companion.getSTRING();
+            } else {
+                type = TyPrimitive.Companion.getNIL();
+            }
             type = TyAliasSubstitutor.Companion.substitute(type, searchContext);
 
             document.insertString(insertionContext.getTailOffset(), " = ");

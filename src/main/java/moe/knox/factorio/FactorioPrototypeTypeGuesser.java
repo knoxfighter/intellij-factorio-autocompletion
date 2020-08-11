@@ -10,8 +10,7 @@ import com.tang.intellij.lua.psi.LuaTableExpr;
 import com.tang.intellij.lua.psi.LuaTableField;
 import com.tang.intellij.lua.psi.search.LuaShortNamesManager;
 import com.tang.intellij.lua.search.SearchContext;
-import com.tang.intellij.lua.ty.ITy;
-import com.tang.intellij.lua.ty.TySerializedClass;
+import com.tang.intellij.lua.ty.*;
 import org.jetbrains.annotations.Nullable;
 
 public class FactorioPrototypeTypeGuesser {
@@ -35,7 +34,11 @@ public class FactorioPrototypeTypeGuesser {
             // could be subtype .. guess type of parent
             ITy tyGuess = guessType(table);
 
-            typeText = ((TySerializedClass) tyGuess).getClassName();
+            if (tyGuess == null) {
+                return null;
+            } else {
+                typeText = ((TySerializedClass) tyGuess).getClassName();
+            }
         } else {
             // get the className for this type
             typeText = type.getExprList().get(0).getFirstChild().getText();
@@ -49,7 +52,7 @@ public class FactorioPrototypeTypeGuesser {
         LuaClass luaClass = LuaShortNamesManager.Companion.getInstance(project).findClass(typeText, searchContext);
         if (luaClass == null) {
             // Do nothing, when luaClass not found
-            return null;
+            return TyPrimitive.Companion.getUNKNOWN();
         }
 
         LuaTableField tableField = PsiTreeUtil.getParentOfType(element.getParent(), LuaTableField.class, false, LuaTableExpr.class);
