@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Set;
 
-public class FactorioPrototypeTableCompletionProvider extends CompletionProvider<CompletionParameters> {
+public class PrototypeTableCompletionProvider extends CompletionProvider<CompletionParameters> {
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet resultSet) {
         PsiElement element = parameters.getPosition();

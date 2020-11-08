@@ -7,8 +7,8 @@ import moe.knox.factorio.FactorioAutocompletionState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class FactorioIntegrationActiveCondition extends PatternCondition<PsiElement> {
-    public FactorioIntegrationActiveCondition(@Nullable String debugMethodName) {
+public class IntegrationActiveCondition extends PatternCondition<PsiElement> {
+    public IntegrationActiveCondition(@Nullable String debugMethodName) {
         super(debugMethodName);
     }
 

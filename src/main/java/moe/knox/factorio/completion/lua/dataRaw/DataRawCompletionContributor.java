@@ -9,7 +9,7 @@ import com.tang.intellij.lua.editor.completion.LuaLookupElement;
 import com.tang.intellij.lua.psi.LuaIndexExpr;
 import com.tang.intellij.lua.psi.LuaLiteralExpr;
 import com.tang.intellij.lua.psi.LuaTypes;
-import moe.knox.factorio.completion.lua.FactorioIntegrationActiveCondition;
+import moe.knox.factorio.completion.lua.IntegrationActiveCondition;
 import moe.knox.factorio.indexer.BasePrototypesService;
 import moe.knox.factorio.indexer.PrototypeFileIndexer;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +24,7 @@ public class DataRawCompletionContributor extends CompletionContributor {
         /// Autocompletion for data.raw.*
         extend(CompletionType.BASIC,
                 psiElement(LuaTypes.ID)
-                        .with(new FactorioIntegrationActiveCondition(null))
+                        .with(new IntegrationActiveCondition(null))
                         .withParent(
                                 psiElement(LuaIndexExpr.class)
                                         .with(new InRawPatternCondition(false))
@@ -59,7 +59,7 @@ public class DataRawCompletionContributor extends CompletionContributor {
         /// Autocompletion for data.raw["*"]
         extend(CompletionType.BASIC,
                 psiElement(LuaTypes.STRING)
-                        .with(new FactorioIntegrationActiveCondition(null))
+                        .with(new IntegrationActiveCondition(null))
                         .withParent(
                                 psiElement(LuaLiteralExpr.class)
                                         .withParent(
@@ -88,7 +88,7 @@ public class DataRawCompletionContributor extends CompletionContributor {
         /// Autocompletion for data.raw.type.*
         extend(CompletionType.BASIC,
                 psiElement(LuaTypes.ID)
-                        .with(new FactorioIntegrationActiveCondition(null))
+                        .with(new IntegrationActiveCondition(null))
                         .withParent(
                                 psiElement(LuaIndexExpr.class)
                                         .with(new InRawPatternCondition(true))
@@ -99,7 +99,7 @@ public class DataRawCompletionContributor extends CompletionContributor {
         /// Autocompletion for data.raw.type["*"]
         extend(CompletionType.BASIC,
                 psiElement(LuaTypes.STRING)
-                        .with(new FactorioIntegrationActiveCondition(null))
+                        .with(new IntegrationActiveCondition(null))
                         .withParent(
                                 psiElement(LuaLiteralExpr.class)
                                         .withParent(

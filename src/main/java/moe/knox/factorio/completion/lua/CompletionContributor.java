@@ -10,26 +10,26 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
-public class FactorioCompletionContributor extends CompletionContributor {
-    public FactorioCompletionContributor() {
+public class CompletionContributor extends com.intellij.codeInsight.completion.CompletionContributor {
+    public CompletionContributor() {
         extend(CompletionType.BASIC,
                 psiElement()
-                        .with(new FactorioIntegrationActiveCondition(null))
+                        .with(new IntegrationActiveCondition(null))
                         .andOr(
                                 psiElement()
                                         .withParent(
                                                 psiElement(LuaTypes.NAME_EXPR)
                                                         .withParent(LuaTableField.class)
                                         )
-                        ).with(new FactorioPrototypePatternCondition(null, true)),
-                new FactorioPrototypeCompletionProvider()
+                        ).with(new PrototypePatternCondition(null, true)),
+                new PrototypeCompletionProvider()
         );
 
         extend(CompletionType.BASIC,
                 psiElement(LuaTypes.STRING)
-                        .with(new FactorioIntegrationActiveCondition(null))
-                        .with(new FactorioPrototypePatternCondition(null, false))
-                        .with(new FactorioPrototypeTypePatternCondition(null)),
+                        .with(new IntegrationActiveCondition(null))
+                        .with(new PrototypePatternCondition(null, false))
+                        .with(new PrototypeTypePatternCondition(null)),
                 new CompletionProvider<CompletionParameters>() {
                     @Override
                     protected void addCompletions(@NotNull CompletionParameters completionParameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet completionResultSet) {
@@ -42,7 +42,7 @@ public class FactorioCompletionContributor extends CompletionContributor {
 
         extend(CompletionType.BASIC,
                 psiElement(LuaTypes.STRING)
-                        .with(new FactorioIntegrationActiveCondition(null))
+                        .with(new IntegrationActiveCondition(null))
                         .with(new PatternCondition<PsiElement>(null) {
                             @Override
                             public boolean accepts(@NotNull PsiElement psiElement, ProcessingContext processingContext) {
@@ -62,7 +62,7 @@ public class FactorioCompletionContributor extends CompletionContributor {
                                 return false;
                             }
                         }),
-                new FactorioPathCompletionProvider()
+                new PathCompletionProvider()
         );
 
         extend(CompletionType.BASIC,
@@ -71,8 +71,8 @@ public class FactorioCompletionContributor extends CompletionContributor {
                                 psiElement(LuaLiteralExpr.class)
                                         .withParent(LuaIndexExpr.class)
                         )
-                        .with(new FactorioIntegrationActiveCondition(null)),
-                new FactorioPrototypeTableCompletionProvider()
+                        .with(new IntegrationActiveCondition(null)),
+                new PrototypeTableCompletionProvider()
         );
     }
 }

@@ -8,8 +8,8 @@ import com.tang.intellij.lua.psi.LuaTableField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class FactorioPrototypeTypePatternCondition extends PatternCondition<PsiElement> {
-    public FactorioPrototypeTypePatternCondition(@Nullable String debugMethodName) {
+public class PrototypeTypePatternCondition extends PatternCondition<PsiElement> {
+    public PrototypeTypePatternCondition(@Nullable String debugMethodName) {
         super(debugMethodName);
     }
 

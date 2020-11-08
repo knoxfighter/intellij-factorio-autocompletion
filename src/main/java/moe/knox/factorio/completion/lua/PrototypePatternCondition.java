@@ -9,10 +9,10 @@ import com.tang.intellij.lua.psi.LuaTableExpr;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class FactorioPrototypePatternCondition extends PatternCondition<PsiElement> {
+public class PrototypePatternCondition extends PatternCondition<PsiElement> {
     boolean multipleAllowed;
 
-    public FactorioPrototypePatternCondition(@Nullable String debugMethodName, boolean multipleAllowed) {
+    public PrototypePatternCondition(@Nullable String debugMethodName, boolean multipleAllowed) {
         super(debugMethodName);
         this.multipleAllowed = multipleAllowed;
     }

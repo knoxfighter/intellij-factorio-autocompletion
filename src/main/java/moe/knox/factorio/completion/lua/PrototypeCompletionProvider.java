@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FactorioPrototypeCompletionProvider extends CompletionProvider<CompletionParameters> {
+public class PrototypeCompletionProvider extends CompletionProvider<CompletionParameters> {
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet resultSet) {
 //        String fieldName = PsiTreeUtil.getParentOfType(parameters.getPosition(), LuaTableField.class).getFieldName();
