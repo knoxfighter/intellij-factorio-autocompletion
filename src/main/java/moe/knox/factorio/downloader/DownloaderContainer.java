@@ -108,10 +108,10 @@ final public class DownloaderContainer {
 
         // delete apiPath (dont delete rootPath, relevant plugin stuff is in there)
         try {
-            Files.delete(Path.of(apiRootPath));
-            Files.delete(Path.of(luaLibRootPath));
-            Files.delete(Path.of(prototypeRootPath));
-            Files.delete(Path.of(prototypeDefinitionLink));
+            FileUtil.delete(Path.of(apiRootPath));
+            FileUtil.delete(Path.of(luaLibRootPath));
+            FileUtil.delete(Path.of(prototypeRootPath));
+            FileUtil.delete(Path.of(prototypeDefinitionLink));
         } catch (IOException e) {
             e.printStackTrace();
             // TODO show error message
