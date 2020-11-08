@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import moe.knox.factorio.parser.FactorioLualibParser;
+import moe.knox.factorio.downloader.DownloaderContainer;
 
 import java.util.*;
 
@@ -28,7 +28,7 @@ final public class BasePrototypesService {
 
     // Create index for base and core Prototypes
     public void reloadIndex() {
-        String currentPrototypeLink = FactorioLualibParser.getCurrentPrototypeLink(project);
+        String currentPrototypeLink = DownloaderContainer.getInstance(project).getCurrentPrototypeDefinitionLink();
         if (currentPrototypeLink != null) {
             ReadAction.run(() -> {
                 PsiManager psiManager = PsiManager.getInstance(project);

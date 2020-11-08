@@ -2,6 +2,7 @@ package moe.knox.factorio.library;
 
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.application.WriteAction;
+import com.intellij.openapi.fileChooser.ex.FileTextFieldImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.roots.AdditionalLibraryRootsProvider;
@@ -10,15 +11,15 @@ import com.intellij.openapi.roots.ex.ProjectRootManagerEx;
 import com.intellij.openapi.util.EmptyRunnable;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.VirtualFileSystem;
 import com.intellij.psi.stubs.StubIndex;
 import com.intellij.util.PathUtil;
 import com.intellij.util.io.URLUtil;
 import com.tang.intellij.lua.lang.LuaIcons;
 import com.tang.intellij.lua.psi.LuaFileUtil;
 import moe.knox.factorio.FactorioAutocompletionState;
-import moe.knox.factorio.parser.FactorioApiParser;
-import moe.knox.factorio.parser.FactorioLualibParser;
-import moe.knox.factorio.parser.FactorioPrototypeParser;
+import moe.knox.factorio.downloader.DownloaderContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,25 +56,26 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
         Collection<SyntheticLibrary> libList = new ArrayList<>();
         libList.add(new FactorioLibrary(libDir, "Factorio Builtins"));
 
+        // get downloader container
+        DownloaderContainer downloaderContainer = DownloaderContainer.getInstance(project);
+
         // libDir for downloaded factorio api
-        VirtualFile dynDir = null;
-        String downloadedApiDir = FactorioApiParser.getCurrentApiLink(project);
+        String downloadedApiDir = downloaderContainer.getCurrentLuaApiLink();
         if (downloadedApiDir != null && !downloadedApiDir.isEmpty()) {
             libList.add(createLibrary(downloadedApiDir, "Factorio API"));
         }
 
         // protoDir for downloaded factorio prototypes
-        String downloadedProtoDir = FactorioPrototypeParser.getCurrentPrototypeLink(project);
-        if (downloadedProtoDir != null && !downloadedProtoDir.isEmpty()) {
-            libList.add(createLibrary(downloadedProtoDir, "Factorio Prototypes"));
-        }
-
-        // corePrototypes "core" dir
-//        String corePrototypesLink = FactorioLualibParser.getCurrentPrototypeLink(project);
-//        if (corePrototypesLink != null && !corePrototypesLink.isEmpty()) {
-//            libList.add(createLibrary(corePrototypesLink + "/core", "Core Prototypes"));
-//            libList.add(createLibrary(corePrototypesLink + "/base", "Base Prototypes"));
+//        String downloadedProtoDir = FactorioPrototypeParser.getCurrentPrototypeLink(project);
+//        if (downloadedProtoDir != null && !downloadedProtoDir.isEmpty()) {
+//            libList.add(createLibrary(downloadedProtoDir, "Factorio Prototypes"));
 //        }
+
+        // corePrototypes dir
+        String corePrototypesLink = DownloaderContainer.getInstance(project).getCurrentPrototypeDefinitionLink();
+        if (corePrototypesLink != null) {
+            libList.add(createLibrary(corePrototypesLink, "Prototypes"));
+        }
 
         // return all libDirs as array
         return libList;

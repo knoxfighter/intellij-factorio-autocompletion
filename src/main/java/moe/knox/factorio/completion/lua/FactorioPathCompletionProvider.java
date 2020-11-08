@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
 import com.tang.intellij.lua.lang.type.LuaString;
-import moe.knox.factorio.parser.FactorioLualibParser;
+import moe.knox.factorio.downloader.DownloaderContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.SystemIndependent;
 
@@ -27,7 +27,7 @@ public class FactorioPathCompletionProvider extends CompletionProvider<Completio
         iterateOverFiles(projectPath, position, resultSet);
 
         // Path to the root of the Factorio Lualib
-        String currentLualibLink = FactorioLualibParser.getCurrentLualibLink(position.getProject());
+        String currentLualibLink = DownloaderContainer.getInstance(position.getProject()).getCurrentLuaLibLink();
         if (currentLualibLink != null) {
             iterateOverFiles(currentLualibLink, position, resultSet);
         }
