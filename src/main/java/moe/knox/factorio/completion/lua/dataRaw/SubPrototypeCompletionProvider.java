@@ -15,7 +15,7 @@ import com.tang.intellij.lua.editor.completion.LuaLookupElement;
 import com.tang.intellij.lua.psi.LuaIndexExpr;
 import moe.knox.factorio.indexer.BasePrototypesService;
 import moe.knox.factorio.indexer.PrototypeFileIndexer;
-import moe.knox.factorio.util.FactorioTreeUtil;
+import moe.knox.factorio.util.PrototypeTreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -42,7 +42,7 @@ public class SubPrototypeCompletionProvider extends CompletionProvider<Completio
         // get previous index
         LuaIndexExpr childIndexExpr = PsiTreeUtil.getPrevSiblingOfType(position, LuaIndexExpr.class);
         if (childIndexExpr != null) {
-            String prototypeType = FactorioTreeUtil.getPrototypeType(childIndexExpr);
+            String prototypeType = PrototypeTreeUtil.getPrototypeType(childIndexExpr);
 
             if (prototypeType != null && !prototypeType.isEmpty()) {
 

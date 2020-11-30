@@ -3,17 +3,22 @@ package moe.knox.factorio.completion.lua;
 import com.intellij.codeInsight.completion.*;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import com.tang.intellij.lua.editor.completion.LookupElementFactory;
 import com.tang.intellij.lua.editor.completion.LuaFieldLookupElement;
 import com.tang.intellij.lua.editor.completion.LuaLookupElement;
+import com.tang.intellij.lua.psi.LuaCallExpr;
 import com.tang.intellij.lua.psi.LuaClassField;
 import com.tang.intellij.lua.psi.LuaTableExpr;
 import com.tang.intellij.lua.psi.LuaTableField;
 import com.tang.intellij.lua.search.SearchContext;
 import com.tang.intellij.lua.ty.*;
 import moe.knox.factorio.FactorioPrototypeTypeGuesser;
+import moe.knox.factorio.typeInfer.PrototypeTableLookupElement;
+import moe.knox.factorio.typeInfer.TyPrototype;
+import moe.knox.factorio.util.PrototypeTreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -22,6 +27,38 @@ import java.util.List;
 public class PrototypeCompletionProvider extends CompletionProvider<CompletionParameters> {
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet resultSet) {
+        LuaTableField tableField = PsiTreeUtil.getParentOfType(parameters.getPosition(), LuaTableField.class);
+        SearchContext searchContext = SearchContext.Companion.get(parameters.getPosition().getProject());
+        LuaTableExpr tableExpr = PsiTreeUtil.getParentOfType(parameters.getPosition(), LuaTableExpr.class);
+
+//        ITy iTy = tableField.guessType(searchContext);
+        ITy iTy = tableExpr.guessType(searchContext);
+        System.out.println(iTy);
+
+        if (iTy instanceof TyPrototype) {
+            TyPrototype ty = (TyPrototype) iTy;
+            ty.processMembers(s -> {
+                System.out.println(s);
+                resultSet.addElement(
+                        PrioritizedLookupElement.withPriority(
+                                new PrototypeTableLookupElement(s, null, null /* TODO add subtype type text */, true, null, new BasicInsertHandler<>()),
+                                20
+                        )
+                );
+            });
+        }
+        return;
+        /*
+        PrototypeTreeUtil.guessPrototypeDefinitionTypes(tableField, searchContext);
+
+        // ((TyArray)((TySerializedFunction)((LuaCallExpr) parameters.getPosition().getParent().getParent().getParent().getParent().getParent().getParent().getParent()).guessParentType(searchContext)).mainSignature.getParams()[0].getTy()).getBase()
+        // ((LuaLocalDef)parameters.getPosition().getParent().getParent().getParent().getParent().getParent()).getComment().guessType(searchContext)
+
+        PsiElement position = parameters.getPosition();
+        PsiElement parent = position.getParent();
+        System.out.println(parent);
+
+
 //        String fieldName = PsiTreeUtil.getParentOfType(parameters.getPosition(), LuaTableField.class).getFieldName();
         String fieldName = PsiTreeUtil.getParentOfType(parameters.getPosition(), LuaTableField.class, false, LuaTableExpr.class).getFieldName();
         if (fieldName != null) {
@@ -42,7 +79,7 @@ public class PrototypeCompletionProvider extends CompletionProvider<CompletionPa
                 return;
             }
 
-            SearchContext searchContext = SearchContext.Companion.get(parameters.getPosition().getProject());
+//            SearchContext searchContext = SearchContext.Companion.get(parameters.getPosition().getProject());
 
             LuaTableExpr table = PsiTreeUtil.getParentOfType(parameters.getPosition(), LuaTableExpr.class);
 
@@ -73,6 +110,7 @@ public class PrototypeCompletionProvider extends CompletionProvider<CompletionPa
                 return true;
             });
         }
+         */
     }
 
     /**

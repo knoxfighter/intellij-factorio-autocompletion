@@ -2,3 +2,6 @@
 data = {}
 
 data.raw = {}
+
+---@param prototypes Prototype[]
+function data:extend(prototypes) end

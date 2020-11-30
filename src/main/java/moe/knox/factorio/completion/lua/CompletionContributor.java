@@ -21,7 +21,9 @@ public class CompletionContributor extends com.intellij.codeInsight.completion.C
                                                 psiElement(LuaTypes.NAME_EXPR)
                                                         .withParent(LuaTableField.class)
                                         )
-                        ).with(new PrototypePatternCondition(null, true)),
+                        )
+//                        .with(new PrototypePatternCondition(null, true))
+                ,
                 new PrototypeCompletionProvider()
         );
 

@@ -39,7 +39,9 @@
         <luaFileResolver implementation="moe.knox.factorio.fileResolver.FactorioRootDir" order="first"/>
         <luaFileResolver implementation="moe.knox.factorio.fileResolver.FactorioLualib" order="first"/>
 
-        <luaTypeInfer implementation="moe.knox.factorio.typeInfer.DataRawTypeInfer" order="last"/>
+        <luaTypeInfer implementation="moe.knox.factorio.typeInfer.DataRawTypeInfer" order="first"/>
+        
+        <luaShortNamesManager implementation="moe.knox.factorio.nameManager.PrototypeNameManager" />
     </extensions>
 
     <actions>
