@@ -5,6 +5,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import moe.knox.factorio.downloader.DownloaderContainer;
+import com.intellij.openapi.util.NlsContexts;
 import moe.knox.factorio.library.FactorioLibraryProvider;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -63,9 +64,8 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
         return "preference.FactorioCompletionConfig";
     }
 
-    @Nls(capitalization = Nls.Capitalization.Title)
     @Override
-    public String getDisplayName() {
+    public @NlsContexts.ConfigurableName String getDisplayName() {
         return "Factorio Autocompletion";
     }
 
