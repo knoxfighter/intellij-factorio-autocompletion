@@ -7,6 +7,7 @@ import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts;
 import moe.knox.factorio.FactorioAutocompletionConfig;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nls;
@@ -20,15 +21,15 @@ public abstract class FactorioParser extends Task.Backgroundable {
     protected static NotificationGroup notificationGroup = new NotificationGroup("Factorio API Download", NotificationDisplayType.STICKY_BALLOON, true);
     protected static String newLine = System.lineSeparator();
 
-    public FactorioParser(@Nullable Project project, @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title) {
+    public FactorioParser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title) {
         super(project, title);
     }
 
-    public FactorioParser(@Nullable Project project, @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title, boolean canBeCancelled) {
+    public FactorioParser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
         super(project, title, canBeCancelled);
     }
 
-    public FactorioParser(@Nullable Project project, @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title, boolean canBeCancelled, @Nullable PerformInBackgroundOption backgroundOption) {
+    public FactorioParser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled, @Nullable PerformInBackgroundOption backgroundOption) {
         super(project, title, canBeCancelled, backgroundOption);
     }
 

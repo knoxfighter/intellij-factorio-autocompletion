@@ -8,14 +8,13 @@ import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
 import com.tang.intellij.lua.search.SearchContext;
 import moe.knox.factorio.FactorioAutocompletionConfig;
 import moe.knox.factorio.FactorioAutocompletionState;
 import moe.knox.factorio.FactorioPrototypeState;
-import moe.knox.factorio.indexer.BasePrototypesService;
 import moe.knox.factorio.library.FactorioLibraryProvider;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jsoup.Jsoup;
@@ -75,7 +74,7 @@ public class FactorioPrototypeParser extends FactorioParser {
     private Map<String, String> propertyTypes = new HashMap<>();
 
 
-    public FactorioPrototypeParser(@Nullable Project project, String saveDir, @Nls(capitalization = Nls.Capitalization.Title) @NotNull String title) {
+    public FactorioPrototypeParser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title, @NotNull String saveDir) {
         super(project, title, false);
         this.saveDir = saveDir;
     }
@@ -92,7 +91,7 @@ public class FactorioPrototypeParser extends FactorioParser {
             return prototypeLibPath;
         } else {
             if (downloadInProgress.compareAndSet(false, true)) {
-                ProgressManager.getInstance().run(new FactorioPrototypeParser(project, prototypeLibPath, "Download and Parse Factorio Prototypes"));
+                ProgressManager.getInstance().run(new FactorioPrototypeParser(project, "Download and Parse Factorio Prototypes", prototypeLibPath));
             }
             return null;
         }

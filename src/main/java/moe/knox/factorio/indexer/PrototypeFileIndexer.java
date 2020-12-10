@@ -1,21 +1,19 @@
 package moe.knox.factorio.indexer;
 
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.tang.intellij.lua.lang.LuaFileType;
 import com.tang.intellij.lua.lang.LuaLanguage;
-import com.tang.intellij.lua.psi.LuaIndexExpr;
-import com.tang.intellij.lua.psi.LuaTableExpr;
-import com.tang.intellij.lua.psi.LuaTableField;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 // FileBasedIndex.getInstance().getValues(Test.NAME, "recipe", GlobalSearchScope.projectScope(parameters.getPosition().getProject()))
 

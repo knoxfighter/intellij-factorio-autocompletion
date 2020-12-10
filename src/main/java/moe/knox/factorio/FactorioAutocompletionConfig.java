@@ -4,11 +4,11 @@ import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
-import moe.knox.factorio.parser.FactorioApiParser;
+import com.intellij.openapi.util.NlsContexts;
 import moe.knox.factorio.library.FactorioLibraryProvider;
+import moe.knox.factorio.parser.FactorioApiParser;
 import moe.knox.factorio.parser.FactorioLualibParser;
 import moe.knox.factorio.parser.FactorioPrototypeParser;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jsoup.Jsoup;
@@ -72,9 +72,8 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
         return "preference.FactorioCompletionConfig";
     }
 
-    @Nls(capitalization = Nls.Capitalization.Title)
     @Override
-    public String getDisplayName() {
+    public @NlsContexts.ConfigurableName String getDisplayName() {
         return "Factorio Autocompletion";
     }
 
