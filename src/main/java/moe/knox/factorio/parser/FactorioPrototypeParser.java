@@ -17,6 +17,7 @@ import moe.knox.factorio.FactorioPrototypeState;
 import moe.knox.factorio.library.FactorioLibraryProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -234,6 +235,9 @@ public class FactorioPrototypeParser extends FactorioParser {
             try {
                 prototypeDoc = Jsoup.connect(prototypeLink).get();
             } catch (IOException e) {
+                if (e instanceof HttpStatusException && ((HttpStatusException) e).getStatusCode() == 404) {
+                    return true;
+                }
                 System.out.printf("error downloading the single prototype page: %s", link);
                 showDownloadingError(false);
                 return false;
