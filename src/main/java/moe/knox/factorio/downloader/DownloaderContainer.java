@@ -20,12 +20,15 @@ final public class DownloaderContainer {
     public static String downloadLink = "https://factorio-api.knox.moe/";
     public static String downloadApiLink = downloadLink + "api/";
     public static String downloadPrototypesJsonLink = downloadLink + "prototypes.json";
+    public static String downloadPrototypesLuaLink = downloadLink + "prototypes.lua";
 
     public static String rootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/";
     public static String apiRootPath = rootPath + "api/";
     public static String luaLibRootPath = rootPath + "luaLib/";
     public static String prototypeRootPath = rootPath + "prototypes/";
-    public static String prototypeDefinitionLink = rootPath + "prototypes.json";
+    public static String prototypeDefinitionPath = rootPath + "prototypeDefinition/";
+    public static String prototypeJsonLink = prototypeDefinitionPath + "prototypes.json";
+    public static String prototypeLuaLink = prototypeDefinitionPath + "prototypes.lua";
 
     private Project project;
     private FactorioAutocompletionState config;
@@ -74,7 +77,7 @@ final public class DownloaderContainer {
             String prototypeJsonVersion = new String(prototypesJsonVersionStream.readAllBytes());
             if (Long.valueOf(config.downloadedPrototypeTimestamp) < Long.valueOf(prototypeJsonVersion)) {
                 prototypeDownloader.cancel();
-                Files.delete(Path.of(prototypeDefinitionLink));
+                FileUtil.delete(Path.of(prototypeDefinitionPath));
                 prototypeDownloader.download(null);
             }
         } catch (IOException e) {
@@ -111,7 +114,7 @@ final public class DownloaderContainer {
             FileUtil.delete(Path.of(apiRootPath));
             FileUtil.delete(Path.of(luaLibRootPath));
             FileUtil.delete(Path.of(prototypeRootPath));
-            FileUtil.delete(Path.of(prototypeDefinitionLink));
+            FileUtil.delete(Path.of(prototypeDefinitionPath));
         } catch (IOException e) {
             e.printStackTrace();
             // TODO show error message
@@ -140,6 +143,9 @@ final public class DownloaderContainer {
         return luaLibDownloader.getCurrentLuaLib(config.downloadedVersion);
     }
 
+    /**
+     * @return path to the directory, where prototypes, that where downloaded from github are located.
+     */
     public String getCurrentPrototypeDefinitionLink() {
         if (config.downloadedVersion.isEmpty() || !FileUtil.exists(prototypeRootPath)) {
             download();
@@ -148,8 +154,11 @@ final public class DownloaderContainer {
         return luaLibDownloader.getCurrentPrototype(config.downloadedVersion);
     }
 
-    public String getCurrentPrototypeDefinitionJson() {
-        if (!FileUtil.exists(prototypeDefinitionLink)) {
+    /**
+     * @return path to the directory, where `prototypes.json` and `prototypes.lua` are located.
+     */
+    public String getCurrentPrototypeDefinitionPath() {
+        if (!FileUtil.exists(prototypeDefinitionPath)) {
             download();
             return null;
         }

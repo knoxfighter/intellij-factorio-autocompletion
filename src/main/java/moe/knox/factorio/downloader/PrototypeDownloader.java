@@ -1,6 +1,5 @@
 package moe.knox.factorio.downloader;
 
-import com.google.gson.Gson;
 import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ShowSettingsUtil;
@@ -16,6 +15,7 @@ import moe.knox.factorio.prototypeDefinition.PrototypeDefinitionService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -48,7 +48,7 @@ public class PrototypeDownloader extends Task.Backgroundable implements Download
         if (downloadInProgress.get() || (this.indicator != null && (this.indicator.isCanceled() || this.indicator.isRunning()))) {
             return null;
         }
-        return prototypeDefinitionLink;
+        return prototypeDefinitionPath;
     }
 
     @Override
@@ -63,15 +63,25 @@ public class PrototypeDownloader extends Task.Backgroundable implements Download
         this.indicator = progressIndicator;
 
         // check if already downloaded
-        if (!FileUtil.exists(prototypeDefinitionLink)) {
+        if (!FileUtil.exists(prototypeDefinitionPath)) {
             try {
+                FileUtil.createDirectory(new File(prototypeDefinitionPath));
+
                 // download prototypes.json
                 URL prototypesJsonUrl = new URL(downloadPrototypesJsonLink);
                 InputStream prototypesJsonStream = prototypesJsonUrl.openStream();
 
                 // save the file
-                Files.copy(prototypesJsonStream, Paths.get(prototypeDefinitionLink));
+                Files.copy(prototypesJsonStream, Paths.get(prototypeJsonLink));
                 prototypesJsonStream.close();
+
+                // download prototypes.lua
+                URL prototypesLuaUrl = new URL(downloadPrototypesLuaLink);
+                InputStream prototypesLuaStream = prototypesLuaUrl.openStream();
+
+                // save the file
+                Files.copy(prototypesLuaStream, Paths.get(prototypeLuaLink));
+                prototypesLuaStream.close();
 
                 // get current prototype.json version
                 URL prototypesJsonVersionUrl = new URL(downloadPrototypesJsonLink + "/version");

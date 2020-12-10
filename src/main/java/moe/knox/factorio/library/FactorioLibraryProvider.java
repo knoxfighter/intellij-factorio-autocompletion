@@ -20,6 +20,7 @@ import com.tang.intellij.lua.lang.LuaIcons;
 import com.tang.intellij.lua.psi.LuaFileUtil;
 import moe.knox.factorio.FactorioAutocompletionState;
 import moe.knox.factorio.downloader.DownloaderContainer;
+import moe.knox.factorio.downloader.PrototypeDownloader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,10 +67,10 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
         }
 
         // protoDir for downloaded factorio prototypes
-//        String downloadedProtoDir = FactorioPrototypeParser.getCurrentPrototypeLink(project);
-//        if (downloadedProtoDir != null && !downloadedProtoDir.isEmpty()) {
-//            libList.add(createLibrary(downloadedProtoDir, "Factorio Prototypes"));
-//        }
+        String currentPrototypeDefinitionPath = DownloaderContainer.getInstance(project).getCurrentPrototypeDefinitionPath();
+        if (currentPrototypeDefinitionPath != null && !currentPrototypeDefinitionPath.isEmpty()) {
+            libList.add(createLibrary(currentPrototypeDefinitionPath, "Factorio Prototype Definitions"));
+        }
 
         // corePrototypes dir
         String corePrototypesLink = DownloaderContainer.getInstance(project).getCurrentPrototypeDefinitionLink();
