@@ -9,6 +9,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
 import moe.knox.factorio.FactorioAutocompletionConfig;
 import moe.knox.factorio.library.FactorioLibraryProvider;
@@ -34,7 +35,7 @@ class ApiDownloader extends Task.Backgroundable implements Downloader {
     private ProgressIndicator indicator;
     private String version;
 
-    ApiDownloader(@Nullable Project project, @NotNull @Nls(capitalization = Nls.Capitalization.Title) String title) {
+    ApiDownloader(@Nullable Project project, @NotNull @NlsContexts.ProgressTitle String title) {
         super(project, title, true);
     }
 
