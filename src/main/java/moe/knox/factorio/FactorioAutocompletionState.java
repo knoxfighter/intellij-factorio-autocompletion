@@ -68,6 +68,6 @@ public class FactorioAutocompletionState implements PersistentStateComponent<Fac
     }
 
     public static FactorioAutocompletionState getInstance(Project project) {
-        return ServiceManager.getService(project, FactorioAutocompletionState.class);
+        return project.getService(FactorioAutocompletionState.class);
     }
 }

@@ -28,6 +28,10 @@
         <completion.contributor language="Lua" implementationClass="moe.knox.factorio.completion.lua.dataRaw.DataRawCompletionContributor" order="first"/>
 
         <fileBasedIndex implementation="moe.knox.factorio.indexer.PrototypeFileIndexer"/>
+        
+        <notificationGroup displayType="STICKY_BALLOON" id="Factorio API Download"/>
+        <notificationGroup displayType="STICKY_BALLOON" id="Factorio Prototype Download"/>
+        <notificationGroup displayType="STICKY_BALLOON" id="Factorio Lualib Download"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript.JsonSchema">

@@ -33,7 +33,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FactorioPrototypeParser extends FactorioParser {
-    private static NotificationGroup notificationGroup = new NotificationGroup("Factorio Prototype Download", NotificationDisplayType.STICKY_BALLOON, true);
+    protected static NotificationGroup getNotificationGroup() {
+        return NotificationGroupManager.getInstance().getNotificationGroup("Factorio Prototype Download");
+    }
 
     public static final String prototypeRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_prototypes/";
     private static final String prototypeLibPath = prototypeRootPath + "library/";
@@ -132,7 +134,7 @@ public class FactorioPrototypeParser extends FactorioParser {
                 // download and parse API
                 downloadAndParsePrototypes();
             } else {
-                Notification notification = notificationGroup.createNotification("Error creating the directories for the Factorio Prototypes.", NotificationType.ERROR);
+                Notification notification = getNotificationGroup().createNotification("Error creating the directories for the Factorio Prototypes.", NotificationType.ERROR);
                 notification.addAction(new NotificationAction("Open Settings") {
                     @Override
                     public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {

@@ -17,7 +17,9 @@ import java.io.File;
 import java.io.IOException;
 
 public abstract class FactorioParser extends Task.Backgroundable {
-    protected static NotificationGroup notificationGroup = new NotificationGroup("Factorio API Download", NotificationDisplayType.STICKY_BALLOON, true);
+    protected static NotificationGroup getNotificationGroup() {
+        return NotificationGroupManager.getInstance().getNotificationGroup("Factorio API Download");
+    }
     protected static String newLine = System.lineSeparator();
 
     public FactorioParser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title) {
@@ -47,7 +49,7 @@ public abstract class FactorioParser extends Task.Backgroundable {
             downloadingError = "Error downloading parts of the factorio prototype definitions. Please try again later!" + newLine +
                     "Integration is partially disabled until reloaded in Settings.";
         }
-        Notification notification = notificationGroup.createNotification(downloadingError, NotificationType.ERROR);
+        Notification notification = getNotificationGroup().createNotification(downloadingError, NotificationType.ERROR);
         notification.addAction(new NotificationAction("Open Settings") {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {

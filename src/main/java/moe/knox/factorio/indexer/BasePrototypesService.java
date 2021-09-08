@@ -16,7 +16,7 @@ import java.util.*;
 @Service
 final public class BasePrototypesService {
     public static BasePrototypesService getInstance(Project project) {
-        return ServiceManager.getService(project, BasePrototypesService.class);
+        return project.getService(BasePrototypesService.class);
     }
 
     Project project;

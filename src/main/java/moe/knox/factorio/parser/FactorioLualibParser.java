@@ -29,7 +29,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class FactorioLualibParser extends FactorioParser {
-    private static NotificationGroup notificationGroup = new NotificationGroup("Factorio Lualib Download", NotificationDisplayType.STICKY_BALLOON, true);
+    protected static NotificationGroup getNotificationGroup() {
+        return NotificationGroupManager.getInstance().getNotificationGroup("Factorio Lualib Download");
+    }
     private static final Logger LOG = Logger.getInstance(FactorioParser.class);
 
     public static final String luaLibRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/lualib/";
@@ -134,7 +136,7 @@ public class FactorioLualibParser extends FactorioParser {
                     }
                 } else {
                     // error
-                    Notification notification = notificationGroup.createNotification("Error checking new Version. Manual update in the Settings.", NotificationType.WARNING);
+                    Notification notification = getNotificationGroup().createNotification("Error checking new Version. Manual update in the Settings.", NotificationType.WARNING);
                     notification.addAction(new NotificationAction("Open Settings") {
                         @Override
                         public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
@@ -185,7 +187,7 @@ public class FactorioLualibParser extends FactorioParser {
 
             return correctTag;
         } else {
-            Notification notification = notificationGroup.createNotification("Error downloading Version overview", NotificationType.WARNING);
+            Notification notification = getNotificationGroup().createNotification("Error downloading Version overview", NotificationType.WARNING);
             notification.addAction(new NotificationAction("Open Settings") {
                 @Override
                 public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
@@ -293,7 +295,7 @@ public class FactorioLualibParser extends FactorioParser {
 //                });
             }
         } else {
-            Notification notification = notificationGroup.createNotification("Error getting current tags. Lualib not downloaded.", NotificationType.WARNING);
+            Notification notification = getNotificationGroup().createNotification("Error getting current tags. Lualib not downloaded.", NotificationType.WARNING);
             notification.addAction(new NotificationAction("Open Settings") {
                 @Override
                 public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {

@@ -32,7 +32,6 @@ public class FactorioApiParser extends FactorioParser {
     public static String apiRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_api/";
     public static String factorioApiBaseLink = "https://lua-api.factorio.com/";
 
-    private static NotificationGroup notificationGroup = new NotificationGroup("Factorio API Download", NotificationDisplayType.STICKY_BALLOON, true);
     private static AtomicBoolean downloadInProgress = new AtomicBoolean(false);
 
     private FactorioAutocompletionState config;
@@ -92,7 +91,7 @@ public class FactorioApiParser extends FactorioParser {
                 doc = Jsoup.connect("https://lua-api.factorio.com/").get();
             } catch (IOException e) {
 //                    e.printStackTrace();
-                Notification notification = notificationGroup.createNotification("Error checking new Version. Manual update in the Settings.", NotificationType.WARNING);
+                Notification notification = getNotificationGroup().createNotification("Error checking new Version. Manual update in the Settings.", NotificationType.WARNING);
                 notification.addAction(new NotificationAction("Open Settings") {
                     @Override
                     public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
@@ -651,7 +650,7 @@ public class FactorioApiParser extends FactorioParser {
                 // download and parse API
                 downloadAndParseAPI();
             } else {
-                Notification notification = notificationGroup.createNotification("Error creating the directories for the Factorio API.", NotificationType.ERROR);
+                Notification notification = getNotificationGroup().createNotification("Error creating the directories for the Factorio API.", NotificationType.ERROR);
                 notification.addAction(new NotificationAction("Open Settings") {
                     @Override
                     public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
