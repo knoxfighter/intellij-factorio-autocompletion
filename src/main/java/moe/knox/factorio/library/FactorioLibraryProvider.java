@@ -80,7 +80,7 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
 
     private FactorioLibrary createLibrary(String downloadedDir, String libraryName) {
         File downloadedProtoFile = new File(downloadedDir);
-        VirtualFile protoDir = VfsUtil.findFileByIoFile(downloadedProtoFile, true);
+        VirtualFile protoDir = VfsUtil.findFileByIoFile(downloadedProtoFile, false);
         for (VirtualFile protoDirChild : protoDir.getChildren()) {
             protoDirChild.putUserData(LuaFileUtil.INSTANCE.getPREDEFINED_KEY(), true);
         }

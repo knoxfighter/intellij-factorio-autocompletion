@@ -13,9 +13,9 @@
     <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
     <depends>com.intellij.modules.lang</depends>
-    <depends>com.tang</depends>
+    <depends>au.com.glassechidna.luanalysis</depends>
 
-    <idea-version since-build="202.5103.13" until-build="212.*"/>
+    <idea-version since-build="211" until-build="212.*"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable groupId="language" displayName="Factorio Autocompletion" id="preference.FactorioCompletionConfig" instance="moe.knox.factorio.FactorioAutocompletionConfig"/>
@@ -38,7 +38,7 @@
         <ProviderFactory implementation="moe.knox.factorio.completion.json.FactorioSchemaProviderFactory"/>
     </extensions>
 
-    <extensions defaultExtensionNs="com.tang.intellij.lua">
+    <extensions defaultExtensionNs="au.com.glassechidna.luanalysis">
         <luaFileResolver implementation="moe.knox.factorio.fileResolver.FactorioRootDir" order="first"/>
         <luaFileResolver implementation="moe.knox.factorio.fileResolver.FactorioLualib" order="first"/>
 

@@ -14,6 +14,7 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class FactorioCompletionContributor extends CompletionContributor {
     public FactorioCompletionContributor() {
+        // autocomplete "type" field inside "data:extend" (replace with better)
         extend(CompletionType.BASIC,
                 psiElement()
                         .with(new FactorioIntegrationActiveCondition(null))
@@ -27,6 +28,7 @@ public class FactorioCompletionContributor extends CompletionContributor {
                 new FactorioPrototypeCompletionProvider()
         );
 
+        // autocomplete string literal for "type" in "data:extend" (replace with better)
         extend(CompletionType.BASIC,
                 psiElement(LuaTypes.STRING)
                         .with(new FactorioIntegrationActiveCondition(null))
@@ -41,6 +43,7 @@ public class FactorioCompletionContributor extends CompletionContributor {
                     }
                 });
 
+        // autocomplete paths (should not be needed anymore)
         extend(CompletionType.BASIC,
                 psiElement(LuaTypes.STRING)
                         .with(new FactorioIntegrationActiveCondition(null))
@@ -66,6 +69,7 @@ public class FactorioCompletionContributor extends CompletionContributor {
                 new FactorioPathCompletionProvider()
         );
 
+        // autocomplete recipe and technology strings from PrototypeIndexer
         extend(CompletionType.BASIC,
                 psiElement(LuaTypes.STRING)
                         .withParent(

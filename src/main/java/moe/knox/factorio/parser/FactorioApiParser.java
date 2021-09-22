@@ -1,6 +1,9 @@
 package moe.knox.factorio.parser;
 
-import com.intellij.notification.*;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationAction;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
@@ -9,23 +12,20 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
-import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
 import moe.knox.factorio.FactorioAutocompletionConfig;
 import moe.knox.factorio.FactorioAutocompletionState;
 import moe.knox.factorio.library.FactorioLibraryProvider;
-import org.jetbrains.annotations.Nls;
+import moe.knox.factorio.parser.apiData.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
+import java.io.*;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FactorioApiParser extends FactorioParser {
@@ -130,514 +130,6 @@ public class FactorioApiParser extends FactorioParser {
         ApplicationManager.getApplication().invokeLater(() -> FactorioLibraryProvider.reload());
     }
 
-    public class Attribute {
-        public String name;
-        public String type;
-        public List<String> desc = new ArrayList<>();
-        public boolean read;
-        public boolean write;
-        public List<Parameter> returnParameters = new ArrayList<>();
-
-        public Attribute() {
-        }
-
-        /**
-         * Parse an Attribute of a factorio class.
-         * Will also parse additional Parameters, if the return type is a table.
-         * Additional class will be created for that return type, so it is correctly autocomplete
-         *
-         * @param attributeElement Element, that contains the attribute
-         */
-        private void parse(@NotNull Element attributeElement) {
-            Element header = attributeElement.selectFirst(".element-header");
-
-            // Get type of this attribute
-            Element paramType = header.selectFirst(".attribute-type .param-type");
-            this.type = parseType(paramType);
-
-            // Get read and write permissions
-            Element attributeMode = header.selectFirst(".attribute-mode");
-            String modeText = attributeMode.text();
-            modeText = modeText.replace("[", "").replace("]", "");
-            String[] modes = modeText.split("-");
-            for (String mode : modes) {
-                if (mode.equals("Read")) {
-                    this.read = true;
-                } else if (mode.equals("Write")) {
-                    this.write = true;
-                }
-            }
-
-            // get description
-            Element attributeContent = attributeElement.selectFirst(".element-content");
-            for (Element attributeContentChild : attributeContent.children()) {
-                String childHtml = attributeContentChild.html().strip();
-                if (!childHtml.isEmpty()) {
-                    this.desc.add(removeNewLines(childHtml));
-                }
-            }
-
-            Element tableFieldList = attributeContent.selectFirst(".field-list");
-
-            if (tableFieldList != null) {
-                for (Element parameterElement : tableFieldList.children()) {
-                    Parameter parameter = new Parameter();
-                    if (parameter.parseDefault(parameterElement)) {
-                        returnParameters.add(parameter);
-                    }
-                }
-            }
-        }
-    }
-
-    public class Method {
-        public String name;
-        public String returnType;
-        public String returnTypeDesc;
-        public List<String> desc = new ArrayList<>();
-        public List<Parameter> parameters = new ArrayList<>();
-        private FactorioType factorioType;
-
-        public Method(FactorioType factorioType) {
-            this.factorioType = factorioType;
-        }
-
-        /**
-         * Copy-Constructor
-         *
-         * @param other copied Method
-         */
-        Method(@NotNull Method other) {
-            this.name = other.name;
-            this.returnType = other.returnType;
-            this.returnTypeDesc = other.returnTypeDesc;
-            this.factorioType = other.factorioType;
-
-            this.desc.addAll(other.desc);
-            for (Parameter parameter : other.parameters) {
-                this.parameters.add(new Parameter(parameter));
-            }
-        }
-
-        /**
-         * Parse Method of a factorio class.
-         * This will start the parsing of the Parameters.
-         * When finding optional Parameters, the Method gets copied, to have an overload without optionals.
-         *
-         * @param methodNameElement
-         * @param methodElement
-         */
-        private void parseSimple(@NotNull Element methodNameElement, @NotNull Element methodElement) {
-            // get return type
-            Element returnTypeElement = methodNameElement.selectFirst(".return-type .param-type");
-            if (returnTypeElement != null) {
-                this.returnType = parseType(returnTypeElement);
-            }
-
-            // get short description
-            Element methodElementContent = methodElement.selectFirst(".element-content");
-            for (Element methodElementContentChild : methodElementContent.children()) {
-                if (!methodElementContentChild.hasClass("detail") && !methodElementContentChild.hasClass("notes")) {
-                    String text = removeNewLines(methodElementContentChild.html());
-                    if (!text.isEmpty()) {
-                        this.desc.add(text);
-                    }
-                }
-            }
-
-            // add notes to description
-            Elements methodNotes = methodElementContent.select(".note");
-            for (Element methodNote : methodNotes) {
-                this.desc.add(removeNewLines(methodNote.html()));
-            }
-
-            // get Parameters
-            Elements methodElementContentDetails = methodElementContent.select(".detail");
-            ListIterator<Element> methodElementContentDetailsIterator = methodElementContentDetails.listIterator(methodElementContentDetails.size());
-
-            // Iterate backwards, so return value is parsed first
-            while (methodElementContentDetailsIterator.hasPrevious()) {
-                Element methodDetail = methodElementContentDetailsIterator.previous();
-                Element header = methodDetail.selectFirst(".detail-header");
-
-                // If header not present, add content to description
-                if (header == null) {
-                    String detailHtml = removeNewLines(methodDetail.html());
-                    this.desc.add(detailHtml);
-                    continue;
-                }
-
-                // Parse Parameters
-                if (header.text().equals("Parameters")) {
-                    Element methodDetailContent = methodDetail.selectFirst(".detail-content");
-
-                    Element fieldList = methodDetailContent.selectFirst(".field-list");
-                    if (fieldList != null) {
-                        // parse list parameter
-                        for (Element listElement : fieldList.children()) {
-                            Parameter parameter = new Parameter(this);
-
-                            if (parameter.parseDefault(listElement)) {
-                                this.parameters.add(parameter);
-                            }
-                        }
-                    } else {
-                        // parse normal parameter
-                        for (Element methodParam : methodDetailContent.children()) {
-                            Parameter parameter = new Parameter(this);
-
-                            if (parameter.parseDefault(methodParam)) {
-                                this.parameters.add(parameter);
-                            }
-                        }
-                    }
-                    // Description for return value
-                } else if (header.text().equals("Return value")) {
-                    this.returnTypeDesc = methodDetail.selectFirst(".detail-content").text();
-                }
-            }
-        }
-
-        private void copyAndParseOverload(@NotNull Element paramList) {
-            Method clonedMethod = new Method(this);
-
-            for (Element param : paramList.children()) {
-                Parameter parameter = new Parameter(clonedMethod);
-                if (parameter.parseDefault(param)) {
-                    clonedMethod.parameters.add(parameter);
-                }
-            }
-
-            factorioType.methods.add(clonedMethod);
-        }
-
-        private void copyAndAdd() {
-            Method clonedMethod = new Method(this);
-            factorioType.methods.add(clonedMethod);
-        }
-    }
-
-    /**
-     * Represents a parameter of methods of factorio classes.
-     * Also is used in some cases for variables.
-     */
-    public class Parameter {
-        public String name;
-        public String type;
-        public String desc;
-        public boolean optional = false;
-        private Method method = null;
-
-        public Parameter() {
-        }
-
-        public Parameter(Method method) {
-            this.method = method;
-        }
-
-        /**
-         * Copy-Constructor
-         *
-         * @param other copied Parameter
-         */
-        Parameter(@NotNull Parameter other) {
-            this.name = other.name;
-            this.type = other.type;
-            this.desc = other.desc;
-            this.optional = other.optional;
-            this.method = other.method;
-        }
-
-        /**
-         * Parses a parameter. This is also used to parse variables and table elements.
-         * Example: https://lua-api.factorio.com/latest/LuaControlBehavior.html#LuaControlBehavior.get_circuit_network
-         * <p>
-         * returns false, when the param is somehow not correctly parse (no child elements, wrong layout, ...)
-         *
-         * @param methodParam The Element, that contains the parameter
-         * @return Parameter parsed successfully
-         */
-        private boolean parseDefault(@NotNull Element methodParam) {
-            // dont run on empty elements
-            if (methodParam.childNodeSize() == 0) {
-                return false;
-            }
-
-            // check if first element is not the param-name
-            if (!methodParam.child(0).hasClass("param-name")) {
-                Elements additionalParamLists = methodParam.select(".field-list");
-
-                for (Element additionalParamList : additionalParamLists) {
-                    // duplicate method as overload
-                    if (method != null) {
-                        method.copyAndParseOverload(additionalParamList);
-                    }
-                }
-                return false;
-            } else {
-                // get name
-                Element paramNameElement = methodParam.selectFirst(".param-name");
-
-                // replace with valid param names
-                this.name = paramNameElement.text().replace("-", "_");
-                if (this.name.equals("function")) {
-                    this.name = "func";
-                } else if (this.name.equals("end")) {
-                    this.name = "_end";
-                }
-                paramNameElement.remove();
-
-                // get types
-                Element paramType = methodParam.selectFirst(".param-type");
-                if (paramType != null) {
-                    this.type = parseType(paramType);
-                    paramType.remove();
-                }
-
-                // get optional
-                Element methodParamOpt = methodParam.selectFirst(".opt");
-                if (methodParamOpt != null) {
-                    this.optional = true;
-
-                    // copy and add Method now (work further on the old Method)
-                    if (method != null) {
-                        method.copyAndAdd();
-                    }
-
-                    methodParamOpt.remove();
-                }
-
-                // old elements are removed, so everything else is the description
-                this.desc = removeNewLines(methodParam.html().strip()).strip().replaceAll("^[:]+|[:]+$", "").strip();
-
-                // parse literal types if string
-                if (this.type != null && this.type.equals("string")) {
-                    for (Element codeElement : methodParam.select("code")) {
-                        this.type += "|'" + codeElement.text() + "'";
-                    }
-                }
-
-                return true;
-            }
-        }
-    }
-
-    /**
-     * The representation of a factorio class.
-     * It saves all methods and attributes for the class. Also contains a string to represent parent classes.
-     */
-    public class FactorioType {
-        public String name;
-        public String parentType;
-        public List<String> desc = new ArrayList<>();
-        public List<Method> methods = new ArrayList<>();
-        public List<Attribute> attributes = new ArrayList<>();
-
-        /**
-         * Parses the class from the document. It will also start the parsing of methods and attributes.
-         * Some documents contain more than one class, so the typeId contains the css-id of the class to parse: https://lua-api.factorio.com/latest/LuaControlBehavior.html
-         *
-         * @param document The document with the factorioType in it
-         * @param typeId   The css-id of the type to parse from the page
-         */
-        public void parseSingle(@NotNull Document document, String typeId) {
-            Element typeBrief = document.selectFirst("[id=" + typeId + ".brief]");
-            this.name = typeBrief.selectFirst(".type-name").text();
-
-            if (document.selectFirst("h1").text().equals(this.name)) {
-                Element briefDescription = document.selectFirst(".brief-description");
-                if (briefDescription != null) {
-                    this.desc.add(removeNewLines(briefDescription.html()));
-                }
-            }
-
-            Elements listingLinks = typeBrief.select("a");
-            for (Element listingLink : listingLinks) {
-                if (listingLink.hasClass("sort")) {
-                    break;
-                }
-                if (!listingLink.parent().hasClass("type-name")) {
-                    this.parentType = listingLink.text();
-                    break;
-                }
-            }
-
-            Element typeData = document.selectFirst("#" + typeId);
-
-            if (typeData.child(0).is("h2")) {
-                Element elemContent = typeData.selectFirst(".element-content");
-                for (Element curChild : elemContent.children()) {
-                    if (!curChild.hasClass("element")) {
-                        String curChildText = removeNewLines(curChild.html());
-                        if (!curChildText.isEmpty()) {
-                            this.desc.add(curChildText);
-                        }
-                    }
-                }
-            }
-
-            Elements typeElements = typeData.select(".element");
-
-            for (Element typeMethod : typeElements) {
-                // Skip self element
-                if (typeMethod.id().equals(typeId)) {
-                    continue;
-                }
-
-                if (typeMethod.hasClass("element")) {
-                    // Is element of this type
-                    // check if element is attribute
-                    Element attributeType = typeMethod.selectFirst(".attribute-type");
-                    if (attributeType != null) {
-                        // parse Attribute
-                        Attribute attribute = new Attribute();
-                        attribute.name = typeMethod.id();
-                        attribute.parse(typeMethod);
-
-                        this.attributes.add(attribute);
-                    } else {
-                        // parse Method
-                        Method factorioTypeMethod = new Method(this);
-
-                        // get name of element
-                        Element methodNameElement = typeMethod.selectFirst(".element-name");
-                        factorioTypeMethod.name = typeMethod.id();
-                        factorioTypeMethod.parseSimple(methodNameElement, typeMethod);
-
-                        // add method to
-                        this.methods.add(factorioTypeMethod);
-                    }
-                } else {
-                    // Is part of the description
-                    this.desc.add(removeNewLines(typeMethod.html()));
-                }
-            }
-        }
-
-        /**
-         * Save this FactorioType to a lua file.
-         */
-        private void saveToFile() {
-            // create new file content
-            StringBuilder typeFileContent = new StringBuilder();
-            for (String s : this.desc) {
-                typeFileContent.append("---").append(s).append(newLine);
-            }
-            typeFileContent.append("---@class ").append(this.name);
-            if (this.parentType != null && !this.parentType.isEmpty()) {
-                typeFileContent.append(" : ").append(this.parentType);
-            }
-            typeFileContent.append(newLine);
-            typeFileContent.append("local ").append(this.name).append(" = {}").append(newLine).append(newLine);
-
-            // add all methods
-            for (Method method : this.methods) {
-                StringBuilder methodPrint = new StringBuilder("function ");
-
-                // add description
-                for (String s : method.desc) {
-                    typeFileContent.append("---").append(s).append(newLine);
-                }
-                methodPrint.append(method.name).append("(");
-                boolean laterParam = false;
-
-                // add parameters to output and to completeMethod
-//                for (FactorioType.Parameter parameter : method.parameters) {
-                for (int i = 0; i < method.parameters.size(); i++) {
-                    Parameter parameter = method.parameters.get(i);
-                    // Override Parameter, when type is null and add generic name
-                    if (parameter.type == null || parameter.type.isEmpty()) {
-                        parameter.type = parameter.name;
-                        parameter.name = method.name.replace(".", "_") + "_Param_" + i;
-                    }
-
-                    typeFileContent.append("---@param ").append(parameter.name).append(" ").append(parameter.type);
-                    if (parameter.desc != null && !parameter.desc.isEmpty()) {
-                        typeFileContent.append(" ").append(parameter.desc);
-                    }
-                    typeFileContent.append(newLine);
-
-                    if (laterParam) {
-                        methodPrint.append(", ");
-                    } else {
-                        laterParam = true;
-                    }
-                    methodPrint.append(parameter.name);
-                }
-                methodPrint.append(") end");
-
-                // add return value
-                if (method.returnType != null && !method.returnType.isEmpty()) {
-                    typeFileContent.append("---@return ").append(method.returnType);
-                    if (method.returnTypeDesc != null && !method.returnTypeDesc.isEmpty()) {
-                        typeFileContent.append(" ").append(method.returnTypeDesc);
-                    }
-                    typeFileContent.append(newLine);
-                }
-
-                // add complete method
-                typeFileContent.append(methodPrint).append(newLine).append(newLine).append(newLine);
-            }
-
-            // add all attributes
-            for (Attribute attribute : this.attributes) {
-                // create new class as return type
-                if (!attribute.returnParameters.isEmpty()) {
-                    // create name of the class
-                    String parameterClassName = attribute.name.replace(".", "_") + "_Result";
-
-                    // define the new class
-                    typeFileContent.append("---@class ").append(parameterClassName).append(newLine);
-                    typeFileContent.append("local ").append(parameterClassName).append(" = {}").append(newLine);
-
-                    // add the parameters to the class, so the structure is correct
-                    for (Parameter returnParameter : attribute.returnParameters) {
-                        if (returnParameter.desc != null && !returnParameter.desc.isEmpty()) {
-                            typeFileContent.append("--- ").append(returnParameter.desc).append(newLine);
-                        }
-                        typeFileContent.append("---@type ").append(returnParameter.type).append(newLine);
-                        typeFileContent.append(parameterClassName).append(".").append(returnParameter.name).append(" = nil").append(newLine);
-                    }
-
-                    // override type of the attribute
-                    boolean attributeIsArray = attribute.type.endsWith("[]");
-                    attribute.type = parameterClassName;
-                    if (attributeIsArray) {
-                        attribute.type += "[]";
-                    }
-                }
-
-                // create description
-                for (String s : attribute.desc) {
-                    typeFileContent.append("--- ").append(s).append(newLine);
-                }
-
-                // Write read and write possibilities
-                String rwText = "";
-                if (attribute.read && !attribute.write) {
-                    rwText += "Read-Only";
-                } else if (!attribute.read && attribute.write) {
-                    rwText += "Write-Only";
-                } else if (attribute.read && attribute.write) {
-                    rwText += "Read-Write";
-                }
-                if (!rwText.isEmpty()) {
-                    typeFileContent.append("--- ").append(rwText).append(newLine);
-                }
-
-                // add type
-                typeFileContent.append("---@type ").append(attribute.type).append(newLine);
-
-                // add attribute definition
-                typeFileContent.append(attribute.name).append(" = nil").append(newLine).append(newLine).append(newLine);
-            }
-
-            // create file
-            String typeDir = saveDir + this.name + ".lua";
-            saveStringToFile(typeDir, typeFileContent.toString());
-        }
-    }
-
     /**
      * Entry-point with creating the used directory to the save the directory to.
      * It will assure, that the directory is there and will start the download and parsing.
@@ -676,437 +168,629 @@ public class FactorioApiParser extends FactorioParser {
      * Here also the indicator will be updated, to show the current percentage of the parsing.
      */
     private void downloadAndParseAPI() {
-        String versionedApiLink = factorioApiBaseLink + config.selectedFactorioVersion.link;
+        String versionedApiLink = factorioApiBaseLink + config.selectedFactorioVersion.link + "runtime-api.json";
 
-        indicator.setIndeterminate(false);
-
-        Document mainPage;
+        JsonAPI jsonAPI;
         try {
-            mainPage = Jsoup.connect(versionedApiLink).get();
+            InputStreamReader inputStreamReader = new InputStreamReader(new URL(versionedApiLink).openStream());
+            jsonAPI = JsonAPI.read(inputStreamReader);
         } catch (IOException e) {
-            System.out.println("error downloading the main API page");
-            showDownloadingError(false);
+            e.printStackTrace();
             return;
         }
 
-        String version = mainPage.selectFirst(".version").text();
-        version = version.substring(9); // remove "Factorio " from version
-        config.curVersion = version;
+        config.curVersion = jsonAPI.application_version;
 
-        // get links to full classes
-        Element classes = mainPage.selectFirst(".brief-members");
-        Elements classLinks = classes.select(".header a");
+        String saveFile = saveDir + "factorio.lua";
+        // create file
 
-        // create List with all cleared links
-        Set<String> links = new HashSet<>();
-        for (Element classLink : classLinks) {
-            links.add(classLink.attr("href").split("#")[0]);
-        }
-
-        // all classes + eventFilters + defines + concepts + globals
-        maxTodo = links.size() + 1 + 3;
-
-        updateIndicator();
-
-        // parse EventFilters first
-        parseEventFilters(versionedApiLink);
-
-        updateIndicator();
-
-        // Iterate over links
-        for (String link : links) {
-            Document singleDoc;
-            String completeLink = versionedApiLink + link;
-
-            try {
-                singleDoc = Jsoup.connect(completeLink).get();
-            } catch (Exception e) {
-                System.out.println("couldnt load testDir");
-//                e.printStackTrace();
-                showDownloadingError(true);
-                return;
-            }
-
-            // get the brief listings of all types on this page
-            Elements briefListings = singleDoc.select(".brief-listing");
-            for (Element briefListing : briefListings) {
-                String listingId = briefListing.id();
-                if (listingId != null && !listingId.isEmpty()) {
-                    listingId = listingId.split("\\.")[0];
-
-                    FactorioType factorioType = new FactorioType();
-                    factorioType.parseSingle(singleDoc, listingId);
-                    factorioType.saveToFile();
-                }
-            }
-
-            updateIndicator();
-        }
-
-        // parse defines and events page
-        parseDefines(versionedApiLink);
-
-        updateIndicator();
-
-        // parse concepts
-        parseConcepts(versionedApiLink);
-
-        updateIndicator();
-
-        // parse global variables
-        parseGlobals(mainPage);
-
-        updateIndicator();
-    }
-
-    /**
-     * Parses and saves the EventFilters page. This page got added in v0.17.75, earlier versions will not have this page and the download fails.
-     * Event filters are custom Lua-Types, will be saved and shown as classes with elements.
-     * Additionally an alias is created, from all EventFilters to <code>Filters</code>.
-     * <p>
-     * https://lua-api.factorio.com/latest/Event-Filters.html
-     *
-     * @param baseLink Link to the frontpage of the api with version
-     */
-    private void parseEventFilters(String baseLink) {
-        Document eventFiltersPage;
-        String eventFiltersLink = baseLink + "Event-Filters.html";
-
+        OutputStreamWriter output;
         try {
-            eventFiltersPage = Jsoup.connect(eventFiltersLink).get();
+            File file = new File(saveFile);
+            file.createNewFile();
+            FileOutputStream outputStream = new FileOutputStream(file, false);
+            output = new OutputStreamWriter(outputStream);
         } catch (IOException e) {
-            System.out.println("error downloading the Event-Filters page, old versions dont have them.");
+            e.printStackTrace();
+            showDownloadingError(true);
             return;
         }
 
-        class EventFilter {
-            private String name;
-            private List<Parameter> parameters = new ArrayList<>();
+        try {
+            // builtin types done in `resources/library/builtin-types.lua`
+
+            writeGlobalsObjects(output, jsonAPI.globalObjects);
+
+            output.append("---@class defines").append(newLine);
+            output.append("defines = {}").append(newLine).append(newLine);
+            writeDefines(output, jsonAPI.defines, "defines");
+
+            // TODO: implement autocompletion for events
+
+            writeClasses(output, jsonAPI.classes);
+
+            writeConcepts(output, jsonAPI.concepts);
+
+            output.flush();
+            output.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showDownloadingError(true);
+            return;
         }
-        List<EventFilter> eventFilters = new ArrayList<>();
-        Elements elements = eventFiltersPage.select(".element");
-        for (Element element : elements) {
-            EventFilter eventFilter = new EventFilter();
-            eventFilter.name = element.id();
-
-            // Iterate over all lists
-            Elements lists = element.select(".element-content > ul");
-            for (Element list : lists) {
-                // Iterate over all children in this list
-                for (Element fieldListChild : list.children()) {
-                    if (list.hasClass("field-list")) {
-                        // Run things differently on field-list object. It contains the default params
-                        Parameter parameter = new Parameter();
-                        parameter.parseDefault(fieldListChild);
-                        eventFilter.parameters.add(parameter);
-                    } else {
-                        // Rest is description with literal types
-                        Element code = fieldListChild.selectFirst("code");
-                        eventFilter.parameters.get(0).type += "|'" + code.text() + "'";
-                        Element subFieldList = fieldListChild.selectFirst(".field-list");
-
-                        // Some literal types are in need of another param
-                        if (subFieldList != null) {
-                            for (Element subFieldListChild : subFieldList.children()) {
-                                Parameter parameter = new Parameter();
-                                parameter.parseDefault(subFieldListChild);
-                                eventFilter.parameters.add(parameter);
-                            }
-                        }
-                    }
-                }
-            }
-            eventFilters.add(eventFilter);
-        }
-
-        // Save the filters to a file
-        StringBuilder aliasEventFilter = new StringBuilder();
-        StringBuilder eventFilterContent = new StringBuilder();
-        for (EventFilter eventFilter : eventFilters) {
-            eventFilterContent.append("---@class ").append(eventFilter.name).append(newLine);
-            eventFilterContent.append("local ").append(eventFilter.name).append(" = {}").append(newLine).append(newLine);
-
-            if (aliasEventFilter.length() > 0) {
-                aliasEventFilter.append("|");
-            }
-            aliasEventFilter.append(eventFilter.name).append("[]");
-
-            for (Parameter parameter : eventFilter.parameters) {
-                if (parameter.desc != null && !parameter.desc.isEmpty()) {
-                    eventFilterContent.append("--- ").append(parameter.desc).append(newLine);
-                }
-                eventFilterContent.append("---@type ").append(parameter.type).append(newLine);
-                eventFilterContent.append(eventFilter.name).append(".").append(parameter.name).append(" = nil").append(newLine).append(newLine);
-            }
-            eventFilterContent.append(newLine);
-        }
-        eventFilterContent.append("---@alias Filters ").append(aliasEventFilter);
-
-        String eventFiltersFile = saveDir + "EventFilters.lua";
-        saveStringToFile(eventFiltersFile, eventFilterContent.toString());
     }
 
-    /**
-     * Parses all types inside the given element. It will look inside the element and tries to find more `.param-type` elements as their children
-     * Will also parse functions and tables. They then look a little different:
-     * Tables: <code>table<Type, Type>`</code>
-     * Functions: <code>fun(name, name, ...)</code>
-     * Arrays will also be parsed, instead of the text `array of`, `[]` will be added to the type.
-     *
-     * @param typeElement The parent param-type. It is around all param-types
-     * @return list with all types
-     */
-    private String parseType(@NotNull Element typeElement) {
-        String typeText = typeElement.text();
-        if (typeText.startsWith("array of")) {
-            return typeElement.select(".param-type").last().text() + "[]";
-        } else if (typeText.startsWith("function")) {
-            StringBuilder functionBuilder = new StringBuilder("fun(");
-            boolean first = true;
-            for (Element typeChild : typeElement.children()) {
-                if (typeChild.hasClass("param-type")) {
-                    if (!first) {
-                        functionBuilder.append(", ");
-                    } else {
-                        first = false;
-                    }
-                    String typeChildText = typeChild.text();
-                    functionBuilder.append(StringUtil.decapitalize(typeChildText)).append(":").append(typeChildText);
-                }
+    void writeDescLine(OutputStreamWriter output, List<String> lines) throws IOException {
+        if (lines != null && !lines.isEmpty()) {
+            for (String line : lines) {
+                writeEmptyLine(output);
+                writeDescLine(output, line);
             }
-            functionBuilder.append(")");
-            return functionBuilder.toString();
-        } else if (typeText.startsWith("CustomDictionary") || typeText.startsWith("dictionary")) {
-            StringBuilder dictBuilder = new StringBuilder("table<");
-            boolean first = true;
-            for (Element typeChild : typeElement.children()) {
-                if (typeChild.hasClass("param-type")) {
-                    if (!first) {
-                        dictBuilder.append(", ");
-                    } else {
-                        first = false;
-                    }
-                    dictBuilder.append(parseType(typeChild));
-                }
+        }
+    }
+
+    void writeEmptyLine(OutputStreamWriter output) throws IOException {
+        output.append("---").append(newLine);
+    }
+
+    void writeDescLine(OutputStreamWriter output, String line) throws IOException {
+        if (!line.isEmpty()) {
+            line = line.replace('\n', ' ');
+            output.append("--- ").append(line).append(newLine);
+        }
+    }
+
+    void writeReadWrite(OutputStreamWriter output, boolean read, boolean write) throws IOException {
+        if (read && write) {
+            output.append("--- ").append("Read-Write").append(newLine);
+        } else if (read) {
+            output.append("--- ").append("Read-Only").append(newLine);
+        } else if (write) {
+            output.append("--- ").append("Write-Only").append(newLine);
+        }
+    }
+
+    void writeSee(OutputStreamWriter output, List<String> seeAlso) throws IOException {
+        if (seeAlso != null && !seeAlso.isEmpty()) {
+            for (String see : seeAlso) {
+                see = see.replace("::", "#");
+                output.append("---@see ").append(see).append(newLine);
             }
-            dictBuilder.append(">");
-            return dictBuilder.toString();
+        }
+    }
+
+    void writeClass(OutputStreamWriter output, String className) throws IOException {
+        writeClass(output, className, "");
+    }
+
+    void writeClass(OutputStreamWriter output, String className, String parentClass) throws IOException {
+        output.append("---@class ").append(className);
+        if (!parentClass.isEmpty()) {
+            output.append(" : ").append(parentClass);
+        }
+        output.append(newLine);
+    }
+
+    void writeClass(OutputStreamWriter output, String className, List<String> parentClasses) throws IOException {
+        if (parentClasses != null && !parentClasses.isEmpty()) {
+            writeClass(output, className, parentClasses.get(0));
         } else {
-            StringBuilder generalBuilder = new StringBuilder();
-            boolean first = true;
-            for (Element typeChild : typeElement.children()) {
-                if (typeChild.hasClass("param-type")) {
-                    if (!first) {
-                        generalBuilder.append("|");
-                    } else {
-                        first = false;
-                    }
-                    generalBuilder.append(parseType(typeChild));
-                }
+            writeClass(output, className);
+        }
+    }
+
+    void writeShape(OutputStreamWriter output, String name) throws IOException {
+        output.append("---@shape ").append(name).append(newLine);
+    }
+
+    void writeField(OutputStreamWriter output, String name, Type type, String description) throws IOException {
+        writeField(output, name, type, description, false);
+    }
+
+    void writeField(OutputStreamWriter output, String name, String type, String description) throws IOException {
+        writeField(output, name, type, description, false);
+    }
+
+    void writeField(OutputStreamWriter output, String name, Type type, String description, boolean withNil) throws IOException {
+        writeField(output, name, getType(type), description, withNil);
+    }
+
+    void writeField(OutputStreamWriter output, String name, String type, String description, boolean withNil) throws IOException {
+        output.append("---@field ").append(name).append(' ').append(type);
+
+        if (withNil) {
+            output.append("|nil");
+        }
+
+        output.append(' ').append(description);
+    }
+
+    void writeType(OutputStreamWriter output, String type) throws IOException {
+        writeType(output, type, false);
+    }
+
+    void writeType(OutputStreamWriter output, Type type) throws IOException {
+        writeType(output, getType(type), false);
+    }
+
+    void writeType(OutputStreamWriter output, Type type, boolean optional) throws IOException {
+        writeType(output, getType(type), optional);
+    }
+
+    void writeType(OutputStreamWriter output, String type, boolean optional) throws IOException {
+        output.append("---@type ").append(type);
+        if (optional) {
+            output.append("|nil");
+        }
+        output.append(newLine);
+    }
+
+    void writeParam(OutputStreamWriter output, String name, Type type, String description) throws IOException {
+        writeParam(output, name, getType(type), description);
+    }
+
+    void writeParam(OutputStreamWriter output, String name, String type) throws IOException {
+        writeParam(output, name, type, "");
+    }
+
+    void writeParam(OutputStreamWriter output, String name, String type, String description) throws IOException {
+        description = description.replace('\n', ' ');
+        output.append("---@param ").append(name).append(' ').append(type).append(' ').append(description).append(newLine);
+    }
+
+    void writeReturn(OutputStreamWriter output, Type type, String desc) throws IOException {
+        output.append("---@return ").append(getType(type)).append(' ');
+        if (!desc.isEmpty()) {
+            desc = desc.replace('\n', ' ');
+            output.append(desc);
+        }
+        output.append(newLine);
+    }
+
+    void writeOverload(OutputStreamWriter output, List<Parameter> parameters, String stopAt) throws IOException {
+        writeOverload(output, parameters, null, stopAt);
+    }
+
+    void writeOverload(OutputStreamWriter output, List<Parameter> parameters, Type returnType) throws IOException {
+        writeOverload(output, parameters, returnType, null);
+    }
+
+    void writeOverload(OutputStreamWriter output, List<Parameter> parameters, Type returnType, String stopAt) throws IOException {
+        // ---@overload fun(param1:A,param2:B):R
+
+        output.append("---@overload fun(");
+
+        boolean first = true;
+        for (Parameter parameter : parameters) {
+            if (stopAt != null && stopAt == parameter.name) {
+                break;
             }
 
-            // when no children parsed
             if (first) {
-                return typeText;
+                first = false;
             } else {
-                return generalBuilder.toString();
+                output.append(',');
             }
+
+            output.append(parameter.name).append(':').append(getType(parameter.type));
+        }
+
+        output.append(')');
+
+        if (returnType != null) {
+            output.append(':').append(getType(returnType));
+        }
+
+        output.append(newLine);
+    }
+
+    void writeAliasStringLiteral(OutputStreamWriter output, String name, List<String> types) throws IOException {
+        output.append("---@alias ").append(name);
+
+        boolean first = true;
+        for (String type : types) {
+            if (first) {
+                first = false;
+            } else {
+                output.append('|');
+            }
+
+            output.append('"').append(type).append('"');
+        }
+        output.append(newLine);
+    }
+
+    void writeAlias(OutputStreamWriter output, String name, List<Type> types) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        boolean first = true;
+        for (Type type : types) {
+            if (first) {
+                first = false;
+            } else {
+                stringBuilder.append('|');
+            }
+            stringBuilder.append(getType(type));
+        }
+        writeAlias(output, name, stringBuilder.toString());
+    }
+
+    void writeAlias(OutputStreamWriter output, String name, String type) throws IOException {
+        output.append("---@alias ").append(name).append(' ').append(type).append(newLine);
+    }
+
+    String getType(Type type) {
+        if (type.isSimpleString) {
+            return type.type;
+        }
+
+        Type.ComplexData data = type.data;
+        switch (data.complexType) {
+            case "variant": {
+                StringBuilder stringBuilder = new StringBuilder();
+                boolean first = true;
+                for (Type option : data.variant.options) {
+                    if (!first) {
+                        stringBuilder.append('|');
+                    }
+                    first = false;
+                    stringBuilder.append(getType(option));
+                }
+
+                return stringBuilder.toString();
+            }
+            case "array": {
+                StringBuilder stringBuilder = new StringBuilder();
+                // A[]
+                try {
+                    stringBuilder.append(getType(data.array.value)).append("[]");
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+                return stringBuilder.toString();
+            }
+            case "dictionary":
+            case "LuaCustomTable": {
+                StringBuilder stringBuilder = new StringBuilder();
+                // table<A, B>
+                stringBuilder.append("table<").append(getType(data.dictionary.key)).append(", ").append(getType(data.dictionary.value)).append(">");
+                return stringBuilder.toString();
+            }
+            case "function": {
+                StringBuilder stringBuilder = new StringBuilder();
+                // fun(param:A, param2:B):RETURN_TYPE
+                stringBuilder.append("fun(");
+                int i = 0;
+                for (Type parameter : data.function.parameters) {
+                    if (i > 0) {
+                        stringBuilder.append(',');
+                    }
+                    stringBuilder.append("param").append(i).append(':').append(getType(parameter));
+                    ++i;
+                }
+                stringBuilder.append(")");
+            }
+            case "LuaLazyLoadedValue": {
+                return "LuaLazyLoadedValue";
+                // TODO override `LuaLazyLoadedValue` class with generic
+            }
+            case "table": {
+                return getAnonymousTableType(data.table.parameters);
+            }
+            default:
+                throw new IllegalStateException("Unexpected value: " + data);
         }
     }
 
-    /**
-     * parses and saves the defines page of the factorio API.
-     * The result is a multistructure with all defines and in a table.
-     * The events table is parsed form the events page: https://lua-api.factorio.com/latest/events.html
-     * Defines page: https://lua-api.factorio.com/latest/defines.html
-     *
-     * @param baseLink The Link to the frontpage of this api version
-     */
-    private void parseDefines(String baseLink) {
-        Document definesPage;
-        String definesLink = baseLink + "defines.html";
-
-        try {
-            definesPage = Jsoup.connect(definesLink).get();
-        } catch (IOException e) {
-            System.out.println("error downloading the defines page");
-//            e.printStackTrace();
-            showDownloadingError(true);
-            return;
-        }
-
-        List<String> defineClasses = new ArrayList<>();
-        List<Pair<String, String>> defineValues = new ArrayList<>();
-        Elements allDefines = definesPage.select(".element");
-        for (Element define : allDefines) {
-            String valueId = define.id();
-            if (valueId.contains("events")) {
-                continue;
-            }
-            if (define.is("tr")) {
-                // is value
-                String desc = define.selectFirst(".description").html();
-                defineValues.add(Pair.create(valueId, desc));
+    String getAnonymousTableType(List<Parameter> parameters) {
+        // {["huhu"]:number, ["baum"]:string}
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append('{');
+        boolean first = true;
+        for (Parameter parameter : parameters) {
+            if (first) {
+                first = false;
             } else {
-                // is class
-                defineClasses.add(valueId);
+                stringBuilder.append(",");
+            }
+            stringBuilder.append("[\"").append(parameter.name).append("\"]:").append(getType(parameter.type));
+            if (parameter.optional) {
+                stringBuilder.append("|nil");
             }
         }
-
-
-        // parse event page here too
-        Document eventsPage;
-        String eventsLink = baseLink + "events.html";
-
-        try {
-            eventsPage = Jsoup.connect(eventsLink).get();
-        } catch (IOException e) {
-            System.out.println("error downloading the events page");
-//            e.printStackTrace();
-            showDownloadingError(true);
-            return;
-        }
-
-        for (Element event : eventsPage.select(".element")) {
-            if (event.id().equals("All events")) {
-                continue;
-            }
-
-            String eventName = event.id();
-            if (!eventName.isEmpty()) {
-                eventName = "defines.events." + eventName;
-                String desc = removeNewLines(event.selectFirst(".element-content").html());
-                defineValues.add(Pair.create(eventName, desc));
-            }
-        }
-        defineClasses.add("defines.events");
-
-
-        // save defines to file
-        StringBuilder definesFileContent = new StringBuilder();
-        definesFileContent.append("---@class defines").append(newLine);
-        definesFileContent.append("defines = {}").append(newLine).append(newLine).append(newLine);
-
-        for (String defineClass : defineClasses) {
-            definesFileContent.append("---@class ").append(defineClass).append(newLine);
-            definesFileContent.append(defineClass).append(" = {}").append(newLine).append(newLine).append(newLine);
-        }
-
-        for (Pair<String, String> defineValue : defineValues) {
-            String desc = defineValue.second;
-            if (!desc.isEmpty()) {
-                definesFileContent.append("--- ").append(desc).append(newLine);
-            }
-            definesFileContent.append("---@type nil").append(newLine);
-            definesFileContent.append(defineValue.first).append(" = nil").append(newLine).append(newLine).append(newLine);
-        }
-
-        String typeFile = saveDir + "defines.lua";
-        saveStringToFile(typeFile, definesFileContent.toString());
+        stringBuilder.append('}');
+        return stringBuilder.toString();
     }
 
-    private void parseConcepts(String baseLink) {
-        Document conceptsPage;
-        String conceptsLink = baseLink + "Concepts.html";
+    void writeObjDef(OutputStreamWriter output, String className) throws IOException {
+        writeObjDef(output, className, false);
+    }
 
-        try {
-            conceptsPage = Jsoup.connect(conceptsLink).get();
-        } catch (IOException e) {
-            System.out.println("error downloading the defines page");
-//            e.printStackTrace();
-            showDownloadingError(true);
-            return;
+    void writeObjDef(OutputStreamWriter output, String className, boolean local) throws IOException {
+        if (local) {
+            output.append("local ");
         }
 
-        // generate factorio types first
-        Elements briefListings = conceptsPage.select(".brief-listing");
-        for (int i = 1; i < briefListings.size(); i++) {
-            Element briefListing = briefListings.get(i);
-            String listingId = briefListing.id().split("\\.")[0];
-            FactorioType factorioType = new FactorioType();
-            factorioType.parseSingle(conceptsPage, listingId);
-            factorioType.saveToFile();
+        output.append(className).append(" = {}").append(newLine);
+    }
 
-            // remove factorioType from dom
-            conceptsPage.selectFirst("#" + listingId).remove();
+    void writeValDef(OutputStreamWriter output, String name) throws IOException {
+        writeValDef(output, name, null, false);
+    }
+
+    void writeValDef(OutputStreamWriter output, String name, String parent) throws IOException {
+        writeValDef(output, name, parent, false);
+    }
+
+    void writeValDef(OutputStreamWriter output, String name, boolean local) throws IOException {
+        writeValDef(output, name, null, local);
+    }
+
+    void writeValDef(OutputStreamWriter output, String name, String parent, boolean local) throws IOException {
+        if (local) {
+            output.append("local ");
         }
 
-        // generate general concept classes
-        class ConceptClass {
-            private String name;
-            private List<String> desc = new ArrayList<>();
-            private List<Parameter> parameters = new ArrayList<>();
+        if (parent != null && !parent.isEmpty()) {
+            if (name.contains("-")) {
+                output.append(parent).append("[\"").append(name).append("\"]");
+            } else {
+                output.append(parent).append('.').append(name);
+            }
+        } else {
+            output.append(name).append(" = nil").append(newLine);
         }
-        List<ConceptClass> conceptClasses = new ArrayList<>();
-        Elements elements = conceptsPage.select(".element");
-        for (Element element : elements) {
-            ConceptClass conceptClass = new ConceptClass();
-            conceptClass.name = element.id();
 
-            for (Element contentChild : element.selectFirst(".element-content").children()) {
-                if (contentChild.hasClass("field-list")) {
-                    for (Element child : contentChild.children()) {
-                        Parameter parameter = new Parameter();
+        output.append(" = nil").append(newLine);
+    }
 
-                        parameter.parseDefault(child);
-                        conceptClass.parameters.add(parameter);
-                    }
-                } else {
-                    String contentChildHtml = removeNewLines(contentChild.html()).strip();
-                    if (!contentChildHtml.isEmpty()) {
-                        conceptClass.desc.add(contentChildHtml);
-                    }
+    void writeFunctionDef(OutputStreamWriter output, String className, String functionName, String... params) throws IOException {
+        output.append("function ").append(className).append('.').append(functionName).append('(');
+        boolean first = true;
+        for (String param : params) {
+            if (first) {
+                first = false;
+            } else {
+                output.append(", ");
+            }
+            output.append(param);
+        }
+        output.append(") end").append(newLine);
+    }
+
+    void writeGlobalsObjects(OutputStreamWriter output, List<GlobalObject> globalObjects) throws IOException {
+        // global objects
+        for (GlobalObject globalObject : globalObjects) {
+            writeDescLine(output, globalObject.description);
+            writeType(output, globalObject.type);
+            writeObjDef(output, globalObject.name);
+            output.append(newLine);
+        }
+        output.append(newLine);
+    }
+
+    void writeDefines(OutputStreamWriter output, List<Define> defines, String parents) throws IOException {
+        for (Define define : defines) {
+            writeDescLine(output, define.description);
+
+            StringWriter subDefine = new StringWriter();
+            subDefine.append(parents).append('.').append(define.name);
+            writeClass(output, subDefine.toString());
+            writeObjDef(output, subDefine.toString());
+            output.append(newLine);
+
+            if (define.subkeys != null && !define.subkeys.isEmpty()) {
+                writeDefines(output, define.subkeys, subDefine.toString());
+            }
+            if (define.values != null && !define.values.isEmpty()) {
+                writeDefineValues(output, define.values, subDefine.toString());
+            }
+        }
+        output.append(newLine);
+    }
+
+    void writeDefineValues(OutputStreamWriter output, List<BasicMember> defines, String parents) throws IOException {
+        for (BasicMember define : defines) {
+            writeDescLine(output, define.description);
+            writeType(output, "nil");
+            writeValDef(output, define.name, parents);
+            output.append(newLine);
+        }
+    }
+
+    void writeClasses(OutputStreamWriter output, List<FactorioClass> classes) throws IOException {
+        for (FactorioClass factorioClass : classes) {
+            writeDescLine(output, factorioClass.description);
+            writeDescLine(output, factorioClass.notes);
+            writeDescLine(output, factorioClass.examples);
+            writeSee(output, factorioClass.seeAlso);
+
+            for (Operator operator : factorioClass.operators) {
+                if (operator.name == "call") {
+                    writeOverload(output, operator.method.parameters, operator.method.returnType);
                 }
             }
-            conceptClasses.add(conceptClass);
+
+            writeClass(output, factorioClass.name, factorioClass.baseClasses);
+            writeObjDef(output, factorioClass.name, true);
+            output.append(newLine);
+
+            writeAttributes(output, factorioClass.attributes, factorioClass.name);
+            writeMethods(output, factorioClass.methods, factorioClass.name);
+
+            output.append(newLine);
         }
-
-        // save to file
-        StringBuilder conceptsFileContent = new StringBuilder();
-
-        for (ConceptClass conceptClass : conceptClasses) {
-            for (String s : conceptClass.desc) {
-                conceptsFileContent.append("--- ").append(s).append(newLine);
-            }
-
-            conceptsFileContent.append("---@class ").append(conceptClass.name).append(newLine);
-            conceptsFileContent.append("local ").append(conceptClass.name).append(" = {}").append(newLine).append(newLine);
-
-            for (Parameter parameter : conceptClass.parameters) {
-                if (parameter.desc != null && !parameter.desc.isEmpty()) {
-                    conceptsFileContent.append("--- ").append(parameter.desc).append(newLine);
-                }
-                conceptsFileContent.append("---@type ").append(parameter.type).append(newLine);
-                conceptsFileContent.append(conceptClass.name).append(".").append(parameter.name).append(" = nil").append(newLine).append(newLine);
-            }
-            conceptsFileContent.append(newLine);
-        }
-
-        String conceptsFile = saveDir + "concepts.lua";
-        saveStringToFile(conceptsFile, conceptsFileContent.toString());
     }
 
-    /**
-     * Parses and saves the global variables of the factorio API
-     * https://lua-api.factorio.com/latest/ > Overview > Global classes
-     *
-     * @param mainPage The jsoup page to parse the globals from
-     */
-    private void parseGlobals(@NotNull Document mainPage) {
-        StringBuilder globalsFileContent = new StringBuilder();
-        Element fieldList = mainPage.selectFirst(".field-list");
-        for (Element fieldListChild : fieldList.children()) {
-            Parameter parameter = new Parameter();
-            parameter.parseDefault(fieldListChild);
-
-            if (parameter.desc != null && !parameter.desc.isEmpty()) {
-                globalsFileContent.append("--- ").append(parameter.desc).append(newLine);
-            }
-            globalsFileContent.append("---@type ").append(parameter.type).append(newLine);
-            globalsFileContent.append(parameter.name).append(" = {}").append(newLine).append(newLine);
+    void writeAttributes(OutputStreamWriter output, List<Attribute> attributes, String className) throws IOException {
+        for (Attribute attribute : attributes) {
+            writeDescLine(output, attribute.description);
+            writeDescLine(output, attribute.notes);
+            writeDescLine(output, attribute.examples);
+            writeSee(output, attribute.seeAlso);
+            writeReadWrite(output, attribute.read, attribute.write);
+            writeType(output, attribute.type);
+            writeValDef(output, attribute.name, className);
+            output.append(newLine);
         }
+    }
 
-        String globalsFile = saveDir + "globals.lua";
-        saveStringToFile(globalsFile, globalsFileContent.toString());
+    void writeMethods(OutputStreamWriter output, List<Method> methods, String className) throws IOException {
+        for (Method method : methods) {
+            writeDescLine(output, method.description);
+            writeDescLine(output, method.notes);
+            writeDescLine(output, method.examples);
+            writeSee(output, method.seeAlso);
+
+            if (method.takesTable) {
+                // This is a table function (use anonymous function as only param)
+                String paramType = getAnonymousTableType(method.parameters);
+
+                writeParam(output, "param", paramType);
+
+                if (method.returnType != null) {
+                    writeReturn(output, method.returnType, method.returnDescription);
+                }
+
+                writeFunctionDef(output, className, method.name, "param");
+            } else {
+                List<String> strList = new ArrayList<>();
+
+                for (Parameter parameter : method.parameters) {
+                    writeParam(output, parameter.name, parameter.type, parameter.description);
+
+                    if (parameter.optional) {
+                        writeOverload(output, method.parameters, method.returnType, parameter.name);
+                    }
+
+                    strList.add(parameter.name);
+                }
+
+                if (method.returnType != null) {
+                    writeReturn(output, method.returnType, method.returnDescription);
+                }
+
+                writeFunctionDef(output, className, method.name, strList.toArray(new String[0]));
+            }
+            output.append(newLine);
+        }
+    }
+
+    void writeConcepts(OutputStreamWriter output, List<Concept> concepts) throws IOException {
+        for (Concept concept : concepts) {
+            switch (concept.category) {
+                case "table": {
+                    writeDescLine(output, concept.description);
+                    writeDescLine(output, concept.notes);
+                    writeDescLine(output, concept.examples);
+                    writeSee(output, concept.seeAlso);
+                    writeClass(output, concept.name);
+                    writeObjDef(output, concept.name, true);
+                    output.append(newLine);
+
+                    for (Parameter parameter : concept.table.parameters) {
+                        writeDescLine(output, parameter.description);
+                        writeType(output, parameter.type, parameter.optional);
+                        writeValDef(output, parameter.name, concept.name);
+                        output.append(newLine);
+                    }
+                    break;
+                }
+                case "table_or_array": {
+                    writeDescLine(output, concept.description);
+                    writeDescLine(output, concept.notes);
+                    writeDescLine(output, concept.examples);
+                    writeSee(output, concept.seeAlso);
+                    writeShape(output, concept.name);
+
+                    int i = 1;
+                    for (Parameter parameter : concept.tableOrArray.parameters) {
+                        writeField(output, parameter.name, parameter.type, parameter.description);
+                        writeField(output, "[" + i + "]", parameter.type, parameter.description);
+                        ++i;
+                    }
+
+                    output.append(newLine);
+                    break;
+                }
+                case "enum": {
+                    writeDescLine(output, concept.description);
+                    writeDescLine(output, concept.notes);
+                    writeDescLine(output, concept.examples);
+                    writeSee(output, concept.seeAlso);
+                    writeClass(output, concept.name);
+
+                    for (BasicMember option : concept._enum.options) {
+                        String desc = "(Enum) " + option.description;
+                        writeField(output, option.name, "number", desc);
+                    }
+
+                    output.append(newLine);
+                    break;
+                }
+                case "flag": {
+                    // define string-literal type
+                    String aliasName = concept.name + "Value";
+                    List<String> types = new ArrayList<>();
+                    for (BasicMember option : concept.flag.options) {
+                        types.add(option.name);
+                    }
+                    writeAliasStringLiteral(output, aliasName, types);
+                    output.append(newLine);
+
+                    writeDescLine(output, concept.description);
+                    writeDescLine(output, concept.notes);
+                    writeDescLine(output, concept.examples);
+                    writeSee(output, concept.seeAlso);
+
+                    // actual type is string-literal array
+                    writeAlias(output, concept.name, aliasName + "[]");
+
+                    output.append(newLine);
+                    break;
+                }
+                case "union": {
+                    writeDescLine(output, concept.description);
+                    writeDescLine(output, concept.notes);
+                    writeDescLine(output, concept.examples);
+                    writeSee(output, concept.seeAlso);
+
+                    List<Type> types = new ArrayList<>();
+                    for (Concept.CategoryUnion.Spec option : concept.union.options) {
+                        types.add(option.type);
+                        writeDescLine(output,getType(option.type) + ": " + option.description);
+                    }
+                    writeAlias(output, concept.name, types);
+                    break;
+                }
+                case "filter": {
+                    writeDescLine(output, concept.description);
+                    writeDescLine(output, concept.notes);
+                    writeDescLine(output, concept.examples);
+                    writeSee(output, concept.seeAlso);
+                    writeShape(output, concept.name);
+                    writeObjDef(output, concept.name, true);
+
+                    for (Parameter parameter : concept.filter.parameters) {
+                        writeDescLine(output, parameter.description);
+                        writeType(output, parameter.type, parameter.optional);
+                        writeValDef(output, parameter.name, concept.name);
+                        output.append(newLine);
+                    }
+                    break;
+                }
+                case "struct": {
+                    writeDescLine(output, concept.description);
+                    writeDescLine(output, concept.notes);
+                    writeDescLine(output, concept.examples);
+                    writeSee(output, concept.seeAlso);
+                    writeClass(output, concept.name);
+                    writeObjDef(output, concept.name, true);
+
+                    writeAttributes(output, concept.struct.attributes, concept.name);
+                    output.append(newLine);
+                    break;
+                }
+            }
+        }
     }
 }

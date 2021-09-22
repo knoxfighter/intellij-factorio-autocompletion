@@ -38,7 +38,7 @@ public class FactorioPrototypeTypeGuesser {
             typeText = ((TySerializedClass) tyGuess).getClassName();
         } else {
             // get the className for this type
-            typeText = type.getExprList().get(0).getFirstChild().getText();
+            typeText = type.getExpressionList().get(0).getFirstChild().getText();
             typeText = typeText.replace("\"", "");
             typeText = StringUtil.capitalizeWords(typeText, "-", true, false);
             typeText = typeText.replace(" ", "");
@@ -46,7 +46,7 @@ public class FactorioPrototypeTypeGuesser {
         }
 
         // get the correct Class, for this prototype
-        LuaClass luaClass = LuaShortNamesManager.Companion.getInstance(project).findClass(typeText, searchContext);
+        LuaClass luaClass = LuaShortNamesManager.Companion.getInstance(project).findClass(searchContext, typeText);
         if (luaClass == null) {
             // Do nothing, when luaClass not found
             return null;
@@ -54,7 +54,8 @@ public class FactorioPrototypeTypeGuesser {
 
         LuaTableField tableField = PsiTreeUtil.getParentOfType(element.getParent(), LuaTableField.class, false, LuaTableExpr.class);
         if (tableField != null) {
-            String fieldName = tableField.getFieldName();
+//            String fieldName = tableField.getFieldName();
+            String fieldName = tableField.getName();
 
             if (fieldName != null && !fieldName.isEmpty()) {
                 LuaClassMember member = luaClass.getType().findMember(fieldName, searchContext);

@@ -17,7 +17,8 @@ public class FactorioPrototypeTypePatternCondition extends PatternCondition<PsiE
     public boolean accepts(@NotNull PsiElement psiElement, ProcessingContext processingContext) {
         LuaTableField parentOfType = PsiTreeUtil.getParentOfType(psiElement, LuaTableField.class);
         if (parentOfType != null) {
-            return parentOfType.getFieldName().equals("type");
+            return parentOfType.getName().equals("type");
+//            return parentOfType.getFieldName().equals("type");
         }
         return false;
     }

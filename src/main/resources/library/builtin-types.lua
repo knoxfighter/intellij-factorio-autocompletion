@@ -11,6 +11,7 @@
 ---@alias uint32 number
 ---@alias uint64 number
 ---@alias bool boolean
+---@alias Any any
 
 ---This function allows to log LocalisedStrings to the Factorio log file.
 ---This, in combination with serpent, makes debugging in the data stage easier, because it allows to simply inspect entire prototype tables.

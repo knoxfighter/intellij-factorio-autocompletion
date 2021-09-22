@@ -23,7 +23,8 @@ public class FactorioPrototypeCompletionProvider extends CompletionProvider<Comp
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet resultSet) {
 //        String fieldName = PsiTreeUtil.getParentOfType(parameters.getPosition(), LuaTableField.class).getFieldName();
-        String fieldName = PsiTreeUtil.getParentOfType(parameters.getPosition(), LuaTableField.class, false, LuaTableExpr.class).getFieldName();
+        String fieldName = PsiTreeUtil.getParentOfType(parameters.getPosition(), LuaTableField.class, false, LuaTableExpr.class).getName();
+//        String fieldName = PsiTreeUtil.getParentOfType(parameters.getPosition(), LuaTableField.class, false, LuaTableExpr.class).getFieldName();
         if (fieldName != null) {
             // this is a subelement and therefore not relevant for now
         } else {
@@ -51,9 +52,15 @@ public class FactorioPrototypeCompletionProvider extends CompletionProvider<Comp
             }
 
             // Iterate over all classes, this var derives from and print that completion
-            luaClass.eachTopClass(tyClass -> {
+            luaClass.eachTopClass(ty -> {
+                if (!(ty instanceof ITyClass)) {
+                    return true;
+                }
+
+                ITyClass tyClass = (ITyClass) ty;
                 tyClass.lazyInit(searchContext);
-                tyClass.processMembers(searchContext, (curType, member) -> {
+
+                tyClass.processMembers(searchContext, true, (curType, member) -> {
                     String memberName = member.getName();
 
                     PrefixMatcher prefixMatcher = resultSet.getPrefixMatcher();
@@ -74,7 +81,7 @@ public class FactorioPrototypeCompletionProvider extends CompletionProvider<Comp
 
     /**
      * Add ` = ` to the autocompletion.
-     * Also move the cursor to the correct position to just writer further.
+     * Also move the cursor to the correct position to just write further.
      *
      * @param element add the handler to
      */

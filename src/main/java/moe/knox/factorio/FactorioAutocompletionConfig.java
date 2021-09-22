@@ -5,6 +5,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
+import com.intellij.util.text.SemVer;
 import moe.knox.factorio.library.FactorioLibraryProvider;
 import moe.knox.factorio.parser.FactorioApiParser;
 import moe.knox.factorio.parser.FactorioLualibParser;
@@ -33,14 +34,21 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
         enableFactorioIntegrationCheckBox.setSelected(config.integrationActive);
 
-
         try {
+            // add latest as first
+            selectApiVersion.addItem(new FactorioAutocompletionState.FactorioVersion());
+
             Document mainPageDoc = Jsoup.connect(FactorioApiParser.factorioApiBaseLink).get();
             Elements allLinks = mainPageDoc.select("a");
             for (Element link : allLinks) {
                 FactorioAutocompletionState.FactorioVersion factorioVersion = new FactorioAutocompletionState.FactorioVersion(link.text(), link.attr("href"));
-                selectApiVersion.addItem(factorioVersion);
+                // only add if >=1.1.35
+                SemVer semVer = SemVer.parseFromText(link.text());
+                if (semVer != null && semVer.isGreaterOrEqualThan(1, 1, 35)) {
+                    selectApiVersion.addItem(factorioVersion);
+                }
             }
+
             selectApiVersion.setSelectedItem(config.selectedFactorioVersion);
 
             // hide error message

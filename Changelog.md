@@ -4,17 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Added
+- Use new factorio api json format
 
 ## [1.3.4] - 02.09.2021
-## Added
+### Added
 - Compatibility with jetbrains IDEs 2021.2.*
 
 ## [1.3.3] - 08.07.2021
-## Added
+### Added
 - Compatibility with jetbrains IDEs 2021.1.*
 
 ## [1.3.2] - 10.12.2020
-## Added
+### Added
 - Compatibility with jetbrains IDEs 2020.3.*
 
 ## [1.3.1] - 03.08.2020

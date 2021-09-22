@@ -1,3 +1,4 @@
+--[[
 ---@alias ForceCondition string|'"all"'|'"enemy"'|'"ally"'|'"friend"'|'"not-friend"'|'"same"'|'"not-same"'
 
 ---@alias AnimationVariations Animation[]
@@ -178,3 +179,4 @@ LootTable.count_max = nil
 ---@alias CapsuleAction table
 
 ---@alias AttackParameters table
+]]

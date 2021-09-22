@@ -26,13 +26,13 @@ public class FileIndexerUtil {
                         // get type of the prototype
                         LuaTableField type = secondTable.findField("type");
                         if (type != null) {
-                            String typeText = type.getExprList().get(0).getFirstChild().getText();
+                            String typeText = type.getExpressionList().get(0).getFirstChild().getText();
                             typeText = typeText.replace("\"", "");
 
                             // get name of the prototypes
                             LuaTableField name = secondTable.findField("name");
                             if (name != null) {
-                                String nameText = name.getExprList().get(0).getFirstChild().getText();
+                                String nameText = name.getExpressionList().get(0).getFirstChild().getText();
                                 nameText = nameText.replace("\"", "");
 
                                 // save type and name to the map

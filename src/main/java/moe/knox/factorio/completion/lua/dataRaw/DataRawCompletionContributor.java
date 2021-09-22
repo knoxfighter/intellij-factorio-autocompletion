@@ -22,6 +22,7 @@ import static com.intellij.patterns.PlatformPatterns.psiElement;
 public class DataRawCompletionContributor extends CompletionContributor {
     public DataRawCompletionContributor() {
         /// Autocompletion for data.raw.*
+        // (replace with better)
         extend(CompletionType.BASIC,
                 psiElement(LuaTypes.ID)
                         .with(new FactorioIntegrationActiveCondition(null))
@@ -57,6 +58,7 @@ public class DataRawCompletionContributor extends CompletionContributor {
         );
 
         /// Autocompletion for data.raw["*"]
+        // (replace with better)
         extend(CompletionType.BASIC,
                 psiElement(LuaTypes.STRING)
                         .with(new FactorioIntegrationActiveCondition(null))
@@ -86,6 +88,7 @@ public class DataRawCompletionContributor extends CompletionContributor {
         );
 
         /// Autocompletion for data.raw.type.*
+        // (replace wth better)
         extend(CompletionType.BASIC,
                 psiElement(LuaTypes.ID)
                         .with(new FactorioIntegrationActiveCondition(null))
@@ -97,6 +100,7 @@ public class DataRawCompletionContributor extends CompletionContributor {
         );
 
         /// Autocompletion for data.raw.type["*"]
+        // replace with better)
         extend(CompletionType.BASIC,
                 psiElement(LuaTypes.STRING)
                         .with(new FactorioIntegrationActiveCondition(null))

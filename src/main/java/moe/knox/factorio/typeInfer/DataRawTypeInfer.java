@@ -10,6 +10,7 @@ import com.tang.intellij.lua.psi.LuaTypeGuessable;
 import com.tang.intellij.lua.psi.search.LuaShortNamesManager;
 import com.tang.intellij.lua.search.SearchContext;
 import com.tang.intellij.lua.ty.ITy;
+import com.tang.intellij.lua.ty.Primitives;
 import com.tang.intellij.lua.ty.Ty;
 import moe.knox.factorio.FactorioAutocompletionState;
 import moe.knox.factorio.util.FactorioTreeUtil;
@@ -22,7 +23,8 @@ public class DataRawTypeInfer implements ILuaTypeInfer {
         Project project = searchContext.getProject();
 
         if (!FactorioAutocompletionState.getInstance(project).integrationActive) {
-            return Ty.Companion.getUNKNOWN();
+            return Primitives.Companion.getUNKNOWN();
+//            return Ty.Companion.getUNKNOWN();
         }
 
         // first literalExpr contains the prototype type
@@ -38,11 +40,12 @@ public class DataRawTypeInfer implements ILuaTypeInfer {
                 prototypeType = prototypeType.replace(" ", "");
                 prototypeType = "Prototype_" + prototypeType;
 
-                LuaClass luaClass = LuaShortNamesManager.Companion.getInstance(project).findClass(prototypeType, searchContext);
+                LuaClass luaClass = LuaShortNamesManager.Companion.getInstance(project).findClass(searchContext, prototypeType);
                 return luaClass.getType();
             }
         }
 
-        return Ty.Companion.getUNKNOWN();
+        return Primitives.Companion.getUNKNOWN();
+//        return Ty.Companion.getUNKNOWN();
     }
 }
