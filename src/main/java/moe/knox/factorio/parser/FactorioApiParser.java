@@ -220,6 +220,10 @@ public class FactorioApiParser extends FactorioParser {
         }
     }
 
+    void writeEmptyLine(OutputStreamWriter output) throws IOException {
+        output.append("---").append(newLine);
+    }
+
     void writeDescLine(OutputStreamWriter output, List<String> lines) throws IOException {
         if (lines != null && !lines.isEmpty()) {
             for (String line : lines) {
@@ -227,10 +231,6 @@ public class FactorioApiParser extends FactorioParser {
                 writeDescLine(output, line);
             }
         }
-    }
-
-    void writeEmptyLine(OutputStreamWriter output) throws IOException {
-        output.append("---").append(newLine);
     }
 
     void writeDescLine(OutputStreamWriter output, String line) throws IOException {
@@ -302,7 +302,7 @@ public class FactorioApiParser extends FactorioParser {
             output.append("|nil");
         }
 
-        output.append(' ').append(description);
+        output.append(' ').append(description).append(newLine);
     }
 
     void writeType(OutputStreamWriter output, String type) throws IOException {

@@ -29,13 +29,7 @@ public class PrototypeFileIndexer extends FileBasedIndexExtension<String, Set<St
     @NotNull
     @Override
     public DataIndexer<String, Set<String>, FileContent> getIndexer() {
-        return new DataIndexer<>() {
-            @NotNull
-            @Override
-            public Map<String, Set<String>> map(@NotNull FileContent fileContent) {
-                return FileIndexerUtil.generateIndexMap(fileContent.getPsiFile());
-            }
-        };
+        return fileContent -> FileIndexerUtil.generateIndexMap(fileContent.getPsiFile());
     }
 
     @NotNull

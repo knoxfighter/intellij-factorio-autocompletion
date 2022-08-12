@@ -18,13 +18,6 @@ public class JsonAPI {
                 .create()
                 .fromJson(reader, JsonAPI.class);
 
-//        JsonAPI jsonAPI = new GsonBuilder()
-//                .registerTypeAdapter(Concept.class, new JsonPolymorphismDeserializer<Concept>())
-//                .registerTypeAdapter(Type.ComplexData.class, new JsonPolymorphismDeserializer<Type.ComplexData>())
-//                .registerTypeAdapter(Operator.class, new JsonPolymorphismDeserializer<Operator>())
-//                .create()
-//                .fromJson(reader, JsonAPI.class);
-
         jsonAPI.sortOrder();
 
         return jsonAPI;

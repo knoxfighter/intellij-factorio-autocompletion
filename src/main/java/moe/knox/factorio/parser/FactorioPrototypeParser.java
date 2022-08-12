@@ -1,5 +1,6 @@
 package moe.knox.factorio.parser;
 
+import com.google.gson.Gson;
 import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -10,26 +11,18 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
-import com.tang.intellij.lua.search.SearchContext;
 import moe.knox.factorio.FactorioAutocompletionConfig;
 import moe.knox.factorio.FactorioAutocompletionState;
-import moe.knox.factorio.FactorioPrototypeState;
 import moe.knox.factorio.library.FactorioLibraryProvider;
+import moe.knox.factorio.parser.prototypeData.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jsoup.HttpStatusException;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.safety.Whitelist;
-import org.jsoup.select.Elements;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.*;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FactorioPrototypeParser extends FactorioParser {
@@ -39,43 +32,13 @@ public class FactorioPrototypeParser extends FactorioParser {
 
     public static final String prototypeRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_prototypes/";
     private static final String prototypeLibPath = prototypeRootPath + "library/";
-    public static final String prototypesBaseLink = "https://wiki.factorio.com";
+    private static final String prototypeDownloadLink = "https://factorio-api.knox.moe/prototypes.json";
 
     private static AtomicBoolean downloadInProgress = new AtomicBoolean(false);
 
     private FactorioAutocompletionState config;
     private ProgressIndicator indicator;
     private String saveDir;
-
-    private static List<String> rootTypes = new ArrayList<>() {{
-        add("float");
-        add("double");
-        add("int");
-        add("int8");
-        add("int16");
-        add("int32");
-        add("int64");
-        add("uint");
-        add("uint8");
-        add("uint16");
-        add("uint32");
-        add("uint64");
-        add("string");
-        add("LocalisedString");
-        add("bool");
-    }};
-
-    private static List<String> prototypeTypeWhitelist = new ArrayList<>() {{
-        add("Types/ItemProductPrototype");
-        add("Types/ItemToPlace");
-        add("Types/DamagePrototype");
-    }};
-
-    /**
-     * map of all propertyTypes `typeName` > `link`
-     */
-    private Map<String, String> propertyTypes = new HashMap<>();
-
 
     public FactorioPrototypeParser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title, @NotNull String saveDir) {
         super(project, title, false);
@@ -145,339 +108,216 @@ public class FactorioPrototypeParser extends FactorioParser {
             }
         }
     }
-    private double curTodo = 0;
-    private double maxTodo = 0;
-
-
-    private void updateIndicator() {
-        indicator.setFraction(curTodo / maxTodo);
-        curTodo++;
-    }
 
     /**
      * Entry-point for parsing
      * Download the main Prototype-Page and parse all prototypes
      */
     private void downloadAndParsePrototypes() {
-        indicator.setIndeterminate(false);
-
-        String prototypesOverviewLink = prototypesBaseLink + "/Prototype_definitions";
-        Document protoOverview;
+        // download and parse json
+        JsonRoot jsonPrototype;
         try {
-            protoOverview = Jsoup.connect(prototypesOverviewLink).get();
+            InputStreamReader inputStreamReader = new InputStreamReader(new URL(prototypeDownloadLink).openStream());
+            jsonPrototype = new Gson().fromJson(inputStreamReader, JsonRoot.class);
         } catch (IOException e) {
-            System.out.println("error downloading the main Prototype page");
+            e.printStackTrace();
             showDownloadingError(false);
             return;
         }
 
-        // get links to prototypes
-        Elements prototypeElements = protoOverview.select("#mw-content-text ul a");
-        maxTodo = prototypeElements.size();
-        updateIndicator();
 
-        List<String> prototypeIds = new ArrayList<>();
-
-        for (Element prototypeElement : prototypeElements) {
-            Prototype prototype = new Prototype(true);
-            if (!prototype.parsePrototype(prototypeElement.attr("href"))) {
-                break;
-            }
-            if (prototype.id != null && !prototype.id.equals("abstract")) {
-                prototypeIds.add(prototype.id);
-            }
-            updateIndicator();
-        }
-
-        FactorioPrototypeState.getInstance().setPrototypeTypes(prototypeIds);
-
-        // update indicator max value
-        maxTodo += propertyTypes.size();
-
-        SearchContext searchContext = SearchContext.Companion.get(getProject());
-
-        propertyTypes.forEach((typeName, typeLink) -> {
-            if (!rootTypes.contains(typeName)) {
-                // parse additional types, like normal Prototypes
-                Prototype prototype = new Prototype();
-                prototype.name = typeName;
-
-                // All unsuccessful types are hardcoded in the lua library
-                prototype.parsePrototype(typeLink);
-            }
-            updateIndicator();
-        });
-    }
-
-    private class Prototype {
-        String name;
-        String id;
-        String parentType;
-        boolean catchTypes = false;
-        List<String> description = new ArrayList<>();
-        List<Property> properties = new ArrayList<>();
-
-        public Prototype() {
-
-        }
-
-        public Prototype(boolean catchTypes) {
-            this.catchTypes = catchTypes;
-        }
-
-        /**
-         * Parse the html page of a single prototype
-         *
-         * @param link Link to the prototype page
-         * @return true if the parsing was successful
-         */
-        private boolean parsePrototype(String link) {
-            String prototypeLink = prototypesBaseLink + link;
-            Document prototypeDoc;
-            try {
-                prototypeDoc = Jsoup.connect(prototypeLink).get();
-            } catch (IOException e) {
-                if (e instanceof HttpStatusException && ((HttpStatusException) e).getStatusCode() == 404) {
-                    return true;
-                }
-                System.out.printf("error downloading the single prototype page: %s", link);
-                showDownloadingError(false);
-                return false;
-            }
-
-            Element prototypeNameElement = prototypeDoc.selectFirst("td.caption");
-            if (prototypeNameElement != null) {
-                name = prototypeNameElement.text().split("—")[0].strip().replace("/", "_");
-                id = prototypeNameElement.selectFirst("code").text();
-            }
-
-            // parse parentType
-            Element parentTypeElement = prototypeDoc.selectFirst(".prototype-toc td.prototype-toc-section-title a");
-            if (parentTypeElement != null) {
-                this.parentType = parentTypeElement.attr("title").strip().replace("/", "_");
-            }
-
-            // parse elements
-            boolean atProperties = false;
-            Property property = null;
-            boolean propertyFirst = false;
-            boolean isInlineType = false;
-
-            // get the element where to start from
-            Element element = prototypeDoc.selectFirst(".prototype-parents");
-            if (element == null) {
-                element = prototypeDoc.selectFirst("#toc");
-                atProperties = true;
-            }
-
-            if (element == null) {
-                element = prototypeDoc.selectFirst("#firstHeading");
-                if (element != null && prototypeTypeWhitelist.contains(element.text())) {
-                    element = prototypeDoc.selectFirst("#mw-content-text > .mw-parser-output > p:first-of-type");
-                } else {
-                    return false;
-                }
-            }
-
-            while (true) {
-                element = element.nextElementSibling();
-
-                if (element == null) {
-                    // no element anymore, cancel endless loop
-                    break;
-                } else if (element.hasClass("prototype-toc")) {
-                    // from here, the properties are starting
-                    atProperties = true;
-                } else if (element.is("h3") && atProperties) {
-                    // parse the header and create a property
-                    Element spanChild = element.selectFirst("span");
-                    property = new Property(spanChild.attr("id"));
-                    propertyFirst = true;
-                    properties.add(property);
-                } else if (element.is("p") && atProperties && propertyFirst) {
-                    // Parse the properties description and more
-                    propertyFirst = false;
-                    boolean firstLink = true;
-                    boolean isArray = false;
-
-                    String elementHtml = element.html();
-                    String[] splittedElementHtml = elementHtml.split("<br>");
-                    for (int i = 0; i < splittedElementHtml.length; i++) {
-                        if (i == 0) {
-                            // First Element is always the type
-                            // check if first element is really the type!!
-                            String[] splittedType = splittedElementHtml[i].split(":");
-                            if (!Jsoup.clean(splittedType[0], Whitelist.none()).equals("Type")) {
-                                break;
-                            }
-                            String elementType = splittedType[1];
-                            Document typeDocument = Jsoup.parseBodyFragment(elementType);
-
-                            if (typeDocument.text().startsWith("table of ")) {
-                                isArray = true;
-                            }
-
-                            // The last link is used to determine which Type it is
-                            Elements links = typeDocument.select("a");
-                            if (links.size() == 0) {
-                                continue;
-                            }
-                            Element lastLink = links.last();
-                            property.type = lastLink.text();
-                            property.type = property.type.replace("/Types/", "").replace("Types/", "");
-
-                            // When type is table, the type is defined inline
-                            if (property.type.equals("table") || property.type.equals("tables")) {
-                                isInlineType = true;
-                                property.type = "Type_" + this.name + "_" + property.name;
-                            } else if (catchTypes) {
-                                propertyTypes.put(property.type, lastLink.attr("href"));
-                            }
-                        } else {
-                            // The rest
-                            Document document = Jsoup.parseBodyFragment(splittedElementHtml[i]);
-                            Element body = document.body();
-                            property.description.add(removeNewLines(document.text().strip()).strip().replaceAll("^[:]+|[:]+$", "").strip());
-                        }
-                    }
-                    if (isArray) {
-                        property.type += "[]";
-                    }
-                } else if (element.is("p") && atProperties && !propertyFirst && property != null) {
-                    // parse general property description
-                    property.description.add(element.text());
-                } else if (element.is("p") && !atProperties) {
-                    // parse general description
-                    description.add(element.text());
-                } else if (element.is("ul") && isInlineType) {
-                    // parse inline type
-                    parseInlineType(element, property);
-                } else if (element.is("h2")) {
-                    // check if this header describes the "Differing defaults" category
-                    // stop here, nothing useful will come further
-                    if (element.selectFirst("span").id().equals("Differing_defaults")) {
-                        break;
-                    }
-                }
-            }
-
-            saveToFile();
-
-            return true;
-        }
-
-        private void parseInlineType(@NotNull Element element, @NotNull Property property) {
-            Elements tableElements = element.children();
-
-            // tableElement is the <li> html element
-            for (Element tableElement : tableElements) {
-                // parse the <li> text
-                String elementComplete = tableElement.text();
-                String[] elementParts = elementComplete.split("\n")[0].split("-");
-
-                Property elemProperty = new Property();
-
-                for (int i = 0; i < elementParts.length; i++) {
-                    String elementPart = elementParts[i].strip();
-                    boolean breaker = false;
-                    switch (i) {
-                        case 0:
-                            elemProperty.name = elementPart;
-                            break;
-                        case 1:
-                            // This inlineType has its type defined inline!
-                            if (elementPart.startsWith("table")) {
-                                breaker = true;
-                                Element subElement = tableElement.selectFirst("ul");
-                                elemProperty.type = property.type + "_" + elemProperty.name;
-                                if (subElement != null) {
-                                    parseInlineType(subElement, elemProperty);
-                                }
-                            } else {
-                                elemProperty.type = elementPart;
-                            }
-                            break;
-                        case 2:
-                            if (elementPart.equals("Optional.")) {
-                                elemProperty.optional = true;
-                                break;
-                            } else if (elementPart.equals("Mandatory.")) {
-                                break;
-                            }
-                        default:
-                            elemProperty.description.add(elementPart);
-                            break;
-                    }
-                    if (breaker) {
-                        break;
-                    }
-                }
-                property.inlineType.properties.add(elemProperty);
-            }
-        }
-
-        /**
-         * Save this prototype-class to a file, so it is accessible
-         */
-        public void saveToFile() {
-            // create new file content
-            StringBuilder typeFileContent = new StringBuilder();
-
-            saveTable(typeFileContent, this.description, this.name, this.parentType, this.properties);
-
-            // create file
-            String typeDir = saveDir + this.name + ".lua";
-            saveStringToFile(typeDir, typeFileContent.toString());
-        }
-
-        private void saveTable(StringBuilder fileContent, List<String> description, String name, @Nullable String parentType, List<Property> properties) {
-            for (String s : description) {
-                fileContent.append("---").append(s).append(newLine);
-            }
-
-            fileContent.append("---@class ").append(name);
-            if (parentType != null && !parentType.isEmpty()) {
-                fileContent.append(" : ").append(parentType);
-            }
-            fileContent.append(newLine);
-            fileContent.append("local ").append(name).append(" = {}").append(newLine).append(newLine);
-
-            // add all properties
-            for (Property property : properties) {
-                for (String s : property.description) {
-                    fileContent.append("--- ").append(s).append(newLine);
-                }
-
-                // add type
-                fileContent.append("---@type ").append(property.type).append(newLine);
-
-                // add attribute definition
-                fileContent.append(name).append(".").append(property.name).append(" = nil").append(newLine).append(newLine);
-
-                if (property.inlineType.properties.size() > 0) {
-                    saveTable(fileContent, new ArrayList<>(), property.type, null, property.inlineType.properties);
-                }
-            }
+        try {
+            writeTables(jsonPrototype.tables);
+            writeAliases(jsonPrototype.aliases);
+            writeStrings(jsonPrototype.strings);
+            writePrototypes(jsonPrototype.prototypes);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showDownloadingError(true);
+            return;
         }
     }
 
-    private class Property {
-        String name;
-        String type;
-        SubPrototype inlineType = new SubPrototype();
-        List<String> description = new ArrayList<>();
-        boolean optional = false;
+    void writeTables(@NotNull List<Table> tables) throws IOException {
+        OutputStreamWriter output;
+        output = openFile(prototypeLibPath + "tables1" + ".lua");
 
-        public Property() {
+        int i = 0;
+        int filename = 2;
+        for (Table table : tables) {
+            ++i;
+            if (i >= 25) {
+                // open new file to write to
+                output.flush();
+                output.close();
 
+                output = openFile(prototypeLibPath + "tables" + filename + ".lua");
+
+                ++filename;
+                i = 0;
+            }
+            writeDescLine(output, table.description);
+            String link = "[Prototype Definition Wiki](https://wiki.factorio.com" + table.link + ")";
+            writeDescLine(output, link);
+            writeShape(output, table.name, table.prototype);
+            writeObjDef(output, table.name, true);
+            output.append(newLine);
+
+            writeProperties(output, table.properties, table.name);
+
+            if (table.parent != null && !table.parent.isEmpty()) {
+                String[] parents = table.parent.split(":");
+                for (String subParent : parents) {
+                    Optional<Table> parentTable = tables.stream().filter(table1 -> table1.name.equals(subParent)).findFirst();
+                    if (parentTable.isPresent()) {
+                        writeProperties(output, parentTable.get().properties, table.name);
+                    }
+                }
+            }
+
+            output.append(newLine);
         }
 
-        public Property(String name) {
-            this.name = name;
+        output.flush();
+        output.close();
+    }
+
+    void writeAliases(@NotNull List<Alias> aliases) throws IOException {
+        OutputStreamWriter output = openFile(prototypeLibPath + "aliases.lua");
+
+        for (Alias alias : aliases) {
+            writeDescLine(output, alias.description);
+            writeAlias(output, alias.name, alias.other);
+            output.append(newLine);
+        }
+
+        output.flush();
+        output.close();
+    }
+
+    void writeStrings(@NotNull List<StringType> strings) throws IOException {
+        OutputStreamWriter output = openFile(prototypeLibPath + "strings.lua");
+
+        for (StringType string : strings) {
+            writeDescLine(output, string.description);
+            StringBuilder typeBuilder = new StringBuilder();
+            for (Map.Entry<String, String> entry : string.value.entrySet()) {
+                String type = entry.getKey();
+                String desc = entry.getValue();
+                if (desc != null && !desc.isEmpty()) {
+                    output.append("--- ").append(type).append(": ").append(desc).append(newLine);
+                }
+                if (typeBuilder.length() > 0) {
+                    typeBuilder.append('|');
+                }
+                typeBuilder.append('"').append(type).append('"');
+            }
+            writeAlias(output, string.name, typeBuilder.toString());
+            output.append(newLine);
+        }
+
+        output.flush();
+        output.close();
+    }
+
+    void writePrototypes(@NotNull List<StringType> prototypes) throws IOException {
+        OutputStreamWriter output = openFile(prototypeLibPath + "prototypes.lua");
+
+        for (StringType prototype : prototypes) {
+            writeDescLine(output, prototype.description);
+            StringBuilder typeBuilder = new StringBuilder();
+            for (Map.Entry<String, String> entry : prototype.value.entrySet()) {
+                String key = entry.getKey();
+                String object = entry.getValue();
+
+                if (typeBuilder.length() > 0) {
+                    typeBuilder.append("|");
+                }
+                typeBuilder.append('"').append(key).append('"');
+
+                writePrototype(output, key, object);
+            }
+
+            writeShape(output, prototype.name);
+            writeObjDef(output, prototype.name, true);
+            output.append(newLine);
+
+            writeType(output, typeBuilder.toString(), false);
+            writeVarDef(output, "type", prototype.name);
+            output.append(newLine);
+        }
+
+        output.flush();
+        output.close();
+    }
+
+    void writeDescLine(@NotNull OutputStreamWriter output, String line) throws IOException {
+        if (line != null && !line.isEmpty()) {
+            line = line.replace('\n', ' ');
+            output.append("--- ").append(line).append(newLine);
         }
     }
 
-    private class SubPrototype {
-        List<Property> properties = new ArrayList<>();
+    void writeShape(@NotNull OutputStreamWriter output, @NotNull String name, String parent) throws IOException {
+        output.append("---@shape ").append(name);
+        if (parent != null && !parent.isEmpty()) {
+            output.append(" : ").append(parent);
+        }
+        output.append(newLine);
+    }
+
+    void writeShape(OutputStreamWriter output, String name) throws IOException {
+        writeShape(output, name, null);
+    }
+
+    void writeObjDef(OutputStreamWriter output, String className) throws IOException {
+        writeObjDef(output, className, false);
+    }
+
+    void writeObjDef(@NotNull OutputStreamWriter output, @NotNull String className, boolean local) throws IOException {
+        if (local) {
+            output.append("local ");
+        }
+
+        output.append(className).append(" = {}").append(newLine);
+    }
+
+    void writeVarDef(@NotNull OutputStreamWriter output, String name, String object) throws IOException {
+        output.append(object);
+        if (!name.startsWith("[")) {
+            output.append('.');
+        }
+        output.append(name).append(" = nil").append(newLine);
+    }
+
+    void writeDefault(@NotNull OutputStreamWriter output, String _default) throws IOException {
+        if (_default != null && !_default.isEmpty())
+            output.append("--- ").append("Default: ").append(_default).append(newLine);
+    }
+
+    void writeType(@NotNull OutputStreamWriter output, @NotNull String type, boolean optional) throws IOException {
+        output.append("---@type ").append(type);
+        if (optional) {
+            output.append("|nil");
+        }
+        output.append(newLine);
+    }
+
+    void writeProperties(@NotNull OutputStreamWriter output, @NotNull List<Property> properties, String object) throws IOException {
+        for (Property property : properties) {
+            writeDescLine(output, property.description);
+            writeDefault(output, property._default);
+            writeType(output, property.type, property.optional);
+            writeVarDef(output, property.name, object);
+            output.append(newLine);
+        }
+    }
+
+    void writeAlias(@NotNull OutputStreamWriter output, @NotNull String alias, @NotNull String type) throws IOException {
+        output.append("---@alias ").append(alias).append(' ').append(type).append(newLine);
+    }
+
+    void writePrototype(@NotNull OutputStreamWriter output, @NotNull String key, @NotNull String object) throws IOException {
+        output.append("---@prototype ").append(key).append(' ').append(object).append(newLine);
     }
 }

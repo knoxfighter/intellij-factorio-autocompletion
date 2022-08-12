@@ -14,6 +14,7 @@ public class FactorioIntegrationActiveCondition extends PatternCondition<PsiElem
 
     @Override
     public boolean accepts(@NotNull PsiElement psiElement, ProcessingContext processingContext) {
-        return FactorioAutocompletionState.getInstance(psiElement.getProject()).integrationActive;
+//        return FactorioAutocompletionState.getInstance(psiElement.getProject()).integrationActive;
+        return false;
     }
 }

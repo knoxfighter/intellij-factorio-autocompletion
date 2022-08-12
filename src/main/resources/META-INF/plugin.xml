@@ -1,11 +1,11 @@
-<idea-plugin>
+<idea-plugin require-restart="true">
     <id>moe.knox.factorio.autocompletion</id>
     <name>Factorio LUA API Support</name>
     <vendor email="knoxfighter@asdff45.de">knoxfighter</vendor>
 
     <description><![CDATA[
     Adds Support for the Factorio LUA API. This implements a full code completion.
-    EmmyLua has to be installed for this plugin to work.
+    Luanalysis has to be installed for this plugin to work.
 
     To use the code completion, it has to be activated under `Settings > Languages & Frameworks > Factorio Autocompletion`
     ]]></description>
@@ -24,10 +24,11 @@
 
         <additionalLibraryRootsProvider implementation="moe.knox.factorio.library.FactorioLibraryProvider"/>
 
-        <completion.contributor language="Lua" implementationClass="moe.knox.factorio.completion.lua.FactorioCompletionContributor" order="first"/>
-        <completion.contributor language="Lua" implementationClass="moe.knox.factorio.completion.lua.dataRaw.DataRawCompletionContributor" order="first"/>
+<!--        <completion.contributor language="Lua" implementationClass="moe.knox.factorio.completion.lua.FactorioCompletionContributor" order="first"/>-->
+<!--        <completion.contributor language="Lua" implementationClass="moe.knox.factorio.completion.lua.dataRaw.DataRawCompletionContributor" order="first"/>-->
 
-        <fileBasedIndex implementation="moe.knox.factorio.indexer.PrototypeFileIndexer"/>
+<!--        <fileBasedIndex implementation="moe.knox.factorio.indexer.PrototypeFileIndexer"/>-->
+        <fileBasedIndex implementation="moe.knox.factorio.indexer.PrototypeDefIndexer"/>
         
         <notificationGroup displayType="STICKY_BALLOON" id="Factorio API Download"/>
         <notificationGroup displayType="STICKY_BALLOON" id="Factorio Prototype Download"/>
@@ -42,7 +43,7 @@
         <luaFileResolver implementation="moe.knox.factorio.fileResolver.FactorioRootDir" order="first"/>
         <luaFileResolver implementation="moe.knox.factorio.fileResolver.FactorioLualib" order="first"/>
 
-        <luaTypeInfer implementation="moe.knox.factorio.typeInfer.DataRawTypeInfer" order="last"/>
+        <luaTypeInfer implementation="moe.knox.factorio.typeInfer.DataRawTypeInfer" order="first"/>
     </extensions>
 
     <actions>

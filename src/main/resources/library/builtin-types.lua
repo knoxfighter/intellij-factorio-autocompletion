@@ -11,6 +11,8 @@
 ---@alias uint32 number
 ---@alias uint64 number
 ---@alias bool boolean
+
+--- Alias for capilization
 ---@alias Any any
 
 ---This function allows to log LocalisedStrings to the Factorio log file.
@@ -24,3 +26,43 @@ function log(str) end
 ---Note that table_size() does not work correctly for LuaCustomTables, their size has to be determined with LuaCustomTable::operator # instead.
 ---@param t table
 function table_size(t) end
+
+
+--[[
+---@shape T1
+---@field baum number
+
+---@shape T2
+---@field type "haus"
+---@field haus string
+
+---@type T1|T2
+local hu = {
+    baum = 5,
+    type = "haus" -- This should be an error, but is not
+}
+
+hu.type = "haus" -- Error: No such member 'type' found on type 'T1'
+
+local var = hu.haus -- Error: No such member 'haus' found on type 'T1'
+
+hu.baum = 5 -- Error: No such member 'baum' found on type 'T2'
+
+-- also there is no code-completion for the var names
+]]
+
+---@shape T1
+---@field type string
+---@field num number
+
+---@type T1
+local elem
+
+elem.type = "huhu"
+elem.num = 5
+
+---@type T1
+local elem2 = {
+    type = "baum",
+    num = 5
+}

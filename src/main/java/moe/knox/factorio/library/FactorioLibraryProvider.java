@@ -47,24 +47,29 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
             e.printStackTrace();
         }
 
-        for (VirtualFile libDirChild : libDir.getChildren()) {
-            libDirChild.putUserData(LuaFileUtil.INSTANCE.getPREDEFINED_KEY(), true);
+        if (libDir != null) {
+            for (VirtualFile libDirChild : libDir.getChildren()) {
+                libDirChild.putUserData(LuaFileUtil.INSTANCE.getPREDEFINED_KEY(), true);
+            }
         }
 
         Collection<SyntheticLibrary> libList = new ArrayList<>();
         libList.add(new FactorioLibrary(libDir, "Factorio Builtins"));
 
         // libDir for downloaded factorio api
-        VirtualFile dynDir = null;
-        String downloadedApiDir = FactorioApiParser.getCurrentApiLink(project);
-        if (downloadedApiDir != null && !downloadedApiDir.isEmpty()) {
-            libList.add(createLibrary(downloadedApiDir, "Factorio API"));
-        }
+//        String downloadedApiDir = FactorioApiParser.getCurrentApiLink(project);
+//        if (downloadedApiDir != null && !downloadedApiDir.isEmpty()) {
+//            FactorioLibrary library = createLibrary(downloadedApiDir, "Factorio API");
+//            if (library != null)
+//                libList.add(library);
+//        }
 
         // protoDir for downloaded factorio prototypes
         String downloadedProtoDir = FactorioPrototypeParser.getCurrentPrototypeLink(project);
         if (downloadedProtoDir != null && !downloadedProtoDir.isEmpty()) {
-            libList.add(createLibrary(downloadedProtoDir, "Factorio Prototypes"));
+            FactorioLibrary library = createLibrary(downloadedProtoDir, "Factorio Prototypes");
+            if (library != null)
+                libList.add(library);
         }
 
         // corePrototypes "core" dir
@@ -74,18 +79,20 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
 //            libList.add(createLibrary(corePrototypesLink + "/base", "Base Prototypes"));
 //        }
 
-        // return all libDirs as array
         return libList;
     }
 
     private FactorioLibrary createLibrary(String downloadedDir, String libraryName) {
         File downloadedProtoFile = new File(downloadedDir);
         VirtualFile protoDir = VfsUtil.findFileByIoFile(downloadedProtoFile, false);
-        for (VirtualFile protoDirChild : protoDir.getChildren()) {
-            protoDirChild.putUserData(LuaFileUtil.INSTANCE.getPREDEFINED_KEY(), true);
+        if (protoDir != null && protoDir.exists()) {
+            for (VirtualFile protoDirChild : protoDir.getChildren()) {
+                protoDirChild.putUserData(LuaFileUtil.INSTANCE.getPREDEFINED_KEY(), true);
+            }
+            return new FactorioLibrary(protoDir, libraryName);
         }
 
-        return new FactorioLibrary(protoDir, libraryName);
+        return null;
     }
 
     public static void reload() {
@@ -100,28 +107,28 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
     }
 
     class FactorioLibrary extends SyntheticLibrary implements ItemPresentation {
-        VirtualFile root;
-        String factorioApiVersion;
+        Collection<VirtualFile> roots;
+        String name;
 
-        public FactorioLibrary(VirtualFile root, String factorioApiVersion) {
-            this.root = root;
-            this.factorioApiVersion = factorioApiVersion;
+        public FactorioLibrary(VirtualFile root, String name) {
+            this.roots = Arrays.asList(root);
+            this.name = name;
         }
 
         @Override
         public int hashCode() {
-            return root.hashCode();
+            return roots.hashCode();
         }
 
         @Override
         public boolean equals(Object o) {
-            return o instanceof FactorioLibrary && ((FactorioLibrary) o).root == root;
+            return o instanceof FactorioLibrary && ((FactorioLibrary) o).roots == roots;
         }
 
         @NotNull
         @Override
         public Collection<VirtualFile> getSourceRoots() {
-            return Arrays.asList(root);
+            return roots;
         }
 
         @Nullable
@@ -139,7 +146,7 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
         @Nullable
         @Override
         public String getPresentableText() {
-            return factorioApiVersion;
+            return name;
         }
     }
 }

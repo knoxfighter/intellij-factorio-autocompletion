@@ -14,12 +14,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 public abstract class FactorioParser extends Task.Backgroundable {
     protected static NotificationGroup getNotificationGroup() {
         return NotificationGroupManager.getInstance().getNotificationGroup("Factorio API Download");
     }
+
     protected static String newLine = System.lineSeparator();
 
     public FactorioParser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title) {
@@ -89,5 +92,12 @@ public abstract class FactorioParser extends Task.Backgroundable {
             showDownloadingError(true);
             return;
         }
+    }
+
+    protected OutputStreamWriter openFile(String path) throws IOException {
+        File file = new File(path);
+        file.createNewFile();
+        FileOutputStream outputStream = new FileOutputStream(file, false);
+        return new OutputStreamWriter(outputStream);
     }
 }

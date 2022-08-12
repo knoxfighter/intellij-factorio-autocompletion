@@ -1,6 +1,7 @@
 package moe.knox.factorio.util;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.tang.intellij.lua.psi.LuaIndexExpr;
 import com.tang.intellij.lua.psi.LuaLiteralExpr;
@@ -29,5 +30,18 @@ public class FactorioTreeUtil {
         }
 
         return prototypeType;
+    }
+
+    /**
+     * Get the next Sibling, that is not a whitespace of any kind
+     * @param element The element to start the search from
+     * @return The next found Sibling
+     */
+    public static PsiElement findNextSiblingNonWhitespace(PsiElement element) {
+        PsiElement curElement = element;
+        do {
+            curElement = curElement.getNextSibling();
+        } while (curElement instanceof PsiWhiteSpace);
+        return curElement;
     }
 }
