@@ -21,6 +21,7 @@ import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.safety.Safelist;
 import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
 
@@ -307,7 +308,7 @@ public class FactorioPrototypeParser extends FactorioParser {
                             // First Element is always the type
                             // check if first element is really the type!!
                             String[] splittedType = splittedElementHtml[i].split(":");
-                            if (!Jsoup.clean(splittedType[0], Whitelist.none()).equals("Type")) {
+                            if (!Jsoup.clean(splittedType[0], Safelist.none()).equals("Type")) {
                                 break;
                             }
                             String elementType = splittedType[1];

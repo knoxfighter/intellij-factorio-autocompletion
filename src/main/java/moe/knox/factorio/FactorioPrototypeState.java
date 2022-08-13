@@ -6,11 +6,9 @@ import com.intellij.util.xmlb.XmlSerializer;
 import moe.knox.factorio.parser.FactorioPrototypeParser;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,15 +61,10 @@ public class FactorioPrototypeState {
         // create xml document from serialized data
         Document document = new Document(serializedData);
 
-        // generate xml outputter
-        XMLOutputter outputter = JDOMUtil.createOutputter("\n");
-
         // save document to file
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            outputter.output(document, fileOutputStream);
-            fileOutputStream.close();
-        } catch (IOException e) {
+            JDOMUtil.write(document, "\n");
+        } catch (UncheckedIOException e) {
             e.printStackTrace();
         }
     }
