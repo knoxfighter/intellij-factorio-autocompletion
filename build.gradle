@@ -121,6 +121,7 @@ patchPluginXml {
 
     sinceBuild "212"
     untilBuild "212.*"
+    version = project.version
 }
 
 test {
