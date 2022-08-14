@@ -15,8 +15,6 @@
     <depends>com.intellij.modules.lang</depends>
     <depends>com.tang</depends>
 
-    <idea-version since-build="202.5103.13" until-build="212.*"/>
-
     <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable groupId="language" displayName="Factorio Autocompletion" id="preference.FactorioCompletionConfig" instance="moe.knox.factorio.FactorioAutocompletionConfig"/>
         <projectService serviceImplementation="moe.knox.factorio.FactorioAutocompletionState" />

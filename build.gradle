@@ -1,126 +1,69 @@
+import java.text.SimpleDateFormat
+
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.6.5'
+    id 'org.jetbrains.intellij' version '1.8.0'
+    id 'org.jetbrains.changelog' version '1.3.1'
 }
 
 group 'moe.knox.factorio'
-version '1.3.4'
+version '1.3.5'
 
-sourceCompatibility = 1.11
+sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile 'org.jsoup:jsoup:1.12.1'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    implementation 'org.jsoup:jsoup:1.15.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+ext.getPluginChangelog = { ->
+    StringBuilder changelogHtml = new StringBuilder()
+
+    for (item in changelog.getAll().values()) {
+        if (item.isUnreleased) {
+            continue
+        }
+
+        changelogHtml.append("<h3>" + item.version + "</h3>\n")
+        changelogHtml.append("<ul>")
+
+        for (section in item.getSections()) {
+            String changesType = section.getKey()
+
+            for ( sectionItem in section.getValue() ) {
+                changelogHtml.append("<li>[" + changesType + "] " + sectionItem.substring(2) + "</li>\n")
+            }
+        }
+
+        changelogHtml.append("</ul>\n")
+    }
+
+    return changelogHtml.toString()
+}
+
+changelog {
+    path = "${project.projectDir}/Changelog.md"
+    header = "[${-> version.get()}] - ${new SimpleDateFormat("dd.MM.yyyy").format(new Date())}"
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2021.2'
+    version = "2022.2"
     plugins = [
-            'com.tang:1.3.6.219-IDEA212'
+        "com.tang:1.3.7.2-IDEA222"
     ]
 }
+
 patchPluginXml {
-    changeNotes """
-        <h2>1.3.4</h2>
-        <h3>Added</h3>
-        <ul>
-            <li>Added compatibility with jetbrains IDEs 2021.2.*</li>
-        </ul>
-
-        <h2>1.3.3</h2>
-        <h3>Added</h3>
-        <ul>
-            <li>Added compatibility with jetbrains IDEs 2021.1.*</li>
-        </ul>
-
-        <h2>1.3.2</h2>
-        <h3>Added</h3>
-        <ul>
-            <li>Added compatibility with jetbrains IDEs 2020.3.*</li>
-        </ul>
-        
-        <h2>1.3.1</h2>
-        <h3>Added</h3>
-        <ul>
-            <li>Added compatibility with jetbrains IDEs 2020.2.*</li>
-        </ul>
-
-        <h2>1.3.0</h2>
-        <h3>Added</h3>
-        <ul>
-            <li>Added compatibility with jetbrains IDEs 2020.1.*</li>
-        </ul>
-        
-        <h2>1.2.2</h2>
-        <h3>Fixed</h3>
-        <ul>
-            <li>endless "Download Factorio LuaApi" on startup</li>
-            <li>download of lualib and core prototypes failed</li>
-        </ul>
-
-        <h2>1.2.1</h2>
-        <h3>Fixed</h3>
-        <ul>
-            <li>Added missing log() and table_size() functions</li>
-            <li>Defines-Table is now available again (was defined local)</li>
-            <li>functions and variables inside base/core Prototype definitions are not shown in autocompletion anymore.</li>
-        </ul>
-
-        <h2>1.2.0</h2>
-        <h3>Added</h3>
-        <ul>
-            <li>Autocompletion for require statement. (autocompletes the path to lua files)</li>
-            <li>Download the factorio lualib (https://github.com/wube/factorio-data/tree/master/core/lualib)</li>
-            <li>Type infer is followed the require statements correctly to files. This is based on the two points above :)</li>
-            <li>Autocomplete Prototypes for tables (e.g. `LuaForce.recipe[String]LuaRecipe`)</li>
-            <li>Autocomplete Prototypes in data.raw table.</li>
-        </ul>
-        <h3>Fixed</h3>
-        <ul>
-            <li>Removed weird indexing of files (only happens now, when finished downloading)</li>
-        </ul>
-        <h3>Changed</h3>
-        <ul>
-            <li>Settings will reload Prototypes and Lualib too.</li>
-            <li>Check for updates is only done, when the Project is opened.</li>
-        </ul>
-        
-        <h2>1.1.1</h2>
-        <h3>Fixed</h3>
-        <ul>
-            <li>Global Variable where defined `local`</li>
-        </ul>
-        
-        <h2>1.1.0</h2>
-        <h3>Added</h3>
-        <ul>
-            <li>JSON Schema for info.json</li>
-            <li>Autocompletion for Prototypes (other autocompletion mostly deactivated)
-                <ul>
-                    <li>completion for prototype field (only names)</li>
-                    <li>completion for the type literal</li>
-                </ul>
-            </li>
-            <li>Compatibility with Jetbrains 2019.3 IDEs</li>
-        </ul>
-        
-        <h2>Initial Realease - 1.0.0</h2>
-        <h3>Added</h3>
-        <ul>
-            <li>Code completion for additional LUA files</li>
-            <li>Download and parse the factorio-lua-api</li>
-            <li>bultin-types as hardcoded library</li>
-        </ul>
-    """
-
-    sinceBuild "212"
-    untilBuild "212.*"
+    changeNotes = getPluginChangelog()
+    sinceBuild = "222"
+    untilBuild = "222.*"
+    version = project.version
 }
 
 test {
