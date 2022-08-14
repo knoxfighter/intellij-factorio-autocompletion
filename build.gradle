@@ -10,7 +10,7 @@ plugins {
 group 'moe.knox.factorio'
 version '1.3.5'
 
-sourceCompatibility = 17
+sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
