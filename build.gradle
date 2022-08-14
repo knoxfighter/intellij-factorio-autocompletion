@@ -23,7 +23,6 @@ dependencies {
 }
 
 changelog {
-    version = "1.0.0"
     path = "${project.projectDir}/Changelog.md"
     header = "[${-> version.get()}] - ${new SimpleDateFormat("dd.MM.yyyy").format(new Date())}"
 }
