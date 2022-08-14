@@ -1,5 +1,4 @@
 import java.text.SimpleDateFormat
-import java.util.stream.Collectors
 
 plugins {
     id 'java'
@@ -22,6 +21,31 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
+ext.getPluginChangelog = { ->
+    StringBuilder changelogHtml = new StringBuilder()
+
+    for (item in changelog.getAll().values()) {
+        if (item.isUnreleased) {
+            continue
+        }
+
+        changelogHtml.append("<h3>" + item.version + "</h3>\n")
+        changelogHtml.append("<ul>")
+
+        for (section in item.getSections()) {
+            String changesType = section.getKey()
+
+            for ( sectionItem in section.getValue() ) {
+                changelogHtml.append("<li>[" + changesType + "] " + sectionItem.substring(2) + "</li>\n")
+            }
+        }
+
+        changelogHtml.append("</ul>\n")
+    }
+
+    return changelogHtml.toString()
+}
+
 changelog {
     path = "${project.projectDir}/Changelog.md"
     header = "[${-> version.get()}] - ${new SimpleDateFormat("dd.MM.yyyy").format(new Date())}"
@@ -36,7 +60,7 @@ intellij {
 }
 
 patchPluginXml {
-    changeNotes = changelog.getAll().values().stream().map ( n -> n.toHTML() ) .collect(Collectors.joining("\n"))
+    changeNotes = getPluginChangelog()
     sinceBuild = "222"
     untilBuild = "222.*"
     version = project.version
