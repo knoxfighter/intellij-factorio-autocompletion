@@ -1,4 +1,8 @@
 # Intellij Factorio Autocompletion
+
+[![Build status](https://github.com/knoxfighter/intellij-factorio-autocompletion/actions/workflows/build-gradle-project.yml/badge.svg?branch=develop)](https://github.com/knoxfighter/actions/workflows/build-gradle-project.yml)
+[![Jetbrains plugin](https://img.shields.io/jetbrains/plugin/v/13330-factorio-lua-api-support.svg?style=flat-square)](https://plugins.jetbrains.com/plugin/13330-factorio-lua-api-support)
+
 This is a plugin for the jetbrains IDEs. It adds autocompletion to LUA Files for the Factorio LUA-API.
 
 The API has to be downloaded from the Internet, when the Integration is activated. Also the Settings can only be changed, when internet connection is available.
