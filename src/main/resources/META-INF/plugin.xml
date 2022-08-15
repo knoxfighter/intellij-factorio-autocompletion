@@ -16,16 +16,16 @@
     <depends>com.tang</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectConfigurable groupId="language" displayName="Factorio Autocompletion" id="preference.FactorioCompletionConfig" instance="moe.knox.factorio.FactorioAutocompletionConfig"/>
-        <projectService serviceImplementation="moe.knox.factorio.FactorioAutocompletionState" />
-        <postStartupActivity implementation="moe.knox.factorio.FactorioStartupActivity"/>
+        <projectConfigurable groupId="language" displayName="Factorio Autocompletion" id="preference.FactorioCompletionConfig" instance="moe.knox.factorio.intellij.FactorioAutocompletionConfig"/>
+        <projectService serviceImplementation="moe.knox.factorio.intellij.FactorioAutocompletionState" />
+        <postStartupActivity implementation="moe.knox.factorio.intellij.FactorioStartupActivity"/>
 
-        <additionalLibraryRootsProvider implementation="moe.knox.factorio.library.FactorioLibraryProvider"/>
+        <additionalLibraryRootsProvider implementation="moe.knox.factorio.intellij.FactorioLibraryProvider"/>
 
-        <completion.contributor language="Lua" implementationClass="moe.knox.factorio.completion.lua.FactorioCompletionContributor" order="first"/>
-        <completion.contributor language="Lua" implementationClass="moe.knox.factorio.completion.lua.dataRaw.DataRawCompletionContributor" order="first"/>
+        <completion.contributor language="Lua" implementationClass="moe.knox.factorio.intellij.completion.FactorioCompletionContributor" order="first"/>
+        <completion.contributor language="Lua" implementationClass="moe.knox.factorio.intellij.completion.DataRawCompletionContributor" order="first"/>
 
-        <fileBasedIndex implementation="moe.knox.factorio.indexer.PrototypeFileIndexer"/>
+        <fileBasedIndex implementation="moe.knox.factorio.intellij.PrototypeFileIndexer"/>
         
         <notificationGroup displayType="STICKY_BALLOON" id="Factorio API Download"/>
         <notificationGroup displayType="STICKY_BALLOON" id="Factorio Prototype Download"/>
@@ -33,14 +33,14 @@
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
-        <ProviderFactory implementation="moe.knox.factorio.completion.json.FactorioSchemaProviderFactory"/>
+        <ProviderFactory implementation="moe.knox.factorio.json.FactorioSchemaProviderFactory"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.tang.intellij.lua">
-        <luaFileResolver implementation="moe.knox.factorio.fileResolver.FactorioRootDir" order="first"/>
-        <luaFileResolver implementation="moe.knox.factorio.fileResolver.FactorioLualib" order="first"/>
+        <luaFileResolver implementation="moe.knox.factorio.tang.file.resolver.FactorioRootDir" order="first"/>
+        <luaFileResolver implementation="moe.knox.factorio.tang.file.resolver.FactorioLualib" order="first"/>
 
-        <luaTypeInfer implementation="moe.knox.factorio.typeInfer.DataRawTypeInfer" order="last"/>
+        <luaTypeInfer implementation="moe.knox.factorio.tang.DataRawTypeInfer" order="last"/>
     </extensions>
 
     <actions>
