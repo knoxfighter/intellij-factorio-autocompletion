@@ -20,7 +20,7 @@ import java.util.Set;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
-public class DataRawCompletionContributor extends CompletionContributor {
+public class DataRawCompletionContributor extends com.intellij.codeInsight.completion.CompletionContributor {
     public DataRawCompletionContributor() {
         /// Autocompletion for data.raw.*
         extend(CompletionType.BASIC,
