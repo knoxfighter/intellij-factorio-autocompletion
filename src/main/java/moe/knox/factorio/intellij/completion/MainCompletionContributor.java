@@ -2,7 +2,13 @@ package moe.knox.factorio.intellij.completion;
 
 import com.intellij.codeInsight.completion.*;
 import com.tang.intellij.lua.psi.*;
-import moe.knox.factorio.intellij.completion.factorio.*;
+import moe.knox.factorio.intellij.completion.factorio.condition.PathPatternCondition;
+import moe.knox.factorio.intellij.completion.factorio.condition.PrototypePatternCondition;
+import moe.knox.factorio.intellij.completion.factorio.condition.PrototypeTypePatternCondition;
+import moe.knox.factorio.intellij.completion.factorio.provider.PathCompletionProvider;
+import moe.knox.factorio.intellij.completion.factorio.provider.PrototypeCompletionProvider;
+import moe.knox.factorio.intellij.completion.factorio.provider.PrototypeTableCompletionProvider;
+import moe.knox.factorio.intellij.completion.factorio.provider.PrototypeTypeCompletionProvider;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 

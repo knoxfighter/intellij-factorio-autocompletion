@@ -1,4 +1,4 @@
-package moe.knox.factorio.intellij.completion.factorio;
+package moe.knox.factorio.intellij.completion.factorio.provider;
 
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;

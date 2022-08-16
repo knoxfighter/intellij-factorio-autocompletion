@@ -4,10 +4,10 @@ import com.intellij.codeInsight.completion.*;
 import com.tang.intellij.lua.psi.LuaIndexExpr;
 import com.tang.intellij.lua.psi.LuaLiteralExpr;
 import com.tang.intellij.lua.psi.LuaTypes;
-import moe.knox.factorio.intellij.completion.dataRaw.DataRowByIdCompletionProvider;
-import moe.knox.factorio.intellij.completion.dataRaw.DataRowByIndexCompletionProvider;
-import moe.knox.factorio.intellij.completion.dataRaw.InRawPatternCondition;
-import moe.knox.factorio.intellij.completion.dataRaw.SubPrototypeCompletionProvider;
+import moe.knox.factorio.intellij.completion.dataRaw.provider.DataRowByIdCompletionProvider;
+import moe.knox.factorio.intellij.completion.dataRaw.provider.DataRowByIndexCompletionProvider;
+import moe.knox.factorio.intellij.completion.dataRaw.condition.InRawPatternCondition;
+import moe.knox.factorio.intellij.completion.dataRaw.provider.SubPrototypeCompletionProvider;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
