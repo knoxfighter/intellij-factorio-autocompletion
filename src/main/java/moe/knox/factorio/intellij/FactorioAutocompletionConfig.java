@@ -5,6 +5,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
+import com.intellij.util.text.SemVer;
 import moe.knox.factorio.core.parser.ApiParser;
 import moe.knox.factorio.core.parser.LuaLibParser;
 import moe.knox.factorio.core.parser.PrototypeParser;
@@ -19,6 +20,7 @@ import org.jsoup.select.Elements;
 import javax.swing.*;
 
 public class FactorioAutocompletionConfig implements SearchableConfigurable {
+    final private SemVer minimumApiJsonVersion = new SemVer("1.1.35", 1, 1, 35);
     Project project;
     private FactorioAutocompletionState config;
     private JPanel rootPanel;
@@ -35,11 +37,18 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
 
         try {
+            // add latest as first
+            selectApiVersion.addItem(FactorioVersion.createLatest());
+
             Document mainPageDoc = Jsoup.connect(ApiParser.factorioApiBaseLink).get();
             Elements allLinks = mainPageDoc.select("a");
             for (Element link : allLinks) {
                 var factorioVersion = new FactorioVersion(link.text(), link.attr("href"));
-                selectApiVersion.addItem(factorioVersion);
+
+                SemVer semVer = SemVer.parseFromText(link.text());
+                if (semVer != null && semVer.isGreaterOrEqualThan(minimumApiJsonVersion)) {
+                    selectApiVersion.addItem(factorioVersion);
+                }
             }
             selectApiVersion.setSelectedItem(config.selectedFactorioVersion);
 
