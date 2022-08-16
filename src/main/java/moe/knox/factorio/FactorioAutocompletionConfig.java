@@ -5,10 +5,12 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
+import com.intellij.util.text.SemVer;
 import moe.knox.factorio.library.FactorioLibraryProvider;
 import moe.knox.factorio.parser.FactorioApiParser;
 import moe.knox.factorio.parser.FactorioLualibParser;
 import moe.knox.factorio.parser.FactorioPrototypeParser;
+import org.apache.commons.lang3.compare.ComparableUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jsoup.Jsoup;
@@ -19,11 +21,13 @@ import org.jsoup.select.Elements;
 import javax.swing.*;
 
 public class FactorioAutocompletionConfig implements SearchableConfigurable {
+    final private SemVer maximumSupportedVersion = new SemVer("1.1.48", 1, 1, 48);
+
     Project project;
     private FactorioAutocompletionState config;
     private JPanel rootPanel;
     private JCheckBox enableFactorioIntegrationCheckBox;
-    private JComboBox selectApiVersion;
+    private JComboBox<FactorioAutocompletionState.FactorioVersion> selectApiVersion;
     private JLabel loadError;
     private JButton reloadButton;
 
@@ -38,8 +42,12 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
             Document mainPageDoc = Jsoup.connect(FactorioApiParser.factorioApiBaseLink).get();
             Elements allLinks = mainPageDoc.select("a");
             for (Element link : allLinks) {
-                FactorioAutocompletionState.FactorioVersion factorioVersion = new FactorioAutocompletionState.FactorioVersion(link.text(), link.attr("href"));
-                selectApiVersion.addItem(factorioVersion);
+                var factorioVersion = new FactorioAutocompletionState.FactorioVersion(link.text(), link.attr("href"));
+
+                SemVer linkVersion = SemVer.parseFromText(link.text());
+                if (linkVersion != null && linkVersion.compareTo(maximumSupportedVersion) <= 0) {
+                    selectApiVersion.addItem(factorioVersion);
+                }
             }
             selectApiVersion.setSelectedItem(config.selectedFactorioVersion);
 

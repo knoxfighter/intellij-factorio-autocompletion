@@ -21,8 +21,8 @@ public class FactorioAutocompletionState implements PersistentStateComponent<Fac
         public String link;
 
         public FactorioVersion() {
-            desc = "Latest version";
-            link = "/latest/";
+            desc = "1.1.48";
+            link = "/1.1.48/";
         }
 
         public FactorioVersion(String desc, String link) {
@@ -48,6 +48,11 @@ public class FactorioAutocompletionState implements PersistentStateComponent<Fac
         @Override
         public String toString() {
             return desc;
+        }
+
+        public boolean isLastSupported()
+        {
+            return desc.equals("1.1.48");
         }
     }
 

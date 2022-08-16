@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.3.6] - 16.08.2022
+### Added
+- Set maximum supported Factorio Api version to 1.1.48
+
 ## [1.3.5] - 12.08.2022
 ### Added
 - Compatibility with jetbrains IDEs 2022.*

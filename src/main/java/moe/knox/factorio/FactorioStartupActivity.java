@@ -14,6 +14,10 @@ public class FactorioStartupActivity implements StartupActivity {
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
 
         if (config.integrationActive) {
+            if (!config.selectedFactorioVersion.isLastSupported()) {
+                config.selectedFactorioVersion = new FactorioAutocompletionState.FactorioVersion();
+            }
+
             boolean update = FactorioLualibParser.checkForUpdate(project);
             FactorioApiParser.checkForUpdate(project);
 
