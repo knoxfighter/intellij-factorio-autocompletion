@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FactorioPrototypeCompletionProvider extends CompletionProvider<CompletionParameters> {
+public class PrototypeCompletionProvider extends CompletionProvider<CompletionParameters> {
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet resultSet) {
 //        String fieldName = PsiTreeUtil.getParentOfType(parameters.getPosition(), LuaTableField.class).getFieldName();
@@ -29,7 +29,7 @@ public class FactorioPrototypeCompletionProvider extends CompletionProvider<Comp
             resultSet.stopHere();
 
             /// The completion for the tableFieldName
-            ITy luaClass = FactorioPrototypeTypeGuesser.guessType(parameters.getPosition());
+            ITy luaClass = PrototypeTypeGuesser.guessType(parameters.getPosition());
             if (luaClass == null) {
                 // only complete member `type`
                 LuaLookupElement element = new LuaLookupElement("type", true, null);

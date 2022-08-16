@@ -14,7 +14,7 @@ import com.tang.intellij.lua.ty.ITy;
 import com.tang.intellij.lua.ty.TySerializedClass;
 import org.jetbrains.annotations.Nullable;
 
-public class FactorioPrototypeTypeGuesser {
+public class PrototypeTypeGuesser {
     @Nullable
     public static ITy guessType(PsiElement element) {
         // get table element

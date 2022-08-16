@@ -24,15 +24,15 @@ public class FactorioCompletionContributor extends CompletionContributor {
                                                 psiElement(LuaTypes.NAME_EXPR)
                                                         .withParent(LuaTableField.class)
                                         )
-                        ).with(new FactorioPrototypePatternCondition(null, true)),
-                new FactorioPrototypeCompletionProvider()
+                        ).with(new PrototypePatternCondition(null, true)),
+                new PrototypeCompletionProvider()
         );
 
         extend(CompletionType.BASIC,
                 psiElement(LuaTypes.STRING)
                         .with(new FactorioIntegrationActiveCondition(null))
-                        .with(new FactorioPrototypePatternCondition(null, false))
-                        .with(new FactorioPrototypeTypePatternCondition(null)),
+                        .with(new PrototypePatternCondition(null, false))
+                        .with(new PrototypeTypePatternCondition(null)),
                 new CompletionProvider<CompletionParameters>() {
                     @Override
                     protected void addCompletions(@NotNull CompletionParameters completionParameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet completionResultSet) {
@@ -64,7 +64,7 @@ public class FactorioCompletionContributor extends CompletionContributor {
                                 return false;
                             }
                         }),
-                new FactorioPathCompletionProvider()
+                new PathCompletionProvider()
         );
 
         extend(CompletionType.BASIC,
@@ -74,7 +74,7 @@ public class FactorioCompletionContributor extends CompletionContributor {
                                         .withParent(LuaIndexExpr.class)
                         )
                         .with(new FactorioIntegrationActiveCondition(null)),
-                new FactorioPrototypeTableCompletionProvider()
+                new PrototypeTableCompletionProvider()
         );
     }
 }

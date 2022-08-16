@@ -16,7 +16,7 @@ import org.jetbrains.annotations.SystemIndependent;
 
 import java.io.File;
 
-public class FactorioPathCompletionProvider extends CompletionProvider<CompletionParameters> {
+public class PathCompletionProvider extends CompletionProvider<CompletionParameters> {
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext context, @NotNull CompletionResultSet resultSet) {
         PsiElement position = parameters.getPosition();
