@@ -22,7 +22,7 @@
 
         <additionalLibraryRootsProvider implementation="moe.knox.factorio.intellij.FactorioLibraryProvider"/>
 
-        <completion.contributor language="Lua" implementationClass="moe.knox.factorio.intellij.completion.FactorioCompletionContributor" order="first"/>
+        <completion.contributor language="Lua" implementationClass="moe.knox.factorio.intellij.completion.MainCompletionContributor" order="first"/>
         <completion.contributor language="Lua" implementationClass="moe.knox.factorio.intellij.completion.DataRawCompletionContributor" order="first"/>
 
         <fileBasedIndex implementation="moe.knox.factorio.intellij.PrototypeFileIndexer"/>

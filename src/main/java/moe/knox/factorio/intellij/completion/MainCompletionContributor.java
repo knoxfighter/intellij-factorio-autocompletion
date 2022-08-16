@@ -13,8 +13,8 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
-public class FactorioCompletionContributor extends CompletionContributor {
-    public FactorioCompletionContributor() {
+public class MainCompletionContributor extends CompletionContributor {
+    public MainCompletionContributor() {
         extend(CompletionType.BASIC,
                 psiElement()
                         .with(new FactorioIntegrationActiveCondition(null))
