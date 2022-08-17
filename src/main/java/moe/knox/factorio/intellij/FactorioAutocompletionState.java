@@ -5,6 +5,7 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import moe.knox.factorio.core.FactorioApiVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 public class FactorioAutocompletionState implements PersistentStateComponent<FactorioAutocompletionState> {
     public boolean integrationActive = false;
     public String curVersion = "";
-    public FactorioVersion selectedFactorioVersion = FactorioVersion.createLatest();
+    public FactorioApiVersion selectedFactorioVersion = FactorioApiVersion.createLatest();
     public String currentLualibVersion = "";
 
     @Nullable
@@ -33,28 +34,5 @@ public class FactorioAutocompletionState implements PersistentStateComponent<Fac
 
     public static FactorioAutocompletionState getInstance(Project project) {
         return project.getService(FactorioAutocompletionState.class);
-    }
-
-    public record FactorioVersion(String version, boolean latest) {
-        private static final String latestVersion = "latest";
-
-        @Override
-        public String toString() {
-            if (latest) {
-                return "Latest version";
-            }
-
-            return version;
-        }
-
-        static FactorioVersion createLatest()
-        {
-            return new FactorioVersion(latestVersion, true);
-        }
-
-        static FactorioVersion createVersion(String version)
-        {
-            return new FactorioVersion(version, false);
-        }
     }
 }
