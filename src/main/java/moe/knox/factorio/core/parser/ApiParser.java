@@ -7,12 +7,11 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
+import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.intellij.FactorioAutocompletionState;
 import moe.knox.factorio.core.NotificationService;
 import moe.knox.factorio.core.version.ApiVersionCollection;
 import moe.knox.factorio.core.version.ApiVersionResolver;
-import moe.knox.factorio.core.version.FactorioApiVersion;
-import moe.knox.factorio.intellij.FactorioAutocompletionState;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
 import moe.knox.factorio.core.parser.apiData.*;
 import org.jetbrains.annotations.NotNull;
@@ -21,12 +20,15 @@ import org.jsoup.Jsoup;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ApiParser extends Parser {
-    public static String apiRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_api/";
+    private final static String apiRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_api/";
     public static String factorioApiBaseLink = "https://lua-api.factorio.com/";
     private static AtomicBoolean downloadInProgress = new AtomicBoolean(false);
     private FactorioAutocompletionState config;
@@ -55,16 +57,15 @@ public class ApiParser extends Parser {
             return null;
         }
 
-        String apiPath = getSelectedApiVersionFilePath(project);
+        Path apiPath = getApiRuntimeDir(project);
 
         // check if API is downloaded
-        File apiPathFile = new File(apiPath);
-        if (apiPathFile.exists()) {
-            return apiPath;
+        if (Files.exists(apiPath)) {
+            return apiPath.toString();
         } else {
             // request download API
             if (downloadInProgress.compareAndSet(false, true)) {
-                ProgressManager.getInstance().run(new ApiParser(project, apiPath, "Download and Parse Factorio API", false));
+                ProgressManager.getInstance().run(new ApiParser(project, apiPath.toString(), "Download and Parse Factorio API", false));
             }
             return null;
         }
@@ -72,15 +73,14 @@ public class ApiParser extends Parser {
 
     public static void removeCurrentAPI(Project project) {
         if (!downloadInProgress.get()) {
-            String apiPath = getSelectedApiVersionFilePath(project);
-            FileUtil.delete(new File(apiPath));
+            Path apiPath = getApiRuntimeDir(project);
+            FileUtil.delete(apiPath.toFile());
             FactorioLibraryProvider.reload();
         }
     }
 
     public static void checkForUpdate(Project project) {
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-        String apiPath = getSelectedApiVersionFilePath(project);
 
         if (config.useLatestVersion) {
             var newestVersion = detectLatestAllowedVersion(project);
@@ -89,7 +89,8 @@ public class ApiParser extends Parser {
                 // new version detected, update it
                 removeCurrentAPI(project);
                 if (downloadInProgress.compareAndSet(false, true)) {
-                    ProgressManager.getInstance().run(new ApiParser(project, apiPath, "Download and Parse Factorio API", false));
+                    Path apiPath = getApiRuntimeDir(project);
+                    ProgressManager.getInstance().run(new ApiParser(project, apiPath.toString(), "Download and Parse Factorio API", false));
                 }
             }
         }
@@ -214,10 +215,10 @@ public class ApiParser extends Parser {
         }
     }
 
-    private static String getSelectedApiVersionFilePath(Project project)
+    private static Path getApiRuntimeDir(Project project)
     {
         var config = FactorioAutocompletionState.getInstance(project);
 
-        return apiRootPath + config.selectedFactorioVersion.version();
+        return Paths.get(apiRootPath, config.selectedFactorioVersion.version());
     }
 }
