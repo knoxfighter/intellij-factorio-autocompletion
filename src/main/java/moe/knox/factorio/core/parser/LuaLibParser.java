@@ -71,8 +71,8 @@ public class LuaLibParser extends Parser {
         }
 
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-        String lualibPath = luaLibRootPath + config.selectedFactorioVersion.link();
-        String prototypePath = prototypeRootPath + config.selectedFactorioVersion.link();
+        String lualibPath = luaLibRootPath + config.selectedFactorioVersion.version();
+        String prototypePath = prototypeRootPath + config.selectedFactorioVersion.version();
 
         File lualibFile = new File(lualibPath);
         File prototypeFile = new File(prototypePath);
@@ -113,13 +113,13 @@ public class LuaLibParser extends Parser {
      */
     public static boolean checkForUpdate(Project project) {
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-        String lualibPath = luaLibRootPath + config.selectedFactorioVersion.link();
-        String prototypePath = prototypeRootPath + config.selectedFactorioVersion.link();
+        String lualibPath = luaLibRootPath + config.selectedFactorioVersion.version();
+        String prototypePath = prototypeRootPath + config.selectedFactorioVersion.version();
 
         File lualibFile = new File(lualibPath);
         File prototypeFile = new File(prototypePath);
         if (lualibFile.exists() && prototypeFile.exists()) {
-            if (config.selectedFactorioVersion.isLatest()) {
+            if (config.selectedFactorioVersion.latest()) {
                 RefTag[] tags = downloadTags();
                 if (tags != null) {
                     String tag = tags[tags.length - 1].ref;
@@ -173,11 +173,11 @@ public class LuaLibParser extends Parser {
         if (tags != null) {
             // find correct Tag
             RefTag correctTag = null;
-            if (config.selectedFactorioVersion.isLatest()) {
+            if (config.selectedFactorioVersion.latest()) {
                 correctTag = tags[tags.length - 1];
             } else {
                 for (RefTag tag : tags) {
-                    if (tag.ref.substring(tag.ref.lastIndexOf("/") + 1).equals(config.selectedFactorioVersion.desc())) {
+                    if (tag.ref.substring(tag.ref.lastIndexOf("/") + 1).equals(config.selectedFactorioVersion.version())) {
                         correctTag = tag;
                         break;
                     }

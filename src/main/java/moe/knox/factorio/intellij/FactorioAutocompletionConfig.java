@@ -5,9 +5,11 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
+import com.intellij.util.text.SemVer;
 import moe.knox.factorio.core.parser.ApiParser;
 import moe.knox.factorio.core.parser.LuaLibParser;
 import moe.knox.factorio.core.parser.PrototypeParser;
+import moe.knox.factorio.intellij.FactorioAutocompletionState.FactorioVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jsoup.Jsoup;
@@ -16,13 +18,16 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import javax.swing.*;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 public class FactorioAutocompletionConfig implements SearchableConfigurable {
     Project project;
     private FactorioAutocompletionState config;
     private JPanel rootPanel;
     private JCheckBox enableFactorioIntegrationCheckBox;
-    private JComboBox<FactorioAutocompletionState.FactorioVersion> selectApiVersion;
+    private JComboBox<FactorioVersion> selectApiVersion;
     private JLabel loadError;
     private JButton reloadButton;
 
@@ -34,12 +39,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
 
         try {
-            Document mainPageDoc = Jsoup.connect(ApiParser.factorioApiBaseLink).get();
-            Elements allLinks = mainPageDoc.select("a");
-            for (Element link : allLinks) {
-                var factorioVersion = new FactorioAutocompletionState.FactorioVersion(link.text(), link.attr("href"));
-                selectApiVersion.addItem(factorioVersion);
-            }
+            getVersions().forEach(v -> selectApiVersion.addItem(v));
             selectApiVersion.setSelectedItem(config.selectedFactorioVersion);
 
             // hide error message
@@ -63,6 +63,26 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
             LuaLibParser.checkForUpdate(project);
             FactorioLibraryProvider.reload();
         });
+    }
+
+    private Set<FactorioVersion> getVersions() throws IOException {
+        Set<FactorioVersion> result = new HashSet<>();
+        result.add(FactorioVersion.createLatest());
+
+        Document mainPageDoc = Jsoup.connect(ApiParser.factorioApiBaseLink).get();
+        Elements allLinks = mainPageDoc.select("a");
+        for (Element link : allLinks) {
+            var semVer = SemVer.parseFromText(link.text());
+            if (semVer == null) {
+                continue;
+            }
+
+            var factorioVersion = FactorioVersion.createVersion(semVer.getRawVersion());
+
+            selectApiVersion.addItem(factorioVersion);
+        }
+
+        return result;
     }
 
     @NotNull
@@ -115,7 +135,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
             // save new settings
             if (selectApiVersion.getSelectedItem() != null) {
-                config.selectedFactorioVersion = (FactorioAutocompletionState.FactorioVersion) selectApiVersion.getSelectedItem();
+                config.selectedFactorioVersion = (FactorioVersion) selectApiVersion.getSelectedItem();
             }
         }
 

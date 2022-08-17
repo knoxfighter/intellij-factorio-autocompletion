@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 public class FactorioAutocompletionState implements PersistentStateComponent<FactorioAutocompletionState> {
     public boolean integrationActive = false;
     public String curVersion = "";
-    public FactorioVersion selectedFactorioVersion = FactorioVersion.latest();
+    public FactorioVersion selectedFactorioVersion = FactorioVersion.createLatest();
     public String currentLualibVersion = "";
 
     @Nullable
@@ -35,19 +35,26 @@ public class FactorioAutocompletionState implements PersistentStateComponent<Fac
         return project.getService(FactorioAutocompletionState.class);
     }
 
-    public record FactorioVersion(String desc, String link) {
+    public record FactorioVersion(String version, boolean latest) {
+        private static final String latestVersion = "latest";
+
         @Override
         public String toString() {
-            return desc;
+            if (latest) {
+                return "Latest version";
+            }
+
+            return version;
         }
 
-        static FactorioVersion latest()
+        static FactorioVersion createLatest()
         {
-            return new FactorioVersion("Latest version", "/latest/");
+            return new FactorioVersion(latestVersion, true);
         }
 
-        public boolean isLatest() {
-            return this.desc.equals("Latest version");
+        static FactorioVersion createVersion(String version)
+        {
+            return new FactorioVersion(version, false);
         }
     }
 }
