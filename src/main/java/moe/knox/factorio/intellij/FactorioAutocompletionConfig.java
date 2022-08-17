@@ -78,7 +78,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
                 continue;
             }
 
-            var factorioVersion = new FactorioVersion(link.text(), link.attr("href"));
+            var factorioVersion = FactorioVersion.createVersion(semVer.getRawVersion());
 
             selectApiVersion.addItem(factorioVersion);
         }
