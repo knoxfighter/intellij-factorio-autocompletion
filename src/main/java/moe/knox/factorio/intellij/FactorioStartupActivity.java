@@ -3,9 +3,9 @@ package moe.knox.factorio.intellij;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
 import moe.knox.factorio.core.BasePrototypesService;
-import moe.knox.factorio.core.parser.FactorioApiParser;
-import moe.knox.factorio.core.parser.FactorioLualibParser;
-import moe.knox.factorio.core.parser.FactorioPrototypeParser;
+import moe.knox.factorio.core.parser.ApiParser;
+import moe.knox.factorio.core.parser.LualibParser;
+import moe.knox.factorio.core.parser.PrototypeParser;
 import org.jetbrains.annotations.NotNull;
 
 public class FactorioStartupActivity implements StartupActivity {
@@ -14,13 +14,13 @@ public class FactorioStartupActivity implements StartupActivity {
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
 
         if (config.integrationActive) {
-            boolean update = FactorioLualibParser.checkForUpdate(project);
-            FactorioApiParser.checkForUpdate(project);
+            boolean update = LualibParser.checkForUpdate(project);
+            ApiParser.checkForUpdate(project);
 
             if (update) {
                 // reload Prototypes
-                FactorioPrototypeParser.removeCurrentPrototypes();
-                FactorioPrototypeParser.getCurrentPrototypeLink(project);
+                PrototypeParser.removeCurrentPrototypes();
+                PrototypeParser.getCurrentPrototypeLink(project);
             }
 
             // reload core/base prototypes

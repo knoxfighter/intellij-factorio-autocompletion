@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class FactorioApiParser extends FactorioParser {
+public class ApiParser extends Parser {
     public static String apiRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_api/";
     public static String factorioApiBaseLink = "https://lua-api.factorio.com/";
 
@@ -37,7 +37,7 @@ public class FactorioApiParser extends FactorioParser {
     private ProgressIndicator indicator;
     private String saveDir;
 
-    public FactorioApiParser(@Nullable Project project, String saveDir, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
+    public ApiParser(@Nullable Project project, String saveDir, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
         super(project, title, canBeCancelled);
         this.saveDir = saveDir;
     }
@@ -65,7 +65,7 @@ public class FactorioApiParser extends FactorioParser {
         } else {
             // request download API
             if (downloadInProgress.compareAndSet(false, true)) {
-                ProgressManager.getInstance().run(new FactorioApiParser(project, apiPath, "Download and Parse Factorio API", false));
+                ProgressManager.getInstance().run(new ApiParser(project, apiPath, "Download and Parse Factorio API", false));
             }
             return null;
         }
@@ -102,7 +102,7 @@ public class FactorioApiParser extends FactorioParser {
                 // new version detected, update it
                 removeCurrentAPI(project);
                 if (downloadInProgress.compareAndSet(false, true)) {
-                    ProgressManager.getInstance().run(new FactorioApiParser(project, apiPath, "Download and Parse Factorio API", false));
+                    ProgressManager.getInstance().run(new ApiParser(project, apiPath, "Download and Parse Factorio API", false));
                 }
             }
         }
