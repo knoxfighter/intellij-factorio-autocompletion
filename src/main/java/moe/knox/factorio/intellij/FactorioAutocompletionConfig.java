@@ -1,7 +1,6 @@
 package moe.knox.factorio.intellij;
 
 import com.intellij.openapi.application.WriteAction;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
@@ -110,38 +109,26 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
     }
 
     @Override
-    public void apply() throws ConfigurationException {
-        boolean enableIntegration = enableFactorioIntegrationCheckBox.isSelected();
-
+    public void apply() {
         if (isIntegrationTurnedOff()) {
-            // integration deactivated
             ApiParser.removeCurrentAPI(project);
             PrototypeParser.removeCurrentPrototypes();
             LuaLibParser.removeCurrentLualib(project);
         }
 
-        config.integrationActive = enableIntegration;
-
         if (isVersionChanged()) {
-            // New Factorio Version selected
-            // remove old apis
             ApiParser.removeCurrentAPI(project);
             LuaLibParser.removeCurrentLualib(project);
-
-            // reload the lualib
             LuaLibParser.checkForUpdate(project);
-
-            // save new settings
-            if (selectApiVersion.getSelectedItem() != null) {
-                config.selectedFactorioVersion = getSelectedVersion();
-            }
         }
 
-        reloadButton.setEnabled(enableIntegration);
+        reloadButton.setEnabled(enableFactorioIntegrationCheckBox.isSelected());
 
+        config.integrationActive = enableFactorioIntegrationCheckBox.isSelected();
         config.useLatestVersion = isUseLatestVersion();
+        config.selectedFactorioVersion = getSelectedVersion();
 
-        WriteAction.run(() -> FactorioLibraryProvider.reload());
+        WriteAction.run(FactorioLibraryProvider::reload);
     }
 
     private boolean isUseLatestVersion() {
