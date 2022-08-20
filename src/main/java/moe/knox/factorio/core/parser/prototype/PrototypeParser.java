@@ -1,6 +1,5 @@
-package moe.knox.factorio.core.parser;
+package moe.knox.factorio.core.parser.prototype;
 
-import com.intellij.notification.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -10,6 +9,7 @@ import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
 import com.tang.intellij.lua.search.SearchContext;
 import moe.knox.factorio.core.NotificationService;
+import moe.knox.factorio.core.parser.Parser;
 import moe.knox.factorio.intellij.FactorioAutocompletionState;
 import moe.knox.factorio.core.FactorioPrototypeState;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;

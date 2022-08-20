@@ -16,7 +16,7 @@ import com.intellij.util.io.URLUtil;
 import com.tang.intellij.lua.lang.LuaIcons;
 import com.tang.intellij.lua.psi.LuaFileUtil;
 import moe.knox.factorio.core.parser.ApiParser;
-import moe.knox.factorio.core.parser.PrototypeParser;
+import moe.knox.factorio.core.parser.prototype.PrototypeParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

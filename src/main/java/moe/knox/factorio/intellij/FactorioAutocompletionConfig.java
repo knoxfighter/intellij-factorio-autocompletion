@@ -7,7 +7,7 @@ import com.intellij.openapi.util.NlsContexts;
 import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.core.parser.ApiParser;
 import moe.knox.factorio.core.LuaLibDownloader;
-import moe.knox.factorio.core.parser.PrototypeParser;
+import moe.knox.factorio.core.parser.prototype.PrototypeParser;
 import moe.knox.factorio.core.version.ApiVersionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
