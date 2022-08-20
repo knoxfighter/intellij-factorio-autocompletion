@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Objects;
 
-public class FactorioAutocompletionConfig implements SearchableConfigurable {
+public class FactorioConfig implements SearchableConfigurable {
     Project project;
     private FactorioState config;
     private JPanel rootPanel;
@@ -29,7 +29,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
     @NotNull
     private final FactorioApiVersion latestExistingVersion;
 
-    public FactorioAutocompletionConfig(@NotNull Project project) throws IOException {
+    public FactorioConfig(@NotNull Project project) throws IOException {
         this.project = project;
         config = FactorioState.getInstance(project);
         apiVersionResolver = new ApiVersionResolver();

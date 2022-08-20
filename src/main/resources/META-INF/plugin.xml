@@ -16,7 +16,7 @@
     <depends>com.tang</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectConfigurable groupId="language" displayName="Factorio Autocompletion" id="preference.FactorioCompletionConfig" instance="moe.knox.factorio.intellij.FactorioAutocompletionConfig"/>
+        <projectConfigurable groupId="language" displayName="Factorio Autocompletion" id="preference.FactorioCompletionConfig" instance="moe.knox.factorio.intellij.FactorioConfig"/>
         <projectService serviceImplementation="moe.knox.factorio.intellij.FactorioState" />
         <postStartupActivity implementation="moe.knox.factorio.intellij.FactorioStartupActivity"/>
 
