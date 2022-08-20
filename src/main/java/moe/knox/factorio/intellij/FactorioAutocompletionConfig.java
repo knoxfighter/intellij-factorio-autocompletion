@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.core.parser.ApiParser;
-import moe.knox.factorio.core.parser.LuaLibParser;
+import moe.knox.factorio.core.LuaLibDownloader;
 import moe.knox.factorio.core.parser.PrototypeParser;
 import moe.knox.factorio.core.version.ApiVersionResolver;
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +75,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
         reloadButton.addActionListener(actionEvent -> {
             removeParsedLibraries();
 
-            LuaLibParser.checkForUpdate(project);
+            LuaLibDownloader.checkForUpdate(project);
             FactorioLibraryProvider.reload();
         });
     }
@@ -115,8 +115,8 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
         if (isVersionChanged()) {
             ApiParser.removeCurrentAPI(project);
-            LuaLibParser.removeCurrentLualib(project);
-            LuaLibParser.checkForUpdate(project);
+            LuaLibDownloader.removeCurrentLualib(project);
+            LuaLibDownloader.checkForUpdate(project);
         }
 
         reloadButton.setEnabled(enableFactorioIntegrationCheckBox.isSelected());
@@ -132,7 +132,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
     {
         ApiParser.removeCurrentAPI(project);
         PrototypeParser.removeCurrentPrototypes();
-        LuaLibParser.removeCurrentLualib(project);
+        LuaLibDownloader.removeCurrentLualib(project);
     }
 
     private boolean isUseLatestVersion() {

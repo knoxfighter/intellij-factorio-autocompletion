@@ -3,8 +3,8 @@ package moe.knox.factorio.intellij;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
 import moe.knox.factorio.core.BasePrototypesService;
+import moe.knox.factorio.core.LuaLibDownloader;
 import moe.knox.factorio.core.parser.ApiParser;
-import moe.knox.factorio.core.parser.LuaLibParser;
 import moe.knox.factorio.core.parser.PrototypeParser;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +14,7 @@ public class FactorioStartupActivity implements StartupActivity {
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
 
         if (config.integrationActive) {
-            boolean update = LuaLibParser.checkForUpdate(project);
+            boolean update = LuaLibDownloader.checkForUpdate(project);
             ApiParser.checkForUpdate(project);
 
             if (update) {
