@@ -45,5 +45,9 @@ public class FactorioAutocompletionState implements PersistentStateComponent<Fac
         {
             return new FactorioVersion("Latest version", "/latest/");
         }
+
+        public boolean isLatest() {
+            return this.desc.equals("Latest version");
+        }
     }
 }

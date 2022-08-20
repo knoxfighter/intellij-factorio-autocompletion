@@ -119,7 +119,7 @@ public class LuaLibParser extends Parser {
         File lualibFile = new File(lualibPath);
         File prototypeFile = new File(prototypePath);
         if (lualibFile.exists() && prototypeFile.exists()) {
-            if (config.selectedFactorioVersion.desc().equals("Latest version")) {
+            if (config.selectedFactorioVersion.isLatest()) {
                 RefTag[] tags = downloadTags();
                 if (tags != null) {
                     String tag = tags[tags.length - 1].ref;
@@ -173,7 +173,7 @@ public class LuaLibParser extends Parser {
         if (tags != null) {
             // find correct Tag
             RefTag correctTag = null;
-            if (config.selectedFactorioVersion.desc().equals("Latest version")) {
+            if (config.selectedFactorioVersion.isLatest()) {
                 correctTag = tags[tags.length - 1];
             } else {
                 for (RefTag tag : tags) {
