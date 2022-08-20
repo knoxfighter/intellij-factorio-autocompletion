@@ -8,7 +8,11 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import com.tang.intellij.lua.psi.*;
 import moe.knox.factorio.core.FactorioPrototypeState;
-import moe.knox.factorio.intellij.completion.factorio.*;
+import moe.knox.factorio.intellij.completion.factorio.condition.PrototypePatternCondition;
+import moe.knox.factorio.intellij.completion.factorio.condition.PrototypeTypePatternCondition;
+import moe.knox.factorio.intellij.completion.factorio.provider.PathCompletionProvider;
+import moe.knox.factorio.intellij.completion.factorio.provider.PrototypeCompletionProvider;
+import moe.knox.factorio.intellij.completion.factorio.provider.PrototypeTableCompletionProvider;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;

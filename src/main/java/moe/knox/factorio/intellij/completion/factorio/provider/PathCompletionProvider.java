@@ -1,4 +1,4 @@
-package moe.knox.factorio.intellij.completion.factorio;
+package moe.knox.factorio.intellij.completion.factorio.provider;
 
 import com.intellij.codeInsight.AutoPopupController;
 import com.intellij.codeInsight.completion.CompletionParameters;

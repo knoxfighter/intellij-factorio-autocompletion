@@ -1,4 +1,4 @@
-package moe.knox.factorio.intellij.completion.factorio;
+package moe.knox.factorio.intellij.completion.factorio.condition;
 
 import com.intellij.patterns.PatternCondition;
 import com.intellij.psi.PsiElement;

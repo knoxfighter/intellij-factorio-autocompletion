@@ -1,4 +1,4 @@
-package moe.knox.factorio.intellij.completion.factorio;
+package moe.knox.factorio.intellij.completion.factorio.provider;
 
 import com.intellij.codeInsight.completion.*;
 import com.intellij.openapi.editor.Document;
@@ -13,6 +13,7 @@ import com.tang.intellij.lua.psi.LuaTableExpr;
 import com.tang.intellij.lua.psi.LuaTableField;
 import com.tang.intellij.lua.search.SearchContext;
 import com.tang.intellij.lua.ty.*;
+import moe.knox.factorio.intellij.completion.factorio.PrototypeTypeGuesser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

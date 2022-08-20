@@ -1,4 +1,4 @@
-package moe.knox.factorio.intellij.completion.dataRaw;
+package moe.knox.factorio.intellij.completion.dataRaw.condition;
 
 import com.intellij.patterns.PatternCondition;
 import com.intellij.psi.PsiElement;

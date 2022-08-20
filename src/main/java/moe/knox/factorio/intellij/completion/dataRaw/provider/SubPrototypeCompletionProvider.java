@@ -1,4 +1,4 @@
-package moe.knox.factorio.intellij.completion.dataRaw;
+package moe.knox.factorio.intellij.completion.dataRaw.provider;
 
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
