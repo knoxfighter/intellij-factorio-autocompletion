@@ -1,10 +1,7 @@
 package moe.knox.factorio.core.parser.api.data;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
-import moe.knox.factorio.core.parser.api.ParsingHelper;
 
-import java.io.Reader;
 import java.util.Comparator;
 import java.util.List;
 
@@ -12,25 +9,6 @@ import java.util.List;
  * The representation of the new json lua-api
  */
 public class RuntimeApi {
-    public static RuntimeApi read(Reader reader) {
-        GsonBuilder builder = new GsonBuilder();
-        ParsingHelper.addDeserializers(builder);
-        RuntimeApi jsonAPI = builder
-                .create()
-                .fromJson(reader, RuntimeApi.class);
-
-//        JsonAPI jsonAPI = new GsonBuilder()
-//                .registerTypeAdapter(Concept.class, new JsonPolymorphismDeserializer<Concept>())
-//                .registerTypeAdapter(Type.ComplexData.class, new JsonPolymorphismDeserializer<Type.ComplexData>())
-//                .registerTypeAdapter(Operator.class, new JsonPolymorphismDeserializer<Operator>())
-//                .create()
-//                .fromJson(reader, JsonAPI.class);
-
-        jsonAPI.sortOrder();
-
-        return jsonAPI;
-    }
-
     /**
      * The application this documentation is for.
      * Will always be "factorio".

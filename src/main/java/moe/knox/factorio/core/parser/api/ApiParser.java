@@ -1,5 +1,6 @@
 package moe.knox.factorio.core.parser.api;
 
+import com.google.gson.GsonBuilder;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -167,7 +168,15 @@ public class ApiParser extends Parser {
         RuntimeApi runtimeApi;
         try {
             InputStreamReader inputStreamReader = new InputStreamReader(new URL(versionedApiLink).openStream());
-            runtimeApi = RuntimeApi.read(inputStreamReader);
+            GsonBuilder builder = new GsonBuilder();
+            ParsingHelper.addDeserializers(builder);
+            runtimeApi = builder
+                    .create()
+//                    .registerTypeAdapter(Concept.class, new JsonPolymorphismDeserializer<Concept>())
+//                    .registerTypeAdapter(Type.ComplexData.class, new JsonPolymorphismDeserializer<Type.ComplexData>())
+//                    .registerTypeAdapter(Operator.class, new JsonPolymorphismDeserializer<Operator>())
+                    .fromJson(inputStreamReader, RuntimeApi.class);
+            runtimeApi.sortOrder();
         } catch (IOException e) {
             e.printStackTrace();
             return;
