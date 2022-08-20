@@ -1,7 +1,7 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api.data;
 
 import com.google.gson.GsonBuilder;
-import moe.knox.factorio.core.parser.apiData.JsonPolymorphism.JsonPolymorphismDeserializer;
+import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphismDeserializer;
 
 public class Helper {
     static GsonBuilder addDeserializers(GsonBuilder builder) {

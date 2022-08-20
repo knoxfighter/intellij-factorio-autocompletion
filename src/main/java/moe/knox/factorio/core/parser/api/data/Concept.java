@@ -1,8 +1,8 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api.data;
 
 import com.google.gson.annotations.SerializedName;
-import moe.knox.factorio.core.parser.apiData.JsonPolymorphism.JsonPolymorphism;
-import moe.knox.factorio.core.parser.apiData.JsonPolymorphism.JsonPolymorphismClass;
+import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphism;
+import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphismClass;
 
 import java.util.Comparator;
 import java.util.List;

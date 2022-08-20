@@ -1,4 +1,4 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api.data;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -8,8 +8,8 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import moe.knox.factorio.core.parser.apiData.JsonPolymorphism.JsonPolymorphism;
-import moe.knox.factorio.core.parser.apiData.JsonPolymorphism.JsonPolymorphismClass;
+import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphism;
+import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphismClass;
 
 import java.io.IOException;
 import java.util.Comparator;

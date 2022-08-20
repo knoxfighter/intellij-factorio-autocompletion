@@ -1,4 +1,4 @@
-package moe.knox.factorio.core.parser;
+package moe.knox.factorio.core.parser.api;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
@@ -8,13 +8,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
 import moe.knox.factorio.core.version.FactorioApiVersion;
-import moe.knox.factorio.intellij.FactorioState;
 import moe.knox.factorio.core.NotificationService;
+import moe.knox.factorio.core.parser.Parser;
+import moe.knox.factorio.intellij.FactorioState;
 import moe.knox.factorio.core.parser.Parser;
 import moe.knox.factorio.core.version.ApiVersionCollection;
 import moe.knox.factorio.core.version.ApiVersionResolver;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
-import moe.knox.factorio.core.parser.apiData.*;
+import moe.knox.factorio.core.parser.api.data.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

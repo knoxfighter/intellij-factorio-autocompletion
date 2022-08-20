@@ -1,6 +1,6 @@
-package moe.knox.factorio.core.parser;
+package moe.knox.factorio.core.parser.api;
 
-import moe.knox.factorio.core.parser.apiData.*;
+import moe.knox.factorio.core.parser.api.data.*;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;

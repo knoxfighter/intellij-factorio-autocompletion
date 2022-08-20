@@ -5,7 +5,7 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import moe.knox.factorio.core.version.FactorioApiVersion;
-import moe.knox.factorio.core.parser.ApiParser;
+import moe.knox.factorio.core.parser.api.ApiParser;
 import moe.knox.factorio.core.LuaLibDownloader;
 import moe.knox.factorio.core.parser.prototype.PrototypeParser;
 import moe.knox.factorio.core.version.ApiVersionResolver;

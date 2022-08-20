@@ -1,4 +1,4 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api.data;
 
 import java.util.Comparator;
 import java.util.List;

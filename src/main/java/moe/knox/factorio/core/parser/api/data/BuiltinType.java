@@ -1,4 +1,4 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api.data;
 
 /**
  *  The representation of Builtin Types

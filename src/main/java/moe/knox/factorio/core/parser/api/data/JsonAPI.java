@@ -1,4 +1,4 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api.data;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
