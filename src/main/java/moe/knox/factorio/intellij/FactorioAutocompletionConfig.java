@@ -73,9 +73,8 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
         }
 
         reloadButton.addActionListener(actionEvent -> {
-            ApiParser.removeCurrentAPI(project);
-            PrototypeParser.removeCurrentPrototypes();
-            LuaLibParser.removeCurrentLualib(project);
+            removeParsedLibraries();
+
             LuaLibParser.checkForUpdate(project);
             FactorioLibraryProvider.reload();
         });
@@ -111,9 +110,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
     @Override
     public void apply() {
         if (isIntegrationTurnedOff()) {
-            ApiParser.removeCurrentAPI(project);
-            PrototypeParser.removeCurrentPrototypes();
-            LuaLibParser.removeCurrentLualib(project);
+            removeParsedLibraries();
         }
 
         if (isVersionChanged()) {
@@ -129,6 +126,13 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
         config.selectedFactorioVersion = getSelectedVersion();
 
         WriteAction.run(FactorioLibraryProvider::reload);
+    }
+
+    private void removeParsedLibraries()
+    {
+        ApiParser.removeCurrentAPI(project);
+        PrototypeParser.removeCurrentPrototypes();
+        LuaLibParser.removeCurrentLualib(project);
     }
 
     private boolean isUseLatestVersion() {
