@@ -22,7 +22,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
     private FactorioAutocompletionState config;
     private JPanel rootPanel;
     private JCheckBox enableFactorioIntegrationCheckBox;
-    private JComboBox selectApiVersion;
+    private JComboBox<FactorioAutocompletionState.FactorioVersion> selectApiVersion;
     private JLabel loadError;
     private JButton reloadButton;
 
@@ -37,7 +37,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
             Document mainPageDoc = Jsoup.connect(ApiParser.factorioApiBaseLink).get();
             Elements allLinks = mainPageDoc.select("a");
             for (Element link : allLinks) {
-                FactorioAutocompletionState.FactorioVersion factorioVersion = new FactorioAutocompletionState.FactorioVersion(link.text(), link.attr("href"));
+                var factorioVersion = new FactorioAutocompletionState.FactorioVersion(link.text(), link.attr("href"));
                 selectApiVersion.addItem(factorioVersion);
             }
             selectApiVersion.setSelectedItem(config.selectedFactorioVersion);

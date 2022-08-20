@@ -56,7 +56,7 @@ public class ApiParser extends Parser {
         }
 
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-        String apiPath = apiRootPath + config.selectedFactorioVersion.link;
+        String apiPath = apiRootPath + config.selectedFactorioVersion.link();
 
         // check if API is downloaded
         File apiPathFile = new File(apiPath);
@@ -74,7 +74,7 @@ public class ApiParser extends Parser {
     public static void removeCurrentAPI(Project project) {
         if (!downloadInProgress.get()) {
             FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-            String apiPath = apiRootPath + config.selectedFactorioVersion.link;
+            String apiPath = apiRootPath + config.selectedFactorioVersion.link();
             FileUtil.delete(new File(apiPath));
             FactorioLibraryProvider.reload();
         }
@@ -82,9 +82,9 @@ public class ApiParser extends Parser {
 
     public static void checkForUpdate(Project project) {
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-        String apiPath = apiRootPath + config.selectedFactorioVersion.link;
+        String apiPath = apiRootPath + config.selectedFactorioVersion.link();
 
-        if (config.selectedFactorioVersion.desc.equals("Latest version")) {
+        if (config.selectedFactorioVersion.desc().equals("Latest version")) {
             Document doc = null;
             try {
                 doc = Jsoup.connect("https://lua-api.factorio.com/").get();
@@ -675,7 +675,7 @@ public class ApiParser extends Parser {
      * Here also the indicator will be updated, to show the current percentage of the parsing.
      */
     private void downloadAndParseAPI() {
-        String versionedApiLink = factorioApiBaseLink + config.selectedFactorioVersion.link;
+        String versionedApiLink = factorioApiBaseLink + config.selectedFactorioVersion.link();
 
         indicator.setIndeterminate(false);
 
