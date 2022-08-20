@@ -5,7 +5,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.jetbrains.jsonSchema.extension.JsonSchemaFileProvider;
 import com.jetbrains.jsonSchema.extension.JsonSchemaProviderFactory;
 import com.jetbrains.jsonSchema.extension.SchemaType;
-import moe.knox.factorio.intellij.FactorioAutocompletionState;
+import moe.knox.factorio.intellij.FactorioState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +28,7 @@ public class FactorioSchemaProviderFactory implements JsonSchemaProviderFactory 
 
         @Override
         public boolean isAvailable(@NotNull VirtualFile file) {
-            return FactorioAutocompletionState.getInstance(project).integrationActive && file.getName().equals("info.json");
+            return FactorioState.getInstance(project).integrationActive && file.getName().equals("info.json");
         }
 
         @NotNull

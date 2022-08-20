@@ -19,7 +19,7 @@ import java.util.Objects;
 
 public class FactorioAutocompletionConfig implements SearchableConfigurable {
     Project project;
-    private FactorioAutocompletionState config;
+    private FactorioState config;
     private JPanel rootPanel;
     private JCheckBox enableFactorioIntegrationCheckBox;
     private JComboBox<DropdownVersion> selectApiVersion;
@@ -31,7 +31,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
     public FactorioAutocompletionConfig(@NotNull Project project) throws IOException {
         this.project = project;
-        config = FactorioAutocompletionState.getInstance(project);
+        config = FactorioState.getInstance(project);
         apiVersionResolver = new ApiVersionResolver();
         latestExistingVersion = apiVersionResolver.supportedVersions().latestVersion();
 

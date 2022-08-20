@@ -11,7 +11,7 @@ import com.tang.intellij.lua.psi.search.LuaShortNamesManager;
 import com.tang.intellij.lua.search.SearchContext;
 import com.tang.intellij.lua.ty.ITy;
 import com.tang.intellij.lua.ty.Ty;
-import moe.knox.factorio.intellij.FactorioAutocompletionState;
+import moe.knox.factorio.intellij.FactorioState;
 import moe.knox.factorio.core.util.FactorioTreeUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,7 +21,7 @@ public class DataRawTypeInfer implements ILuaTypeInfer {
     public ITy inferType(@NotNull LuaTypeGuessable luaTypeGuessable, @NotNull SearchContext searchContext) {
         Project project = searchContext.getProject();
 
-        if (!FactorioAutocompletionState.getInstance(project).integrationActive) {
+        if (!FactorioState.getInstance(project).integrationActive) {
             return Ty.Companion.getUNKNOWN();
         }
 

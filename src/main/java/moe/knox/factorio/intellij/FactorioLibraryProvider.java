@@ -32,7 +32,7 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
     @Override
     public Collection<SyntheticLibrary> getAdditionalProjectLibraries(@NotNull Project project) {
         // Do nothing, if integration is deactivated
-        if (!FactorioAutocompletionState.getInstance(project).integrationActive) {
+        if (!FactorioState.getInstance(project).integrationActive) {
             return Arrays.asList();
         }
 

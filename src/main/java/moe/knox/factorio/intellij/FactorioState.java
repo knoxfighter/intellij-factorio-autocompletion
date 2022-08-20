@@ -20,7 +20,7 @@ import java.io.IOException;
                 @Storage("FactorioAutocompletionConfig.xml")
         }
 )
-public class FactorioAutocompletionState implements PersistentStateComponent<FactorioAutocompletionState> {
+public class FactorioState implements PersistentStateComponent<FactorioState> {
     public boolean integrationActive = false;
     public String curVersion = "";
     @NotNull @OptionTag(converter = FactorioApiVersionConverter.class)
@@ -28,24 +28,24 @@ public class FactorioAutocompletionState implements PersistentStateComponent<Fac
     public String currentLualibVersion = "";
     public boolean useLatestVersion = true;
 
-    public FactorioAutocompletionState() throws IOException {
+    public FactorioState() throws IOException {
         // todo move in another method ?
         selectedFactorioVersion = (new ApiVersionResolver()).supportedVersions().latestVersion();
     }
 
     @Nullable
     @Override
-    public FactorioAutocompletionState getState() {
+    public FactorioState getState() {
         return this;
     }
 
     @Override
-    public void loadState(@NotNull FactorioAutocompletionState state) {
+    public void loadState(@NotNull FactorioState state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 
-    public static FactorioAutocompletionState getInstance(Project project) {
-        return project.getService(FactorioAutocompletionState.class);
+    public static FactorioState getInstance(Project project) {
+        return project.getService(FactorioState.class);
     }
 
     private static class FactorioApiVersionConverter extends Converter<FactorioApiVersion> {

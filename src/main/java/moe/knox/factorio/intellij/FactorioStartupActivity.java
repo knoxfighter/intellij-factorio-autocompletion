@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 public class FactorioStartupActivity implements StartupActivity {
     @Override
     public void runActivity(@NotNull Project project) {
-        FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
+        FactorioState config = FactorioState.getInstance(project);
 
         if (config.integrationActive) {
             boolean update = LuaLibDownloader.checkForUpdate(project);

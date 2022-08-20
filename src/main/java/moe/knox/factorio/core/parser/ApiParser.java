@@ -8,30 +8,28 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
 import moe.knox.factorio.core.version.FactorioApiVersion;
-import moe.knox.factorio.intellij.FactorioAutocompletionState;
+import moe.knox.factorio.intellij.FactorioState;
 import moe.knox.factorio.core.NotificationService;
+import moe.knox.factorio.core.parser.Parser;
 import moe.knox.factorio.core.version.ApiVersionCollection;
 import moe.knox.factorio.core.version.ApiVersionResolver;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
 import moe.knox.factorio.core.parser.apiData.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jsoup.Jsoup;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ApiParser extends Parser {
     private final static String apiRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_api/";
     public static String factorioApiBaseLink = "https://lua-api.factorio.com/";
     private static AtomicBoolean downloadInProgress = new AtomicBoolean(false);
-    private FactorioAutocompletionState config;
+    private FactorioState config;
     private ProgressIndicator indicator;
     private String saveDir;
     private double curTodo = 0;
@@ -80,7 +78,7 @@ public class ApiParser extends Parser {
     }
 
     public static void checkForUpdate(Project project) {
-        FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
+        FactorioState config = FactorioState.getInstance(project);
 
         if (config.useLatestVersion) {
             var newestVersion = detectLatestAllowedVersion(project);
@@ -121,7 +119,7 @@ public class ApiParser extends Parser {
     public void run(@NotNull ProgressIndicator indicator) {
         try {
             this.indicator = indicator;
-            config = FactorioAutocompletionState.getInstance(myProject);
+            config = FactorioState.getInstance(myProject);
 
             // start the whole thing
             assureDir();
@@ -217,7 +215,7 @@ public class ApiParser extends Parser {
 
     private static Path getApiRuntimeDir(Project project)
     {
-        var config = FactorioAutocompletionState.getInstance(project);
+        var config = FactorioState.getInstance(project);
 
         return Paths.get(apiRootPath, config.selectedFactorioVersion.version());
     }

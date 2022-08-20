@@ -17,7 +17,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable groupId="language" displayName="Factorio Autocompletion" id="preference.FactorioCompletionConfig" instance="moe.knox.factorio.intellij.FactorioAutocompletionConfig"/>
-        <projectService serviceImplementation="moe.knox.factorio.intellij.FactorioAutocompletionState" />
+        <projectService serviceImplementation="moe.knox.factorio.intellij.FactorioState" />
         <postStartupActivity implementation="moe.knox.factorio.intellij.FactorioStartupActivity"/>
 
         <additionalLibraryRootsProvider implementation="moe.knox.factorio.intellij.FactorioLibraryProvider"/>
