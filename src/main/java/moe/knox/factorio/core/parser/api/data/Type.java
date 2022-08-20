@@ -8,6 +8,7 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import moe.knox.factorio.core.parser.api.ParsingHelper;
 import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphism;
 import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphismClass;
 
@@ -35,7 +36,7 @@ class TypeJsonAdapter extends TypeAdapter<Type> {
             res.isSimpleString = false;
 
             GsonBuilder builder = new GsonBuilder();
-            Helper.addDeserializers(builder);
+            ParsingHelper.addDeserializers(builder);
             res.data = builder
                     .create()
                     .fromJson(jsonElement, Type.ComplexData.class);
