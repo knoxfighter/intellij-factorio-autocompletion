@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class FactorioPrototypeParser extends FactorioParser {
+public class PrototypeParser extends Parser {
     protected static NotificationGroup getNotificationGroup() {
         return NotificationGroupManager.getInstance().getNotificationGroup("Factorio Prototype Download");
     }
@@ -77,7 +77,7 @@ public class FactorioPrototypeParser extends FactorioParser {
     private Map<String, String> propertyTypes = new HashMap<>();
 
 
-    public FactorioPrototypeParser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title, @NotNull String saveDir) {
+    public PrototypeParser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title, @NotNull String saveDir) {
         super(project, title, false);
         this.saveDir = saveDir;
     }
@@ -94,7 +94,7 @@ public class FactorioPrototypeParser extends FactorioParser {
             return prototypeLibPath;
         } else {
             if (downloadInProgress.compareAndSet(false, true)) {
-                ProgressManager.getInstance().run(new FactorioPrototypeParser(project, "Download and Parse Factorio Prototypes", prototypeLibPath));
+                ProgressManager.getInstance().run(new PrototypeParser(project, "Download and Parse Factorio Prototypes", prototypeLibPath));
             }
             return null;
         }

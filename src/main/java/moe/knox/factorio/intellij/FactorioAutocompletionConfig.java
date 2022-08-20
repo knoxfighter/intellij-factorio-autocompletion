@@ -5,9 +5,9 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
-import moe.knox.factorio.core.parser.FactorioApiParser;
-import moe.knox.factorio.core.parser.FactorioLualibParser;
-import moe.knox.factorio.core.parser.FactorioPrototypeParser;
+import moe.knox.factorio.core.parser.ApiParser;
+import moe.knox.factorio.core.parser.LuaLibParser;
+import moe.knox.factorio.core.parser.PrototypeParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jsoup.Jsoup;
@@ -34,7 +34,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
 
         try {
-            Document mainPageDoc = Jsoup.connect(FactorioApiParser.factorioApiBaseLink).get();
+            Document mainPageDoc = Jsoup.connect(ApiParser.factorioApiBaseLink).get();
             Elements allLinks = mainPageDoc.select("a");
             for (Element link : allLinks) {
                 FactorioAutocompletionState.FactorioVersion factorioVersion = new FactorioAutocompletionState.FactorioVersion(link.text(), link.attr("href"));
@@ -57,10 +57,10 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
         }
 
         reloadButton.addActionListener(actionEvent -> {
-            FactorioApiParser.removeCurrentAPI(project);
-            FactorioPrototypeParser.removeCurrentPrototypes();
-            FactorioLualibParser.removeCurrentLualib(project);
-            FactorioLualibParser.checkForUpdate(project);
+            ApiParser.removeCurrentAPI(project);
+            PrototypeParser.removeCurrentPrototypes();
+            LuaLibParser.removeCurrentLualib(project);
+            LuaLibParser.checkForUpdate(project);
             FactorioLibraryProvider.reload();
         });
     }
@@ -97,9 +97,9 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
         if (!enableIntegration && config.integrationActive) {
             // integration deactivated
-            FactorioApiParser.removeCurrentAPI(project);
-            FactorioPrototypeParser.removeCurrentPrototypes();
-            FactorioLualibParser.removeCurrentLualib(project);
+            ApiParser.removeCurrentAPI(project);
+            PrototypeParser.removeCurrentPrototypes();
+            LuaLibParser.removeCurrentLualib(project);
         }
 
         config.integrationActive = enableIntegration;
@@ -107,11 +107,11 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
         if (!config.selectedFactorioVersion.equals(selectApiVersion.getSelectedItem())) {
             // New Factorio Version selected
             // remove old apis
-            FactorioApiParser.removeCurrentAPI(project);
-            FactorioLualibParser.removeCurrentLualib(project);
+            ApiParser.removeCurrentAPI(project);
+            LuaLibParser.removeCurrentLualib(project);
 
             // reload the lualib
-            FactorioLualibParser.checkForUpdate(project);
+            LuaLibParser.checkForUpdate(project);
 
             // save new settings
             if (selectApiVersion.getSelectedItem() != null) {

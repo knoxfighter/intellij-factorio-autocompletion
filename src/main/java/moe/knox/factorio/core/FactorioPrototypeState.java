@@ -3,7 +3,7 @@ package moe.knox.factorio.core;
 import com.intellij.openapi.util.JDOMUtil;
 import com.intellij.serialization.SerializationException;
 import com.intellij.util.xmlb.XmlSerializer;
-import moe.knox.factorio.core.parser.FactorioPrototypeParser;
+import moe.knox.factorio.core.parser.PrototypeParser;
 import org.jdom.Document;
 import org.jdom.Element;
 
@@ -15,7 +15,7 @@ import java.util.List;
 
 public class FactorioPrototypeState {
     private static FactorioPrototypeState instance;
-    private static String file = FactorioPrototypeParser.prototypeRootPath + "prototype.xml";
+    private static String file = PrototypeParser.prototypeRootPath + "prototype.xml";
 
     private DataHolder data;
 

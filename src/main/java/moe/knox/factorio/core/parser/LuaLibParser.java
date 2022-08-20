@@ -27,11 +27,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class FactorioLualibParser extends FactorioParser {
+public class LuaLibParser extends Parser {
     protected static NotificationGroup getNotificationGroup() {
         return NotificationGroupManager.getInstance().getNotificationGroup("Factorio Lualib Download");
     }
-    private static final Logger LOG = Logger.getInstance(FactorioParser.class);
+    private static final Logger LOG = Logger.getInstance(Parser.class);
 
     public static final String luaLibRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/lualib/";
     public static final String prototypeRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/core_prototypes/";
@@ -44,11 +44,11 @@ public class FactorioLualibParser extends FactorioParser {
     private FactorioAutocompletionState config;
     private RefTag tag;
 
-    public FactorioLualibParser(@Nullable Project project, String saveDir, String prototypeSaveDir, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
+    public LuaLibParser(@Nullable Project project, String saveDir, String prototypeSaveDir, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
         this(project, saveDir, prototypeSaveDir, null, title, canBeCancelled);
     }
 
-    public FactorioLualibParser(@Nullable Project project, String saveDir, String prototypeSaveDir, RefTag tag, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
+    public LuaLibParser(@Nullable Project project, String saveDir, String prototypeSaveDir, RefTag tag, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
         super(project, title, canBeCancelled);
         this.saveDir = saveDir;
         this.prototypeSaveDir = prototypeSaveDir;
@@ -85,7 +85,7 @@ public class FactorioLualibParser extends FactorioParser {
         } else {
             // else request download
             if (downloadInProgress.compareAndSet(false, true)) {
-                ProgressManager.getInstance().run(new FactorioLualibParser(project, lualibPath, prototypePath, "Download Factorio Lualib", false));
+                ProgressManager.getInstance().run(new LuaLibParser(project, lualibPath, prototypePath, "Download Factorio Lualib", false));
             }
         }
 
@@ -128,7 +128,7 @@ public class FactorioLualibParser extends FactorioParser {
 
                         // download new lualib
                         if (downloadInProgress.compareAndSet(false, true)) {
-                            ProgressManager.getInstance().run(new FactorioLualibParser(project, lualibPath, prototypePath, tags[tags.length - 1], "Download Factorio Lualib", false));
+                            ProgressManager.getInstance().run(new LuaLibParser(project, lualibPath, prototypePath, tags[tags.length - 1], "Download Factorio Lualib", false));
                         }
 
                         return true;
@@ -148,7 +148,7 @@ public class FactorioLualibParser extends FactorioParser {
         } else {
             // api not there, request it...
             if (downloadInProgress.compareAndSet(false, true)) {
-                ProgressManager.getInstance().run(new FactorioLualibParser(project, lualibPath, prototypePath, "Download Factorio Lualib", false));
+                ProgressManager.getInstance().run(new LuaLibParser(project, lualibPath, prototypePath, "Download Factorio Lualib", false));
             }
             return true;
         }

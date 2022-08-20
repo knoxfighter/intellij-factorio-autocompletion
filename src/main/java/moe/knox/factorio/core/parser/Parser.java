@@ -16,21 +16,21 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 
-public abstract class FactorioParser extends Task.Backgroundable {
+public abstract class Parser extends Task.Backgroundable {
     protected static NotificationGroup getNotificationGroup() {
         return NotificationGroupManager.getInstance().getNotificationGroup("Factorio API Download");
     }
     protected static String newLine = System.lineSeparator();
 
-    public FactorioParser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title) {
+    public Parser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title) {
         super(project, title);
     }
 
-    public FactorioParser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
+    public Parser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
         super(project, title, canBeCancelled);
     }
 
-    public FactorioParser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled, @Nullable PerformInBackgroundOption backgroundOption) {
+    public Parser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled, @Nullable PerformInBackgroundOption backgroundOption) {
         super(project, title, canBeCancelled, backgroundOption);
     }
 
