@@ -12,7 +12,7 @@ public class ParameterGroup {
     void sortOrder() {
         if (parameters != null && !parameters.isEmpty()) {
             parameters.sort(Comparator.comparingDouble(parameter -> parameter.order));
-            parameters.forEach(parameter -> parameter.sortOrder());
+            parameters.forEach(Parameter::sortOrder);
         }
     }
 }

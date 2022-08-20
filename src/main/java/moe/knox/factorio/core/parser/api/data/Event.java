@@ -21,7 +21,7 @@ public class Event {
     void sortOrder() {
         if (data != null && !data.isEmpty()) {
             data.sort(Comparator.comparingDouble(parameter -> parameter.order));
-            data.forEach(parameter -> parameter.sortOrder());
+            data.forEach(Parameter::sortOrder);
         }
     }
 }

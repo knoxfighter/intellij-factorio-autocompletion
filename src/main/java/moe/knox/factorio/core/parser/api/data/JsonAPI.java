@@ -97,17 +97,17 @@ public class JsonAPI {
     public void sortOrder() {
         if (classes != null && !classes.isEmpty()) {
             classes.sort(Comparator.comparingDouble(factorioClass -> factorioClass.order));
-            classes.forEach(factorioClass -> factorioClass.sortOrder());
+            classes.forEach(FactorioClass::sortOrder);
         }
 
         if (events != null && !events.isEmpty()) {
             events.sort(Comparator.comparingDouble(event -> event.order));
-            events.forEach(event -> event.sortOrder());
+            events.forEach(Event::sortOrder);
         }
 
         if (defines != null && !defines.isEmpty()) {
             defines.sort(Comparator.comparingDouble(define -> define.order));
-            defines.forEach(define -> define.sortOrder());
+            defines.forEach(Define::sortOrder);
         }
 
         if (builtinTypes != null && !builtinTypes.isEmpty()) {
@@ -116,7 +116,7 @@ public class JsonAPI {
 
         if (concepts != null && !concepts.isEmpty()) {
             concepts.sort(Comparator.comparingDouble(concept -> concept.order));
-            concepts.forEach(concept -> concept.sortOrder());
+            concepts.forEach(Concept::sortOrder);
         }
 
         if (globalObjects != null && !globalObjects.isEmpty()) {

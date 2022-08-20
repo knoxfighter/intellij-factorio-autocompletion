@@ -25,12 +25,12 @@ public class FactorioClass {
     public void sortOrder() {
         if (methods != null && !methods.isEmpty()) {
             methods.sort(Comparator.comparingDouble(method -> method.order));
-            methods.forEach(method -> method.sortOrder());
+            methods.forEach(Method::sortOrder);
         }
 
         if (attributes != null && !attributes.isEmpty()) {
             attributes.sort(Comparator.comparingDouble(attribute -> attribute.order));
-            attributes.forEach(attribute -> attribute.sortOrder());
+            attributes.forEach(Attribute::sortOrder);
         }
     }
 }

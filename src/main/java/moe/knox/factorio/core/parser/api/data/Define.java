@@ -41,7 +41,7 @@ public class Define {
 
         if (subkeys != null && !subkeys.isEmpty()) {
             subkeys.sort(Comparator.comparingDouble(define -> define.order));
-            subkeys.forEach(define -> define.sortOrder());
+            subkeys.forEach(Define::sortOrder);
         }
     }
 }
