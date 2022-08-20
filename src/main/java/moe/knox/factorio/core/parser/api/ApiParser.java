@@ -164,16 +164,16 @@ public class ApiParser extends Parser {
     private void downloadAndParseAPI() {
         String versionedApiLink = factorioApiBaseLink + config.selectedFactorioVersion.version() + "/runtime-api.json";
 
-        JsonAPI jsonAPI;
+        RuntimeApi runtimeApi;
         try {
             InputStreamReader inputStreamReader = new InputStreamReader(new URL(versionedApiLink).openStream());
-            jsonAPI = JsonAPI.read(inputStreamReader);
+            runtimeApi = RuntimeApi.read(inputStreamReader);
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
 
-        config.curVersion = jsonAPI.application_version;
+        config.curVersion = runtimeApi.application_version;
 
         String saveFile = saveDir + "factorio.lua";
         // create file
@@ -193,17 +193,17 @@ public class ApiParser extends Parser {
         try {
             // builtin types done in `resources/library/builtin-types.lua`
 
-            writer.writeGlobalsObjects(output, jsonAPI.globalObjects);
+            writer.writeGlobalsObjects(output, runtimeApi.globalObjects);
 
             output.append("---@class defines").append(newLine);
             output.append("defines = {}").append(newLine).append(newLine);
-            writer.writeDefines(output, jsonAPI.defines, "defines");
+            writer.writeDefines(output, runtimeApi.defines, "defines");
 
             // TODO: implement autocompletion for events
 
-            writer.writeClasses(output, jsonAPI.classes);
+            writer.writeClasses(output, runtimeApi.classes);
 
-            writer.writeConcepts(output, jsonAPI.concepts);
+            writer.writeConcepts(output, runtimeApi.concepts);
 
             output.flush();
             output.close();

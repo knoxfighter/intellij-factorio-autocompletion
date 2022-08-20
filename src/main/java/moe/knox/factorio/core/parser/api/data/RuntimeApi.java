@@ -10,13 +10,13 @@ import java.util.List;
 /**
  * The representation of the new json lua-api
  */
-public class JsonAPI {
-    public static JsonAPI read(Reader reader) {
+public class RuntimeApi {
+    public static RuntimeApi read(Reader reader) {
         GsonBuilder builder = new GsonBuilder();
         Helper.addDeserializers(builder);
-        JsonAPI jsonAPI = builder
+        RuntimeApi jsonAPI = builder
                 .create()
-                .fromJson(reader, JsonAPI.class);
+                .fromJson(reader, RuntimeApi.class);
 
 //        JsonAPI jsonAPI = new GsonBuilder()
 //                .registerTypeAdapter(Concept.class, new JsonPolymorphismDeserializer<Concept>())
