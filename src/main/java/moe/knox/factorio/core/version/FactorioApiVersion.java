@@ -27,6 +27,11 @@ public record FactorioApiVersion(String version, boolean latest) implements Comp
         return new FactorioApiVersion(version, false);
     }
 
+    public static FactorioApiVersion createLatestVersion(String version)
+    {
+        return new FactorioApiVersion(version, true);
+    }
+
     @Override
     public int compareTo(@NotNull FactorioApiVersion o) {
         SemVer verA = Objects.requireNonNull(SemVer.parseFromText(version));
