@@ -81,7 +81,7 @@ public class ApiParser extends Parser {
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
         String apiPath = apiRootPath + config.selectedFactorioVersion.link;
 
-        if (config.selectedFactorioVersion.desc.equals("Latest version")) {
+        if (config.selectedFactorioVersion.isLatest()) {
             Document doc = null;
             try {
                 doc = Jsoup.connect("https://lua-api.factorio.com/").get();
