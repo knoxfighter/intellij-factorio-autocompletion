@@ -5,9 +5,12 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import moe.knox.factorio.core.version.ApiVersionResolver;
 import moe.knox.factorio.core.version.FactorioApiVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.IOException;
 
 @State(
         name = "FactorioAutocompletionConfig",
@@ -19,9 +22,13 @@ public class FactorioAutocompletionState implements PersistentStateComponent<Fac
     public boolean integrationActive = false;
     public String curVersion = "";
     @NotNull
-    public FactorioApiVersion selectedFactorioVersion = FactorioApiVersion.createLatest();
+    public FactorioApiVersion selectedFactorioVersion;
     public String currentLualibVersion = "";
     public boolean useLatestVersion = true;
+
+    public FactorioAutocompletionState() throws IOException {
+        selectedFactorioVersion = (new ApiVersionResolver()).supportedVersions().latestVersion();
+    }
 
     @Nullable
     @Override
