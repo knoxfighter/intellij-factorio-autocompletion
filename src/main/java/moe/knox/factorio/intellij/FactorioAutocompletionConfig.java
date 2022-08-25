@@ -8,6 +8,7 @@ import com.intellij.openapi.util.NlsContexts;
 import moe.knox.factorio.core.parser.ApiParser;
 import moe.knox.factorio.core.parser.LuaLibParser;
 import moe.knox.factorio.core.parser.PrototypeParser;
+import moe.knox.factorio.intellij.FactorioAutocompletionState.FactorioVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jsoup.Jsoup;
@@ -37,7 +38,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
             Document mainPageDoc = Jsoup.connect(ApiParser.factorioApiBaseLink).get();
             Elements allLinks = mainPageDoc.select("a");
             for (Element link : allLinks) {
-                FactorioAutocompletionState.FactorioVersion factorioVersion = new FactorioAutocompletionState.FactorioVersion(link.text(), link.attr("href"));
+                FactorioVersion factorioVersion = new FactorioVersion(link.text(), link.attr("href"));
                 selectApiVersion.addItem(factorioVersion);
             }
             selectApiVersion.setSelectedItem(config.selectedFactorioVersion);
@@ -115,7 +116,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
             // save new settings
             if (selectApiVersion.getSelectedItem() != null) {
-                config.selectedFactorioVersion = (FactorioAutocompletionState.FactorioVersion) selectApiVersion.getSelectedItem();
+                config.selectedFactorioVersion = (FactorioVersion) selectApiVersion.getSelectedItem();
             }
         }
 
