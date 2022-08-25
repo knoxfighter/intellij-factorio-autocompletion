@@ -23,7 +23,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
     private FactorioAutocompletionState config;
     private JPanel rootPanel;
     private JCheckBox enableFactorioIntegrationCheckBox;
-    private JComboBox selectApiVersion;
+    private JComboBox<FactorioVersion> selectApiVersion;
     private JLabel loadError;
     private JButton reloadButton;
 
