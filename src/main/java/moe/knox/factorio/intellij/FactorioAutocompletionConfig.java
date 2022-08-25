@@ -6,10 +6,10 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.util.text.SemVer;
+import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.core.parser.ApiParser;
 import moe.knox.factorio.core.parser.LuaLibParser;
 import moe.knox.factorio.core.parser.PrototypeParser;
-import moe.knox.factorio.intellij.FactorioAutocompletionState.FactorioVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jsoup.Jsoup;
@@ -28,7 +28,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
     private FactorioAutocompletionState config;
     private JPanel rootPanel;
     private JCheckBox enableFactorioIntegrationCheckBox;
-    private JComboBox<FactorioVersion> selectApiVersion;
+    private JComboBox<FactorioApiVersion> selectApiVersion;
     private JLabel loadError;
     private JButton reloadButton;
 
@@ -66,9 +66,9 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
         });
     }
 
-    private Set<FactorioVersion> getVersions() throws IOException {
-        Set<FactorioVersion> result = new HashSet<>();
-        result.add(FactorioVersion.createLatest());
+    private Set<FactorioApiVersion> getVersions() throws IOException {
+        Set<FactorioApiVersion> result = new HashSet<>();
+        result.add(FactorioApiVersion.createLatest());
 
         Document mainPageDoc = Jsoup.connect(ApiParser.factorioApiBaseLink).get();
         Elements allLinks = mainPageDoc.select("a");
@@ -78,7 +78,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
                 continue;
             }
 
-            var factorioVersion = FactorioVersion.createVersion(semVer.getRawVersion());
+            var factorioVersion = FactorioApiVersion.createVersion(semVer.getRawVersion());
 
             selectApiVersion.addItem(factorioVersion);
         }
@@ -136,7 +136,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
             // save new settings
             if (selectApiVersion.getSelectedItem() != null) {
-                config.selectedFactorioVersion = (FactorioVersion) selectApiVersion.getSelectedItem();
+                config.selectedFactorioVersion = (FactorioApiVersion) selectApiVersion.getSelectedItem();
             }
         }
 
