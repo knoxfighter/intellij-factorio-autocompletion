@@ -15,48 +15,9 @@ import org.jetbrains.annotations.Nullable;
         }
 )
 public class FactorioAutocompletionState implements PersistentStateComponent<FactorioAutocompletionState> {
-    public static class FactorioVersion {
-        public String desc;
-        public String link;
-
-        public FactorioVersion() {
-            desc = "Latest version";
-            link = "/latest/";
-        }
-
-        public FactorioVersion(String desc, String link) {
-            this.desc = desc;
-            this.link = link;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-
-            if (!(obj instanceof FactorioVersion)) {
-                return false;
-            }
-
-            FactorioVersion factorioVersion = (FactorioVersion) obj;
-
-            return factorioVersion.desc.equals(desc) && factorioVersion.link.equals(link);
-        }
-
-        @Override
-        public String toString() {
-            return desc;
-        }
-
-        public boolean isLatest() {
-            return this.desc.equals("Latest version");
-        }
-    }
-
     public boolean integrationActive = false;
     public String curVersion = "";
-    public FactorioVersion selectedFactorioVersion = new FactorioVersion();
+    public FactorioVersion selectedFactorioVersion = FactorioVersion.createLatest();
     public String currentLualibVersion = "";
 
     @Nullable
@@ -72,5 +33,21 @@ public class FactorioAutocompletionState implements PersistentStateComponent<Fac
 
     public static FactorioAutocompletionState getInstance(Project project) {
         return project.getService(FactorioAutocompletionState.class);
+    }
+
+    public record FactorioVersion(String desc, String link) {
+        @Override
+        public String toString() {
+            return desc;
+        }
+
+        static FactorioVersion createLatest()
+        {
+            return new FactorioVersion("Latest version", "/latest/");
+        }
+
+        public boolean isLatest() {
+            return this.desc.equals("Latest version");
+        }
     }
 }

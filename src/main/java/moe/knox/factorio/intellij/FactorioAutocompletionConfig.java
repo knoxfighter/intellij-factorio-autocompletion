@@ -38,7 +38,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
             Document mainPageDoc = Jsoup.connect(ApiParser.factorioApiBaseLink).get();
             Elements allLinks = mainPageDoc.select("a");
             for (Element link : allLinks) {
-                FactorioVersion factorioVersion = new FactorioVersion(link.text(), link.attr("href"));
+                var factorioVersion = new FactorioVersion(link.text(), link.attr("href"));
                 selectApiVersion.addItem(factorioVersion);
             }
             selectApiVersion.setSelectedItem(config.selectedFactorioVersion);

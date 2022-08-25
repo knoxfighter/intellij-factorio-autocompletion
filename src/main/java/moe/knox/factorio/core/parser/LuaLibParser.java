@@ -65,8 +65,8 @@ public class LuaLibParser extends Parser {
         }
 
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-        String lualibPath = luaLibRootPath + config.selectedFactorioVersion.link;
-        String prototypePath = prototypeRootPath + config.selectedFactorioVersion.link;
+        String lualibPath = luaLibRootPath + config.selectedFactorioVersion.link();
+        String prototypePath = prototypeRootPath + config.selectedFactorioVersion.link();
 
         File lualibFile = new File(lualibPath);
         File prototypeFile = new File(prototypePath);
@@ -107,8 +107,8 @@ public class LuaLibParser extends Parser {
      */
     public static boolean checkForUpdate(Project project) {
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-        String lualibPath = luaLibRootPath + config.selectedFactorioVersion.link;
-        String prototypePath = prototypeRootPath + config.selectedFactorioVersion.link;
+        String lualibPath = luaLibRootPath + config.selectedFactorioVersion.link();
+        String prototypePath = prototypeRootPath + config.selectedFactorioVersion.link();
 
         File lualibFile = new File(lualibPath);
         File prototypeFile = new File(prototypePath);
@@ -164,7 +164,7 @@ public class LuaLibParser extends Parser {
                 correctTag = tags[tags.length - 1];
             } else {
                 for (RefTag tag : tags) {
-                    if (tag.ref.substring(tag.ref.lastIndexOf("/") + 1).equals(config.selectedFactorioVersion.desc)) {
+                    if (tag.ref.substring(tag.ref.lastIndexOf("/") + 1).equals(config.selectedFactorioVersion.desc())) {
                         correctTag = tag;
                         break;
                     }
