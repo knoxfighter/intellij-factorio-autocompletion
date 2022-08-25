@@ -22,7 +22,6 @@ import java.io.IOException;
 )
 public class FactorioState implements PersistentStateComponent<FactorioState> {
     public boolean integrationActive = false;
-    public String curVersion = "";
     @NotNull @OptionTag(converter = FactorioApiVersionConverter.class)
     public FactorioApiVersion selectedFactorioVersion;
     public String currentLualibVersion = "";

@@ -173,8 +173,6 @@ public class ApiParser extends Parser {
             return;
         }
 
-        config.curVersion = runtimeApi.application_version;
-
         String saveFile = saveDir + "factorio.lua";
         // create file
 
