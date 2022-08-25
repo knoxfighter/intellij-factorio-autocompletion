@@ -116,6 +116,8 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
         reloadButton.setEnabled(enableIntegration);
 
+        config.useLatestVersion = config.selectedFactorioVersion.latest();
+
         WriteAction.run(() -> FactorioLibraryProvider.reload());
     }
 }

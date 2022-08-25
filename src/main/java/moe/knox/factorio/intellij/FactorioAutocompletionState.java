@@ -18,8 +18,10 @@ import org.jetbrains.annotations.Nullable;
 public class FactorioAutocompletionState implements PersistentStateComponent<FactorioAutocompletionState> {
     public boolean integrationActive = false;
     public String curVersion = "";
+    @NotNull
     public FactorioApiVersion selectedFactorioVersion = FactorioApiVersion.createLatest();
     public String currentLualibVersion = "";
+    public boolean useLatestVersion = true;
 
     @Nullable
     @Override

@@ -10,6 +10,9 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import moe.knox.factorio.core.NotificationService;
+import moe.knox.factorio.core.version.ApiVersionCollection;
+import moe.knox.factorio.core.version.ApiVersionResolver;
+import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.intellij.FactorioAutocompletionState;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
 import org.jetbrains.annotations.NotNull;
@@ -81,14 +84,10 @@ public class ApiParser extends Parser {
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
         String apiPath = apiRootPath + config.selectedFactorioVersion.version();
 
-        if (config.selectedFactorioVersion.latest()) {
-            Document doc = null;
-            try {
-                doc = Jsoup.connect("https://lua-api.factorio.com/").get();
-            } catch (IOException e) {
-                NotificationService.getInstance(project).notifyErrorCheckingNewVersion();
-            }
-            if (!doc.select("a").get(1).text().equals(config.curVersion)) {
+        if (config.useLatestVersion) {
+            var newestVersion = detectNewestAllowedVersion(project);
+
+            if (newestVersion != null && !newestVersion.equals(config.selectedFactorioVersion)) {
                 // new version detected, update it
                 removeCurrentAPI(project);
                 if (downloadInProgress.compareAndSet(false, true)) {
@@ -96,6 +95,20 @@ public class ApiParser extends Parser {
                 }
             }
         }
+    }
+
+    private static FactorioApiVersion detectNewestAllowedVersion(Project project)
+    {
+        ApiVersionCollection factorioApiVersions;
+
+        try {
+            factorioApiVersions = (new ApiVersionResolver()).supportedVersions();
+        } catch (IOException e) {
+            NotificationService.getInstance(project).notifyErrorCheckingNewVersion();
+            return null;
+        }
+
+        return factorioApiVersions.latestVersion();
     }
 
     /**
