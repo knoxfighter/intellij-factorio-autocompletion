@@ -18,6 +18,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import javax.swing.*;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 public class FactorioAutocompletionConfig implements SearchableConfigurable {
     final private SemVer minimumApiJsonVersion = new SemVer("1.1.35", 1, 1, 35);
@@ -37,19 +40,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
 
         try {
-            // add latest as first
-            selectApiVersion.addItem(FactorioVersion.createLatest());
-
-            Document mainPageDoc = Jsoup.connect(ApiParser.factorioApiBaseLink).get();
-            Elements allLinks = mainPageDoc.select("a");
-            for (Element link : allLinks) {
-                var factorioVersion = new FactorioVersion(link.text(), link.attr("href"));
-
-                SemVer semVer = SemVer.parseFromText(link.text());
-                if (semVer != null && semVer.isGreaterOrEqualThan(minimumApiJsonVersion)) {
-                    selectApiVersion.addItem(factorioVersion);
-                }
-            }
+            getVersions().forEach(v -> selectApiVersion.addItem(v));
             selectApiVersion.setSelectedItem(config.selectedFactorioVersion);
 
             // hide error message
@@ -73,6 +64,26 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
             LuaLibParser.checkForUpdate(project);
             FactorioLibraryProvider.reload();
         });
+    }
+
+    private Set<FactorioVersion> getVersions() throws IOException {
+        Set<FactorioVersion> result = new HashSet<>();
+        result.add(FactorioVersion.createLatest());
+
+        Document mainPageDoc = Jsoup.connect(ApiParser.factorioApiBaseLink).get();
+        Elements allLinks = mainPageDoc.select("a");
+        for (Element link : allLinks) {
+            var semVer = SemVer.parseFromText(link.text());
+            if (semVer == null || !semVer.isGreaterOrEqualThan(minimumApiJsonVersion)) {
+                continue;
+            }
+
+            var factorioVersion = new FactorioVersion(link.text(), link.attr("href"));
+
+            selectApiVersion.addItem(factorioVersion);
+        }
+
+        return result;
     }
 
     @NotNull
