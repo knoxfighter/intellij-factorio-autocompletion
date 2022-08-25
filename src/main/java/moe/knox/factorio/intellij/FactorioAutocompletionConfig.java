@@ -5,25 +5,17 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
-import com.intellij.util.text.SemVer;
 import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.core.parser.ApiParser;
 import moe.knox.factorio.core.parser.LuaLibParser;
 import moe.knox.factorio.core.parser.PrototypeParser;
+import moe.knox.factorio.core.version.ApiVersionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import javax.swing.*;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 public class FactorioAutocompletionConfig implements SearchableConfigurable {
-    final private SemVer minimumApiJsonVersion = new SemVer("1.1.35", 1, 1, 35);
     Project project;
     private FactorioAutocompletionState config;
     private JPanel rootPanel;
@@ -31,16 +23,18 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
     private JComboBox<FactorioApiVersion> selectApiVersion;
     private JLabel loadError;
     private JButton reloadButton;
+    private final ApiVersionResolver apiVersionResolver;
 
     public FactorioAutocompletionConfig(@NotNull Project project) {
         this.project = project;
         config = FactorioAutocompletionState.getInstance(project);
+        apiVersionResolver = new ApiVersionResolver();
 
         enableFactorioIntegrationCheckBox.setSelected(config.integrationActive);
 
 
         try {
-            getVersions().forEach(v -> selectApiVersion.addItem(v));
+            apiVersionResolver.supportedVersions().forEach(selectApiVersion::addItem);
             selectApiVersion.setSelectedItem(config.selectedFactorioVersion);
 
             // hide error message
@@ -64,26 +58,6 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
             LuaLibParser.checkForUpdate(project);
             FactorioLibraryProvider.reload();
         });
-    }
-
-    private Set<FactorioApiVersion> getVersions() throws IOException {
-        Set<FactorioApiVersion> result = new HashSet<>();
-        result.add(FactorioApiVersion.createLatest());
-
-        Document mainPageDoc = Jsoup.connect(ApiParser.factorioApiBaseLink).get();
-        Elements allLinks = mainPageDoc.select("a");
-        for (Element link : allLinks) {
-            var semVer = SemVer.parseFromText(link.text());
-            if (semVer == null || !semVer.isGreaterOrEqualThan(minimumApiJsonVersion)) {
-                continue;
-            }
-
-            var factorioVersion = FactorioApiVersion.createVersion(semVer.getRawVersion());
-
-            selectApiVersion.addItem(factorioVersion);
-        }
-
-        return result;
     }
 
     @NotNull

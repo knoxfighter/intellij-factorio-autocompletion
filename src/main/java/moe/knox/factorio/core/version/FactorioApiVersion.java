@@ -1,6 +1,11 @@
 package moe.knox.factorio.core.version;
 
-public record FactorioApiVersion(String version, boolean latest) {
+import com.intellij.util.text.SemVer;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
+
+public record FactorioApiVersion(String version, boolean latest) implements Comparable<FactorioApiVersion> {
     private static final String latestVersion = "latest";
 
     @Override
@@ -20,5 +25,13 @@ public record FactorioApiVersion(String version, boolean latest) {
     public static FactorioApiVersion createVersion(String version)
     {
         return new FactorioApiVersion(version, false);
+    }
+
+    @Override
+    public int compareTo(@NotNull FactorioApiVersion o) {
+        SemVer verA = Objects.requireNonNull(SemVer.parseFromText(version));
+        SemVer verB = Objects.requireNonNull(SemVer.parseFromText(o.version));
+
+        return verA.compareTo(verB);
     }
 }
