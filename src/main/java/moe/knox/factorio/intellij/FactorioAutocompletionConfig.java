@@ -14,13 +14,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.Objects;
 
 public class FactorioAutocompletionConfig implements SearchableConfigurable {
     Project project;
     private FactorioAutocompletionState config;
     private JPanel rootPanel;
     private JCheckBox enableFactorioIntegrationCheckBox;
-    private JComboBox<FactorioApiVersion> selectApiVersion;
+    private JComboBox<DropdownVersion> selectApiVersion;
     private JLabel loadError;
     private JButton reloadButton;
     private final ApiVersionResolver apiVersionResolver;
@@ -34,8 +35,13 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
 
         try {
-            apiVersionResolver.supportedVersions().forEach(selectApiVersion::addItem);
-            selectApiVersion.setSelectedItem(config.selectedFactorioVersion);
+            selectApiVersion.addItem(DropdownVersion.createLatest());
+            apiVersionResolver
+                    .supportedVersions()
+                    .stream().map(DropdownVersion::fromApiVersion)
+                    .forEach(v -> selectApiVersion.addItem(v))
+            ;
+            selectApiVersion.setSelectedItem(DropdownVersion.fromApiVersion(config.selectedFactorioVersion));
 
             // hide error message
             selectApiVersion.setEnabled(true);
@@ -82,8 +88,9 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
         if (!selectApiVersion.isEnabled()) {
             return false;
         }
-        return selectApiVersion.isEnabled() && (config.integrationActive != enableFactorioIntegrationCheckBox.isSelected()
-                || !config.selectedFactorioVersion.equals(selectApiVersion.getSelectedItem()));
+
+        return config.integrationActive != enableFactorioIntegrationCheckBox.isSelected()
+                || !config.selectedFactorioVersion.equals(getSelectedVersion());
     }
 
     @Override
@@ -110,14 +117,46 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
             // save new settings
             if (selectApiVersion.getSelectedItem() != null) {
-                config.selectedFactorioVersion = (FactorioApiVersion) selectApiVersion.getSelectedItem();
+                config.selectedFactorioVersion = getSelectedVersion();
             }
         }
 
         reloadButton.setEnabled(enableIntegration);
 
-        config.useLatestVersion = config.selectedFactorioVersion.latest();
+        config.useLatestVersion = getUseLatestVersion();
 
         WriteAction.run(() -> FactorioLibraryProvider.reload());
+    }
+
+    private boolean getUseLatestVersion() {
+        return Objects.requireNonNull((DropdownVersion) selectApiVersion.getSelectedItem()).isLatest();
+    }
+
+    private FactorioApiVersion getSelectedVersion() {
+        var dropdownVersion = Objects.requireNonNull((DropdownVersion) selectApiVersion.getSelectedItem());
+
+        return FactorioApiVersion.createVersion(dropdownVersion.version);
+    }
+
+    private record DropdownVersion(String version, String name) {
+        public boolean isLatest()
+        {
+            return version.equals("latest");
+        }
+
+        public static DropdownVersion createLatest()
+        {
+            return new DropdownVersion("latest", "Latest version");
+        }
+
+        public static DropdownVersion fromApiVersion(FactorioApiVersion v)
+        {
+            return new DropdownVersion(v.version(), v.version());
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 }
