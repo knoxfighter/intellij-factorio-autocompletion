@@ -13,7 +13,7 @@ import com.intellij.util.ProcessingContext;
 import com.intellij.util.indexing.FileBasedIndex;
 import com.tang.intellij.lua.editor.completion.LuaLookupElement;
 import com.tang.intellij.lua.psi.LuaIndexExpr;
-import moe.knox.factorio.core.BasePrototypesService;
+import moe.knox.factorio.core.PrototypesService;
 import moe.knox.factorio.intellij.PrototypeFileIndexer;
 import moe.knox.factorio.core.util.FactorioTreeUtil;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +51,7 @@ public class SubPrototypeCompletionProvider extends CompletionProvider<Completio
                 // get Prototypes from Indexer
                 List<Set<String>> projectPrototypes = fileBasedIndex.getValues(PrototypeFileIndexer.NAME, prototypeType, GlobalSearchScope.projectScope(project));
                 List<Set<String>> globalPrototypes = fileBasedIndex.getValues(PrototypeFileIndexer.NAME, prototypeType, GlobalSearchScope.allScope(project));
-                Set<String> basePrototypes = BasePrototypesService.getInstance(project).getValues(prototypeType);
+                Set<String> basePrototypes = PrototypesService.getInstance(project).getValues(prototypeType);
 
                 // Iterate over all Prototypes and add them with LookupElements
                 for (Set<String> projectPrototype : projectPrototypes) {

@@ -94,7 +94,7 @@ public class LuaLibDownloader extends Parser {
             String prototypePath = prototypeRootPath;
             FileUtil.delete(new File(prototypePath));
 
-            BasePrototypesService.getInstance(project).reloadIndex();
+            PrototypesService.getInstance(project).reloadIndex();
         }
     }
 
@@ -260,7 +260,7 @@ public class LuaLibDownloader extends Parser {
 
                 // Reload base prototype service indexes
                 ApplicationManager.getApplication().invokeLater(() ->
-                        BasePrototypesService.getInstance(myProject).reloadIndex()
+                        PrototypesService.getInstance(myProject).reloadIndex()
                 );
             } catch (IOException e) {
                 e.printStackTrace();

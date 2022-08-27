@@ -13,15 +13,15 @@ import moe.knox.factorio.core.util.FileIndexerUtil;
 import java.util.*;
 
 @Service
-final public class BasePrototypesService {
-    public static BasePrototypesService getInstance(Project project) {
-        return project.getService(BasePrototypesService.class);
+final public class PrototypesService {
+    public static PrototypesService getInstance(Project project) {
+        return project.getService(PrototypesService.class);
     }
 
     Project project;
     List<Map<String, Set<String>>> index = new ArrayList<>();
 
-    public BasePrototypesService(Project project) {
+    public PrototypesService(Project project) {
         this.project = project;
     }
 

@@ -2,7 +2,7 @@ package moe.knox.factorio.intellij;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
-import moe.knox.factorio.core.BasePrototypesService;
+import moe.knox.factorio.core.PrototypesService;
 import moe.knox.factorio.core.LuaLibDownloader;
 import moe.knox.factorio.core.parser.ApiParser;
 import moe.knox.factorio.core.parser.prototype.PrototypeParser;
@@ -24,7 +24,7 @@ public class FactorioStartupActivity implements StartupActivity {
             }
 
             // reload core/base prototypes
-            BasePrototypesService.getInstance(project).reloadIndex();
+            PrototypesService.getInstance(project).reloadIndex();
         }
     }
 }
