@@ -13,8 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.Comparator;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Objects;
 
 public class FactorioConfig implements SearchableConfigurable {
@@ -45,7 +45,7 @@ public class FactorioConfig implements SearchableConfigurable {
             apiVersionResolver
                     .supportedVersions()
                     .stream()
-                    .sorted(Collections.reverseOrder())
+                    .sorted(Comparator.reverseOrder())
                     .map(DropdownVersion::fromApiVersion)
                     .forEach(v -> selectApiVersion.addItem(v))
             ;
