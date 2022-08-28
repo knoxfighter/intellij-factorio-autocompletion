@@ -91,7 +91,7 @@ public final class ApiFileWriter
                     writeDescLine(output, concept.examples);
                     writeSee(output, concept.seeAlso);
 
-                    List<Type> types = new ArrayList<>();
+                    List<ValueType> types = new ArrayList<>();
                     for (Concept.CategoryUnion.Spec option : concept.union.options) {
                         types.add(option.type);
                         writeDescLine(output,getType(option.type) + ": " + option.description);
@@ -273,7 +273,7 @@ public final class ApiFileWriter
 
             if (method.takesTable) {
                 // This is a table function (use anonymous function as only param)
-                String paramType = AnnotationTypeResolver.getAnonymousTableType(method.parameters);
+                String paramType = AnnotationTypeResolver.presentTableParams(method.parameters);
 
                 writeParam(output, "param", paramType);
 
@@ -368,7 +368,7 @@ public final class ApiFileWriter
         output.append("---@shape ").append(name).append(NEW_LINE);
     }
 
-    private void writeField(OutputStreamWriter output, String name, Type type, String description) throws IOException {
+    private void writeField(OutputStreamWriter output, String name, ValueType type, String description) throws IOException {
         writeField(output, name, type, description, false);
     }
 
@@ -376,7 +376,7 @@ public final class ApiFileWriter
         writeField(output, name, type, description, false);
     }
 
-    private void writeField(OutputStreamWriter output, String name, Type type, String description, boolean withNil) throws IOException {
+    private void writeField(OutputStreamWriter output, String name, ValueType type, String description, boolean withNil) throws IOException {
         writeField(output, name, getType(type), description, withNil);
     }
 
@@ -394,11 +394,11 @@ public final class ApiFileWriter
         writeType(output, type, false);
     }
 
-    private void writeType(OutputStreamWriter output, Type type) throws IOException {
+    private void writeType(OutputStreamWriter output, ValueType type) throws IOException {
         writeType(output, getType(type), false);
     }
 
-    private void writeType(OutputStreamWriter output, Type type, boolean optional) throws IOException {
+    private void writeType(OutputStreamWriter output, ValueType type, boolean optional) throws IOException {
         writeType(output, getType(type), optional);
     }
 
@@ -410,7 +410,7 @@ public final class ApiFileWriter
         output.append(NEW_LINE);
     }
 
-    private void writeParam(OutputStreamWriter output, String name, Type type, String description) throws IOException {
+    private void writeParam(OutputStreamWriter output, String name, ValueType type, String description) throws IOException {
         writeParam(output, name, getType(type), description);
     }
 
@@ -423,7 +423,7 @@ public final class ApiFileWriter
         output.append("---@param ").append(name).append(' ').append(type).append(' ').append(description).append(NEW_LINE);
     }
 
-    private void writeReturn(OutputStreamWriter output, Type type, String desc) throws IOException {
+    private void writeReturn(OutputStreamWriter output, ValueType type, String desc) throws IOException {
         output.append("---@return ").append(getType(type)).append(' ');
         if (!desc.isEmpty()) {
             desc = desc.replace('\n', ' ');
@@ -436,11 +436,11 @@ public final class ApiFileWriter
         writeOverload(output, parameters, null, stopAt);
     }
 
-    private void writeOverload(OutputStreamWriter output, List<Parameter> parameters, Type returnType) throws IOException {
+    private void writeOverload(OutputStreamWriter output, List<Parameter> parameters, ValueType returnType) throws IOException {
         writeOverload(output, parameters, returnType, null);
     }
 
-    private void writeOverload(OutputStreamWriter output, List<Parameter> parameters, Type returnType, String stopAt) throws IOException {
+    private void writeOverload(OutputStreamWriter output, List<Parameter> parameters, ValueType returnType, String stopAt) throws IOException {
         // ---@overload fun(param1:A,param2:B):R
 
         output.append("---@overload fun(");
@@ -485,10 +485,10 @@ public final class ApiFileWriter
         output.append(NEW_LINE);
     }
 
-    private void writeAlias(OutputStreamWriter output, String name, List<Type> types) throws IOException {
+    private void writeAlias(OutputStreamWriter output, String name, List<ValueType> types) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         boolean first = true;
-        for (Type type : types) {
+        for (ValueType type : types) {
             if (first) {
                 first = false;
             } else {
@@ -503,7 +503,7 @@ public final class ApiFileWriter
         output.append("---@alias ").append(name).append(' ').append(type).append(NEW_LINE);
     }
 
-    private String getType(Type type)
+    private String getType(ValueType type)
     {
         return AnnotationTypeResolver.getType(type);
     }

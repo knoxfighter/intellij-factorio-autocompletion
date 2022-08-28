@@ -9,7 +9,7 @@ public class Parameter implements Arrangeable {
     public String name; // The name of the parameter.
     public double order; // The order of the parameter as shown in the html.
     public String description; // The text description of the parameter.
-    public Type type; // The type of the parameter.
+    public ValueType type; // The type of the parameter.
     public boolean optional; // Whether the type is optional or not.
 
     public void arrangeElements() {

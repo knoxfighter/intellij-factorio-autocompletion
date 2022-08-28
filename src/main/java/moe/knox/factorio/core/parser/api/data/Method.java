@@ -20,7 +20,7 @@ public class Method implements Arrangeable {
     @SerializedName("variant_parameter_description")
     public String variantParameterDescription; // (optional): The text description of the optional parameter groups.
     @SerializedName("variadic_type")
-    public Type variadicType; // (optional): The type of the variadic arguments of the method, if it accepts any.
+    public ValueType variadicType; // (optional): The type of the variadic arguments of the method, if it accepts any.
     @SerializedName("variadic_description")
     public String variadicDescription; // (optional): The description of the variadic arguments of the method, if it accepts any.
     @SerializedName("takes_table")
@@ -28,7 +28,7 @@ public class Method implements Arrangeable {
     @SerializedName("table_is_optional")
     public boolean tableIsOptional; // (optional): If takes_table is true, whether that whole table is optional or not.
     @SerializedName("return_type")
-    public Type returnType; // (optional): The return type of the method, if it has one.
+    public ValueType returnType; // (optional): The return type of the method, if it has one.
     @SerializedName("return_description")
     public String returnDescription; // (optional): The description of the return value of the method, if it returns anything.
 

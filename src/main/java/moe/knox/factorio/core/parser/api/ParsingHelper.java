@@ -17,10 +17,6 @@ public class ParsingHelper {
             builder.registerTypeAdapter(Concept.class, new JsonPolymorphismDeserializer<Concept>());
         }
 
-        if (excludeType == null || excludeType != Type.ComplexData.class) {
-            builder.registerTypeAdapter(Type.ComplexData.class, new JsonPolymorphismDeserializer<Type.ComplexData>());
-        }
-
         if (excludeType == null || excludeType != Operator.class) {
             builder.registerTypeAdapter(Operator.class, new JsonPolymorphismDeserializer<Operator>());
         }
