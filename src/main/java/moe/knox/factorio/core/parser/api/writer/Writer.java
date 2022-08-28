@@ -1,4 +1,4 @@
-package moe.knox.factorio.core.parser.api;
+package moe.knox.factorio.core.parser.api.writer;
 
 import moe.knox.factorio.core.parser.api.data.*;
 
@@ -8,7 +8,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-final class Writer
+public final class Writer
 {
     private static String newLine = System.lineSeparator();
 
@@ -68,7 +68,7 @@ final class Writer
         output.append(") end").append(newLine);
     }
 
-    void writeGlobalsObjects(OutputStreamWriter output, List<GlobalObject> globalObjects) throws IOException {
+    public void writeGlobalsObjects(OutputStreamWriter output, List<GlobalObject> globalObjects) throws IOException {
         // global objects
         for (GlobalObject globalObject : globalObjects) {
             writeDescLine(output, globalObject.description);
@@ -79,7 +79,7 @@ final class Writer
         output.append(newLine);
     }
 
-    void writeDefines(OutputStreamWriter output, List<Define> defines, String parents) throws IOException {
+    public void writeDefines(OutputStreamWriter output, List<Define> defines, String parents) throws IOException {
         for (Define define : defines) {
             writeDescLine(output, define.description);
 
@@ -108,7 +108,7 @@ final class Writer
         }
     }
 
-    void writeClasses(OutputStreamWriter output, List<FactorioClass> classes) throws IOException {
+    public void writeClasses(OutputStreamWriter output, List<FactorioClass> classes) throws IOException {
         for (FactorioClass factorioClass : classes) {
             writeDescLine(output, factorioClass.description);
             writeDescLine(output, factorioClass.notes);
@@ -186,7 +186,7 @@ final class Writer
         }
     }
 
-    void writeConcepts(OutputStreamWriter output, List<Concept> concepts) throws IOException {
+    public void writeConcepts(OutputStreamWriter output, List<Concept> concepts) throws IOException {
         for (Concept concept : concepts) {
             switch (concept.category) {
                 case "table": {

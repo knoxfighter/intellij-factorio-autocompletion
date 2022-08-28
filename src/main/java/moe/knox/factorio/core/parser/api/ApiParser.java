@@ -8,11 +8,11 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
+import moe.knox.factorio.core.parser.api.writer.Writer;
 import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.core.NotificationService;
 import moe.knox.factorio.core.parser.Parser;
 import moe.knox.factorio.intellij.FactorioState;
-import moe.knox.factorio.core.parser.Parser;
 import moe.knox.factorio.core.version.ApiVersionCollection;
 import moe.knox.factorio.core.version.ApiVersionResolver;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
@@ -36,7 +36,6 @@ public class ApiParser extends Parser {
     private String saveDir;
     private double curTodo = 0;
     private double maxTodo = 0;
-
     private Writer writer = new Writer();
 
     public ApiParser(@Nullable Project project, String saveDir, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
