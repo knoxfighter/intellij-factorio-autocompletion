@@ -12,180 +12,6 @@ public final class Writer
 {
     private static String newLine = System.lineSeparator();
 
-    void writeObjDef(OutputStreamWriter output, String className) throws IOException {
-        writeObjDef(output, className, false);
-    }
-
-    void writeObjDef(OutputStreamWriter output, String className, boolean local) throws IOException {
-        if (local) {
-            output.append("local ");
-        }
-
-        output.append(className).append(" = {}").append(newLine);
-    }
-
-    void writeValDef(OutputStreamWriter output, String name) throws IOException {
-        writeValDef(output, name, null, false);
-    }
-
-    void writeValDef(OutputStreamWriter output, String name, String parent) throws IOException {
-        writeValDef(output, name, parent, false);
-    }
-
-    void writeValDef(OutputStreamWriter output, String name, boolean local) throws IOException {
-        writeValDef(output, name, null, local);
-    }
-
-    void writeValDef(OutputStreamWriter output, String name, String parent, boolean local) throws IOException {
-        if (local) {
-            output.append("local ");
-        }
-
-        if (parent != null && !parent.isEmpty()) {
-            if (name.contains("-")) {
-                output.append(parent).append("[\"").append(name).append("\"]");
-            } else {
-                output.append(parent).append('.').append(name);
-            }
-        } else {
-            output.append(name).append(" = nil").append(newLine);
-        }
-
-        output.append(" = nil").append(newLine);
-    }
-
-    void writeFunctionDef(OutputStreamWriter output, String className, String functionName, String... params) throws IOException {
-        output.append("function ").append(className).append('.').append(functionName).append('(');
-        boolean first = true;
-        for (String param : params) {
-            if (first) {
-                first = false;
-            } else {
-                output.append(", ");
-            }
-            output.append(param);
-        }
-        output.append(") end").append(newLine);
-    }
-
-    public void writeGlobalsObjects(OutputStreamWriter output, List<GlobalObject> globalObjects) throws IOException {
-        // global objects
-        for (GlobalObject globalObject : globalObjects) {
-            writeDescLine(output, globalObject.description);
-            writeType(output, globalObject.type);
-            writeObjDef(output, globalObject.name);
-            output.append(newLine);
-        }
-        output.append(newLine);
-    }
-
-    public void writeDefines(OutputStreamWriter output, List<Define> defines, String parents) throws IOException {
-        for (Define define : defines) {
-            writeDescLine(output, define.description);
-
-            StringWriter subDefine = new StringWriter();
-            subDefine.append(parents).append('.').append(define.name);
-            writeClass(output, subDefine.toString());
-            writeObjDef(output, subDefine.toString());
-            output.append(newLine);
-
-            if (define.subkeys != null && !define.subkeys.isEmpty()) {
-                writeDefines(output, define.subkeys, subDefine.toString());
-            }
-            if (define.values != null && !define.values.isEmpty()) {
-                writeDefineValues(output, define.values, subDefine.toString());
-            }
-        }
-        output.append(newLine);
-    }
-
-    void writeDefineValues(OutputStreamWriter output, List<BasicMember> defines, String parents) throws IOException {
-        for (BasicMember define : defines) {
-            writeDescLine(output, define.description);
-            writeType(output, "nil");
-            writeValDef(output, define.name, parents);
-            output.append(newLine);
-        }
-    }
-
-    public void writeClasses(OutputStreamWriter output, List<FactorioClass> classes) throws IOException {
-        for (FactorioClass factorioClass : classes) {
-            writeDescLine(output, factorioClass.description);
-            writeDescLine(output, factorioClass.notes);
-            writeDescLine(output, factorioClass.examples);
-            writeSee(output, factorioClass.seeAlso);
-
-            for (Operator operator : factorioClass.operators) {
-                if (operator.name == "call") {
-                    writeOverload(output, operator.method.parameters, operator.method.returnType);
-                }
-            }
-
-            writeClass(output, factorioClass.name, factorioClass.baseClasses);
-            writeObjDef(output, factorioClass.name, true);
-            output.append(newLine);
-
-            writeAttributes(output, factorioClass.attributes, factorioClass.name);
-            writeMethods(output, factorioClass.methods, factorioClass.name);
-
-            output.append(newLine);
-        }
-    }
-
-    void writeAttributes(OutputStreamWriter output, List<Attribute> attributes, String className) throws IOException {
-        for (Attribute attribute : attributes) {
-            writeDescLine(output, attribute.description);
-            writeDescLine(output, attribute.notes);
-            writeDescLine(output, attribute.examples);
-            writeSee(output, attribute.seeAlso);
-            writeReadWrite(output, attribute.read, attribute.write);
-            writeType(output, attribute.type);
-            writeValDef(output, attribute.name, className);
-            output.append(newLine);
-        }
-    }
-
-    void writeMethods(OutputStreamWriter output, List<Method> methods, String className) throws IOException {
-        for (Method method : methods) {
-            writeDescLine(output, method.description);
-            writeDescLine(output, method.notes);
-            writeDescLine(output, method.examples);
-            writeSee(output, method.seeAlso);
-
-            if (method.takesTable) {
-                // This is a table function (use anonymous function as only param)
-                String paramType = TypeResolver.getAnonymousTableType(method.parameters);
-
-                writeParam(output, "param", paramType);
-
-                if (method.returnType != null) {
-                    writeReturn(output, method.returnType, method.returnDescription);
-                }
-
-                writeFunctionDef(output, className, method.name, "param");
-            } else {
-                List<String> strList = new ArrayList<>();
-
-                for (Parameter parameter : method.parameters) {
-                    writeParam(output, parameter.name, parameter.type, parameter.description);
-
-                    if (parameter.optional) {
-                        writeOverload(output, method.parameters, method.returnType, parameter.name);
-                    }
-
-                    strList.add(parameter.name);
-                }
-
-                if (method.returnType != null) {
-                    writeReturn(output, method.returnType, method.returnDescription);
-                }
-
-                writeFunctionDef(output, className, method.name, strList.toArray(new String[0]));
-            }
-            output.append(newLine);
-        }
-    }
-
     public void writeConcepts(OutputStreamWriter output, List<Concept> concepts) throws IOException {
         for (Concept concept : concepts) {
             switch (concept.category) {
@@ -302,6 +128,180 @@ public final class Writer
                     break;
                 }
             }
+        }
+    }
+
+    public void writeGlobalsObjects(OutputStreamWriter output, List<GlobalObject> globalObjects) throws IOException {
+        // global objects
+        for (GlobalObject globalObject : globalObjects) {
+            writeDescLine(output, globalObject.description);
+            writeType(output, globalObject.type);
+            writeObjDef(output, globalObject.name);
+            output.append(newLine);
+        }
+        output.append(newLine);
+    }
+
+    public void writeDefines(OutputStreamWriter output, List<Define> defines, String parents) throws IOException {
+        for (Define define : defines) {
+            writeDescLine(output, define.description);
+
+            StringWriter subDefine = new StringWriter();
+            subDefine.append(parents).append('.').append(define.name);
+            writeClass(output, subDefine.toString());
+            writeObjDef(output, subDefine.toString());
+            output.append(newLine);
+
+            if (define.subkeys != null && !define.subkeys.isEmpty()) {
+                writeDefines(output, define.subkeys, subDefine.toString());
+            }
+            if (define.values != null && !define.values.isEmpty()) {
+                writeDefineValues(output, define.values, subDefine.toString());
+            }
+        }
+        output.append(newLine);
+    }
+
+    public void writeClasses(OutputStreamWriter output, List<FactorioClass> classes) throws IOException {
+        for (FactorioClass factorioClass : classes) {
+            writeDescLine(output, factorioClass.description);
+            writeDescLine(output, factorioClass.notes);
+            writeDescLine(output, factorioClass.examples);
+            writeSee(output, factorioClass.seeAlso);
+
+            for (Operator operator : factorioClass.operators) {
+                if (operator.name == "call") {
+                    writeOverload(output, operator.method.parameters, operator.method.returnType);
+                }
+            }
+
+            writeClass(output, factorioClass.name, factorioClass.baseClasses);
+            writeObjDef(output, factorioClass.name, true);
+            output.append(newLine);
+
+            writeAttributes(output, factorioClass.attributes, factorioClass.name);
+            writeMethods(output, factorioClass.methods, factorioClass.name);
+
+            output.append(newLine);
+        }
+    }
+
+    void writeObjDef(OutputStreamWriter output, String className) throws IOException {
+        writeObjDef(output, className, false);
+    }
+
+    void writeObjDef(OutputStreamWriter output, String className, boolean local) throws IOException {
+        if (local) {
+            output.append("local ");
+        }
+
+        output.append(className).append(" = {}").append(newLine);
+    }
+
+    void writeValDef(OutputStreamWriter output, String name) throws IOException {
+        writeValDef(output, name, null, false);
+    }
+
+    void writeValDef(OutputStreamWriter output, String name, String parent) throws IOException {
+        writeValDef(output, name, parent, false);
+    }
+
+    void writeValDef(OutputStreamWriter output, String name, boolean local) throws IOException {
+        writeValDef(output, name, null, local);
+    }
+
+    void writeValDef(OutputStreamWriter output, String name, String parent, boolean local) throws IOException {
+        if (local) {
+            output.append("local ");
+        }
+
+        if (parent != null && !parent.isEmpty()) {
+            if (name.contains("-")) {
+                output.append(parent).append("[\"").append(name).append("\"]");
+            } else {
+                output.append(parent).append('.').append(name);
+            }
+        } else {
+            output.append(name).append(" = nil").append(newLine);
+        }
+
+        output.append(" = nil").append(newLine);
+    }
+
+    void writeFunctionDef(OutputStreamWriter output, String className, String functionName, String... params) throws IOException {
+        output.append("function ").append(className).append('.').append(functionName).append('(');
+        boolean first = true;
+        for (String param : params) {
+            if (first) {
+                first = false;
+            } else {
+                output.append(", ");
+            }
+            output.append(param);
+        }
+        output.append(") end").append(newLine);
+    }
+
+    void writeDefineValues(OutputStreamWriter output, List<BasicMember> defines, String parents) throws IOException {
+        for (BasicMember define : defines) {
+            writeDescLine(output, define.description);
+            writeType(output, "nil");
+            writeValDef(output, define.name, parents);
+            output.append(newLine);
+        }
+    }
+
+    void writeAttributes(OutputStreamWriter output, List<Attribute> attributes, String className) throws IOException {
+        for (Attribute attribute : attributes) {
+            writeDescLine(output, attribute.description);
+            writeDescLine(output, attribute.notes);
+            writeDescLine(output, attribute.examples);
+            writeSee(output, attribute.seeAlso);
+            writeReadWrite(output, attribute.read, attribute.write);
+            writeType(output, attribute.type);
+            writeValDef(output, attribute.name, className);
+            output.append(newLine);
+        }
+    }
+
+    void writeMethods(OutputStreamWriter output, List<Method> methods, String className) throws IOException {
+        for (Method method : methods) {
+            writeDescLine(output, method.description);
+            writeDescLine(output, method.notes);
+            writeDescLine(output, method.examples);
+            writeSee(output, method.seeAlso);
+
+            if (method.takesTable) {
+                // This is a table function (use anonymous function as only param)
+                String paramType = TypeResolver.getAnonymousTableType(method.parameters);
+
+                writeParam(output, "param", paramType);
+
+                if (method.returnType != null) {
+                    writeReturn(output, method.returnType, method.returnDescription);
+                }
+
+                writeFunctionDef(output, className, method.name, "param");
+            } else {
+                List<String> strList = new ArrayList<>();
+
+                for (Parameter parameter : method.parameters) {
+                    writeParam(output, parameter.name, parameter.type, parameter.description);
+
+                    if (parameter.optional) {
+                        writeOverload(output, method.parameters, method.returnType, parameter.name);
+                    }
+
+                    strList.add(parameter.name);
+                }
+
+                if (method.returnType != null) {
+                    writeReturn(output, method.returnType, method.returnDescription);
+                }
+
+                writeFunctionDef(output, className, method.name, strList.toArray(new String[0]));
+            }
+            output.append(newLine);
         }
     }
 
