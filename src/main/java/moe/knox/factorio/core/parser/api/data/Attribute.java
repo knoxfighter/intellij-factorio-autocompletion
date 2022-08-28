@@ -13,7 +13,7 @@ public class Attribute implements Arrangeable {
     @SerializedName("see_also")
     public List<String> seeAlso; // (optional): A list of strings that are references to other relevant classes or their methods and attributes.
     public List<String> subclasses; // (optional): A list of strings specifying the sub-type (of the class) that the attribute applies to.
-    public Type type; // The type of the attribute.
+    public ValueType type; // The type of the attribute.
     public boolean read; // Whether the attribute can be read from.
     public boolean write; // Whether the attribute can be written to.
 

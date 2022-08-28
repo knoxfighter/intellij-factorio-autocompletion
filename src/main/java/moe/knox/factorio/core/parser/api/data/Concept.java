@@ -76,7 +76,7 @@ public class Concept implements Arrangeable {
     // A list of ways to specify a certain concept within the API.
     public class CategoryUnion {
         public class Spec {
-            public Type type; // The type of the specification option.
+            public ValueType type; // The type of the specification option.
             public double order; // The order of the option as shown in the html.
             public String description; // The text description of the option.
         }
