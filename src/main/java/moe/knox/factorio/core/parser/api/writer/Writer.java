@@ -10,7 +10,7 @@ import java.util.List;
 
 public final class Writer
 {
-    private static String newLine = System.lineSeparator();
+    private final static String NEW_LINE = System.lineSeparator();
 
     public void writeConcepts(OutputStreamWriter output, List<Concept> concepts) throws IOException {
         for (Concept concept : concepts) {
@@ -22,13 +22,13 @@ public final class Writer
                     writeSee(output, concept.seeAlso);
                     writeClass(output, concept.name);
                     writeObjDef(output, concept.name, true);
-                    output.append(newLine);
+                    output.append(NEW_LINE);
 
                     for (Parameter parameter : concept.table.parameters) {
                         writeDescLine(output, parameter.description);
                         writeType(output, parameter.type, parameter.optional);
                         writeValDef(output, parameter.name, concept.name);
-                        output.append(newLine);
+                        output.append(NEW_LINE);
                     }
                     break;
                 }
@@ -46,7 +46,7 @@ public final class Writer
                         ++i;
                     }
 
-                    output.append(newLine);
+                    output.append(NEW_LINE);
                     break;
                 }
                 case "enum": {
@@ -61,7 +61,7 @@ public final class Writer
                         writeField(output, option.name, "number", desc);
                     }
 
-                    output.append(newLine);
+                    output.append(NEW_LINE);
                     break;
                 }
                 case "flag": {
@@ -72,7 +72,7 @@ public final class Writer
                         types.add(option.name);
                     }
                     writeAliasStringLiteral(output, aliasName, types);
-                    output.append(newLine);
+                    output.append(NEW_LINE);
 
                     writeDescLine(output, concept.description);
                     writeDescLine(output, concept.notes);
@@ -82,7 +82,7 @@ public final class Writer
                     // actual type is string-literal array
                     writeAlias(output, concept.name, aliasName + "[]");
 
-                    output.append(newLine);
+                    output.append(NEW_LINE);
                     break;
                 }
                 case "union": {
@@ -111,7 +111,7 @@ public final class Writer
                         writeDescLine(output, parameter.description);
                         writeType(output, parameter.type, parameter.optional);
                         writeValDef(output, parameter.name, concept.name);
-                        output.append(newLine);
+                        output.append(NEW_LINE);
                     }
                     break;
                 }
@@ -124,7 +124,7 @@ public final class Writer
                     writeObjDef(output, concept.name, true);
 
                     writeAttributes(output, concept.struct.attributes, concept.name);
-                    output.append(newLine);
+                    output.append(NEW_LINE);
                     break;
                 }
             }
@@ -137,9 +137,9 @@ public final class Writer
             writeDescLine(output, globalObject.description);
             writeType(output, globalObject.type);
             writeObjDef(output, globalObject.name);
-            output.append(newLine);
+            output.append(NEW_LINE);
         }
-        output.append(newLine);
+        output.append(NEW_LINE);
     }
 
     public void writeDefines(OutputStreamWriter output, List<Define> defines, String parents) throws IOException {
@@ -150,7 +150,7 @@ public final class Writer
             subDefine.append(parents).append('.').append(define.name);
             writeClass(output, subDefine.toString());
             writeObjDef(output, subDefine.toString());
-            output.append(newLine);
+            output.append(NEW_LINE);
 
             if (define.subkeys != null && !define.subkeys.isEmpty()) {
                 writeDefines(output, define.subkeys, subDefine.toString());
@@ -159,7 +159,7 @@ public final class Writer
                 writeDefineValues(output, define.values, subDefine.toString());
             }
         }
-        output.append(newLine);
+        output.append(NEW_LINE);
     }
 
     public void writeClasses(OutputStreamWriter output, List<FactorioClass> classes) throws IOException {
@@ -177,12 +177,12 @@ public final class Writer
 
             writeClass(output, factorioClass.name, factorioClass.baseClasses);
             writeObjDef(output, factorioClass.name, true);
-            output.append(newLine);
+            output.append(NEW_LINE);
 
             writeAttributes(output, factorioClass.attributes, factorioClass.name);
             writeMethods(output, factorioClass.methods, factorioClass.name);
 
-            output.append(newLine);
+            output.append(NEW_LINE);
         }
     }
 
@@ -195,7 +195,7 @@ public final class Writer
             output.append("local ");
         }
 
-        output.append(className).append(" = {}").append(newLine);
+        output.append(className).append(" = {}").append(NEW_LINE);
     }
 
     private void writeValDef(OutputStreamWriter output, String name) throws IOException {
@@ -222,10 +222,10 @@ public final class Writer
                 output.append(parent).append('.').append(name);
             }
         } else {
-            output.append(name).append(" = nil").append(newLine);
+            output.append(name).append(" = nil").append(NEW_LINE);
         }
 
-        output.append(" = nil").append(newLine);
+        output.append(" = nil").append(NEW_LINE);
     }
 
     private void writeFunctionDef(OutputStreamWriter output, String className, String functionName, String... params) throws IOException {
@@ -239,7 +239,7 @@ public final class Writer
             }
             output.append(param);
         }
-        output.append(") end").append(newLine);
+        output.append(") end").append(NEW_LINE);
     }
 
     private void writeDefineValues(OutputStreamWriter output, List<BasicMember> defines, String parents) throws IOException {
@@ -247,7 +247,7 @@ public final class Writer
             writeDescLine(output, define.description);
             writeType(output, "nil");
             writeValDef(output, define.name, parents);
-            output.append(newLine);
+            output.append(NEW_LINE);
         }
     }
 
@@ -260,7 +260,7 @@ public final class Writer
             writeReadWrite(output, attribute.read, attribute.write);
             writeType(output, attribute.type);
             writeValDef(output, attribute.name, className);
-            output.append(newLine);
+            output.append(NEW_LINE);
         }
     }
 
@@ -301,7 +301,7 @@ public final class Writer
 
                 writeFunctionDef(output, className, method.name, strList.toArray(new String[0]));
             }
-            output.append(newLine);
+            output.append(NEW_LINE);
         }
     }
 
@@ -315,23 +315,23 @@ public final class Writer
     }
 
     private void writeEmptyLine(OutputStreamWriter output) throws IOException {
-        output.append("---").append(newLine);
+        output.append("---").append(NEW_LINE);
     }
 
     private void writeDescLine(OutputStreamWriter output, String line) throws IOException {
         if (!line.isEmpty()) {
             line = line.replace('\n', ' ');
-            output.append("--- ").append(line).append(newLine);
+            output.append("--- ").append(line).append(NEW_LINE);
         }
     }
 
     private void writeReadWrite(OutputStreamWriter output, boolean read, boolean write) throws IOException {
         if (read && write) {
-            output.append("--- ").append("Read-Write").append(newLine);
+            output.append("--- ").append("Read-Write").append(NEW_LINE);
         } else if (read) {
-            output.append("--- ").append("Read-Only").append(newLine);
+            output.append("--- ").append("Read-Only").append(NEW_LINE);
         } else if (write) {
-            output.append("--- ").append("Write-Only").append(newLine);
+            output.append("--- ").append("Write-Only").append(NEW_LINE);
         }
     }
 
@@ -339,7 +339,7 @@ public final class Writer
         if (seeAlso != null && !seeAlso.isEmpty()) {
             for (String see : seeAlso) {
                 see = see.replace("::", "#");
-                output.append("---@see ").append(see).append(newLine);
+                output.append("---@see ").append(see).append(NEW_LINE);
             }
         }
     }
@@ -353,7 +353,7 @@ public final class Writer
         if (!parentClass.isEmpty()) {
             output.append(" : ").append(parentClass);
         }
-        output.append(newLine);
+        output.append(NEW_LINE);
     }
 
     private void writeClass(OutputStreamWriter output, String className, List<String> parentClasses) throws IOException {
@@ -365,7 +365,7 @@ public final class Writer
     }
 
     private void writeShape(OutputStreamWriter output, String name) throws IOException {
-        output.append("---@shape ").append(name).append(newLine);
+        output.append("---@shape ").append(name).append(NEW_LINE);
     }
 
     private void writeField(OutputStreamWriter output, String name, Type type, String description) throws IOException {
@@ -407,7 +407,7 @@ public final class Writer
         if (optional) {
             output.append("|nil");
         }
-        output.append(newLine);
+        output.append(NEW_LINE);
     }
 
     private void writeParam(OutputStreamWriter output, String name, Type type, String description) throws IOException {
@@ -420,7 +420,7 @@ public final class Writer
 
     private void writeParam(OutputStreamWriter output, String name, String type, String description) throws IOException {
         description = description.replace('\n', ' ');
-        output.append("---@param ").append(name).append(' ').append(type).append(' ').append(description).append(newLine);
+        output.append("---@param ").append(name).append(' ').append(type).append(' ').append(description).append(NEW_LINE);
     }
 
     private void writeReturn(OutputStreamWriter output, Type type, String desc) throws IOException {
@@ -429,7 +429,7 @@ public final class Writer
             desc = desc.replace('\n', ' ');
             output.append(desc);
         }
-        output.append(newLine);
+        output.append(NEW_LINE);
     }
 
     private void writeOverload(OutputStreamWriter output, List<Parameter> parameters, String stopAt) throws IOException {
@@ -466,7 +466,7 @@ public final class Writer
             output.append(':').append(getType(returnType));
         }
 
-        output.append(newLine);
+        output.append(NEW_LINE);
     }
 
     private void writeAliasStringLiteral(OutputStreamWriter output, String name, List<String> types) throws IOException {
@@ -482,7 +482,7 @@ public final class Writer
 
             output.append('"').append(type).append('"');
         }
-        output.append(newLine);
+        output.append(NEW_LINE);
     }
 
     private void writeAlias(OutputStreamWriter output, String name, List<Type> types) throws IOException {
@@ -500,7 +500,7 @@ public final class Writer
     }
 
     private void writeAlias(OutputStreamWriter output, String name, String type) throws IOException {
-        output.append("---@alias ").append(name).append(' ').append(type).append(newLine);
+        output.append("---@alias ").append(name).append(' ').append(type).append(NEW_LINE);
     }
 
     private String getType(Type type)
