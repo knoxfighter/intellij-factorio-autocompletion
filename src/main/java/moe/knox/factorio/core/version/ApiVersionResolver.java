@@ -15,7 +15,7 @@ import java.util.TreeSet;
  * @see FactorioApiVersion
  */
 public final class ApiVersionResolver {
-    final private SemVer minimalSupportedVersion = new SemVer("1.1.36", 1, 1, 36);
+    final private SemVer minimalSupportedVersion = new SemVer("1.1.62", 1, 1, 62);
     final private static String versionsHtmlPage = "https://lua-api.factorio.com/";
 
     public ApiVersionCollection supportedVersions() throws IOException {
