@@ -74,9 +74,7 @@ public class FactorioConfig implements SearchableConfigurable {
 
         reloadButton.addActionListener(actionEvent -> {
             removeParsedLibraries();
-
-            LuaLibDownloader.checkForUpdate(project);
-            FactorioLibraryProvider.reload();
+            updateLibraries();
         });
     }
 
@@ -133,6 +131,13 @@ public class FactorioConfig implements SearchableConfigurable {
         ApiParser.removeCurrentAPI(project);
         PrototypeParser.removeCurrentPrototypes();
         LuaLibDownloader.removeCurrentLualib(project);
+    }
+
+    private void updateLibraries()
+    {
+        ApiParser.checkForUpdate(project);
+        PrototypeParser.getCurrentPrototypeLink(project);
+        LuaLibDownloader.checkForUpdate(project);
     }
 
     private boolean isUseLatestVersion() {
