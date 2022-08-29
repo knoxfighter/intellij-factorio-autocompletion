@@ -1,10 +1,7 @@
 package moe.knox.factorio.core.parser;
 
-import com.intellij.notification.*;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
@@ -12,7 +9,7 @@ import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
-import moe.knox.factorio.intellij.FactorioAutocompletionConfig;
+import moe.knox.factorio.core.NotificationService;
 import moe.knox.factorio.intellij.FactorioAutocompletionState;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
 import org.jetbrains.annotations.NotNull;
@@ -89,14 +86,7 @@ public class ApiParser extends Parser {
             try {
                 doc = Jsoup.connect("https://lua-api.factorio.com/").get();
             } catch (IOException e) {
-//                    e.printStackTrace();
-                Notification notification = getNotificationGroup().createNotification("Error checking new Version. Manual update in the Settings.", NotificationType.WARNING);
-                notification.addAction(new NotificationAction("Open Settings") {
-                    @Override
-                    public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                        ShowSettingsUtil.getInstance().showSettingsDialog(project, FactorioAutocompletionConfig.class);
-                    }
-                });
+                NotificationService.getInstance(project).notifyErrorCheckingNewVersion();
             }
             if (!doc.select("a").get(1).text().equals(config.curVersion)) {
                 // new version detected, update it
@@ -649,14 +639,7 @@ public class ApiParser extends Parser {
                 // download and parse API
                 downloadAndParseAPI();
             } else {
-                Notification notification = getNotificationGroup().createNotification("Error creating the directories for the Factorio API.", NotificationType.ERROR);
-                notification.addAction(new NotificationAction("Open Settings") {
-                    @Override
-                    public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                        ShowSettingsUtil.getInstance().showSettingsDialog(myProject, FactorioAutocompletionConfig.class);
-                    }
-                });
-                Notifications.Bus.notify(notification, myProject);
+                NotificationService.getInstance(myProject).notifyErrorCreatingApiDirs();
             }
         }
     }

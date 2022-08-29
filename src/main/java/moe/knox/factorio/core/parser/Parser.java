@@ -1,14 +1,11 @@
 package moe.knox.factorio.core.parser;
 
 import com.google.common.io.Files;
-import com.intellij.notification.*;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
-import moe.knox.factorio.intellij.FactorioAutocompletionConfig;
+import moe.knox.factorio.core.NotificationService;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,9 +14,6 @@ import java.io.File;
 import java.io.IOException;
 
 public abstract class Parser extends Task.Backgroundable {
-    protected static NotificationGroup getNotificationGroup() {
-        return NotificationGroupManager.getInstance().getNotificationGroup("Factorio API Download");
-    }
     protected static String newLine = System.lineSeparator();
 
     public Parser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title) {
@@ -41,22 +35,13 @@ public abstract class Parser extends Task.Backgroundable {
      * @param isPart If the error only affects part of the autocompletion.
      */
     protected void showDownloadingError(boolean isPart) {
-        String downloadingError;
-        if (!isPart) {
-            downloadingError = "Error downloading the factorio prototype definitions. Please go online and try it again!" + newLine +
-                    "Integration is disabled until reloaded in Settings.";
+        var notificationService = NotificationService.getInstance(myProject);
+
+        if (isPart) {
+            notificationService.notifyErrorDownloadingPartPrototypeDefinitions();
         } else {
-            downloadingError = "Error downloading parts of the factorio prototype definitions. Please try again later!" + newLine +
-                    "Integration is partially disabled until reloaded in Settings.";
+            notificationService.notifyErrorDownloadingPrototypeDefinitions();
         }
-        Notification notification = getNotificationGroup().createNotification(downloadingError, NotificationType.ERROR);
-        notification.addAction(new NotificationAction("Open Settings") {
-            @Override
-            public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                ShowSettingsUtil.getInstance().showSettingsDialog(myProject, FactorioAutocompletionConfig.class);
-            }
-        });
-        Notifications.Bus.notify(notification, myProject);
     }
 
     /**
