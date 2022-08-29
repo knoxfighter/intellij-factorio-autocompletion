@@ -33,7 +33,6 @@ public class ApiParser extends Parser {
     private String saveDir;
     private double curTodo = 0;
     private double maxTodo = 0;
-    private ApiFileWriter writer = new ApiFileWriter();
 
     public ApiParser(@Nullable Project project, String saveDir, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
         super(project, title, canBeCancelled);
@@ -165,42 +164,15 @@ public class ApiParser extends Parser {
 
         runtimeApi = apiSpecificationParser.parse(config.selectedFactorioVersion);
 
-        String saveFile = saveDir + "factorio.lua";
-        // create file
+        var outputFileName = Paths.get(saveDir, "factorio.lua").toString();
 
-        OutputStreamWriter output;
-        try {
-            File file = new File(saveFile);
-            file.createNewFile();
-            FileOutputStream outputStream = new FileOutputStream(file, false);
-            output = new OutputStreamWriter(outputStream);
+        try (var writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFileName)))) {
+            ApiFileWriter.fromIoWriter(writer).writeRuntimeApi(runtimeApi);
+
+            writer.flush();
         } catch (IOException e) {
             e.printStackTrace();
             showDownloadingError(true);
-            return;
-        }
-
-        try {
-            // builtin types done in `resources/library/builtin-types.lua`
-
-            writer.writeGlobalsObjects(output, runtimeApi.globalObjects);
-
-            output.append("---@class defines").append(newLine);
-            output.append("defines = {}").append(newLine).append(newLine);
-            writer.writeDefines(output, runtimeApi.defines, "defines");
-
-            // TODO: implement autocompletion for events
-
-            writer.writeClasses(output, runtimeApi.classes);
-
-            writer.writeConcepts(output, runtimeApi.concepts);
-
-            output.flush();
-            output.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showDownloadingError(true);
-            return;
         }
     }
 
