@@ -9,8 +9,6 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import moe.knox.factorio.core.parser.api.ParsingHelper;
-import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphism;
-import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphismClass;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -56,27 +54,20 @@ public class Type implements Arrangeable {
     public String type;
     public ComplexData data;
 
-    @JsonPolymorphismClass("complexType")
     public class ComplexData implements Arrangeable {
         @SerializedName("complex_type")
         public String complexType; // A string denoting the kind of complex type.
 
-        @JsonPolymorphism("variant")
         public TypeVariant variant;
 
-        @JsonPolymorphism("array")
         public TypeArray array;
 
-        @JsonPolymorphism({"dictionary", "LuaCustomTable"})
         public TypeDictionary dictionary;
 
-        @JsonPolymorphism("function")
         public TypeFunction function;
 
-        @JsonPolymorphism("LuaLazyLoadedValue")
         public TypeLuaLazyLoadedValue luaLazyLoadedValue;
 
-        @JsonPolymorphism("table")
         public TypeTable table;
 
         public class TypeVariant {

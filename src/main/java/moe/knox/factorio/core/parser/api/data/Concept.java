@@ -1,8 +1,6 @@
 package moe.knox.factorio.core.parser.api.data;
 
 import com.google.gson.annotations.SerializedName;
-import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphism;
-import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphismClass;
 
 import java.util.Comparator;
 import java.util.List;
@@ -12,7 +10,6 @@ import java.util.List;
  *
  * Depending on `category` it has additional members.
  */
-@JsonPolymorphismClass("category")
 public class Concept implements Arrangeable {
     public String name; // The name of the concept.
     public double order; // The order of the concept as shown in the html.
@@ -22,26 +19,12 @@ public class Concept implements Arrangeable {
     @SerializedName("see_also")
     public List<String> seeAlso; // (optional): A list of strings that are references to other relevant classes or their methods and attributes.
     public String category; // The category of the concept.
-
-    @JsonPolymorphism("table")
     public CategoryTable table;
-
-    @JsonPolymorphism("table_or_array")
     public CategoryTableOrArray tableOrArray;
-
-    @JsonPolymorphism("enum")
     public CategoryEnum _enum;
-
-    @JsonPolymorphism("flag")
     public CategoryFlag flag;
-
-    @JsonPolymorphism("union")
     public CategoryUnion union;
-
-    @JsonPolymorphism("filter")
     public CategoryFilter filter;
-
-    @JsonPolymorphism("struct")
     public CategoryStruct struct;
 
     // If `category` == "table"
