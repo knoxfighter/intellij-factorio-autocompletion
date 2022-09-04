@@ -1,17 +1,15 @@
 package moe.knox.factorio.core.parser;
 
 import com.intellij.notification.*;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
 import com.tang.intellij.lua.search.SearchContext;
-import moe.knox.factorio.intellij.FactorioAutocompletionConfig;
+import moe.knox.factorio.core.NotificationService;
 import moe.knox.factorio.intellij.FactorioAutocompletionState;
 import moe.knox.factorio.core.FactorioPrototypeState;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
@@ -33,10 +31,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PrototypeParser extends Parser {
-    protected static NotificationGroup getNotificationGroup() {
-        return NotificationGroupManager.getInstance().getNotificationGroup("Factorio Prototype Download");
-    }
-
     public static final String prototypeRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_prototypes/";
     private static final String prototypeLibPath = prototypeRootPath + "library/";
     public static final String prototypesBaseLink = "https://wiki.factorio.com";
@@ -134,14 +128,7 @@ public class PrototypeParser extends Parser {
                 // download and parse API
                 downloadAndParsePrototypes();
             } else {
-                Notification notification = getNotificationGroup().createNotification("Error creating the directories for the Factorio Prototypes.", NotificationType.ERROR);
-                notification.addAction(new NotificationAction("Open Settings") {
-                    @Override
-                    public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                        ShowSettingsUtil.getInstance().showSettingsDialog(myProject, FactorioAutocompletionConfig.class);
-                    }
-                });
-                Notifications.Bus.notify(notification, myProject);
+                NotificationService.getInstance(myProject).notifyErrorCreatingPrototypeDirs();
             }
         }
     }
