@@ -14,119 +14,20 @@ public final class ApiFileWriter
 
     public void writeConcepts(OutputStreamWriter output, List<Concept> concepts) throws IOException {
         for (Concept concept : concepts) {
-            switch (concept.category) {
-                case "table": {
-                    writeDescLine(output, concept.description);
-                    writeDescLine(output, concept.notes);
-                    writeDescLine(output, concept.examples);
-                    writeSee(output, concept.seeAlso);
-                    writeClass(output, concept.name);
-                    writeObjDef(output, concept.name, true);
-                    output.append(NEW_LINE);
-
-                    for (Parameter parameter : concept.table.parameters) {
-                        writeDescLine(output, parameter.description);
-                        writeType(output, parameter.type, parameter.optional);
-                        writeValDef(output, parameter.name, concept.name);
-                        output.append(NEW_LINE);
-                    }
-                    break;
-                }
-                case "table_or_array": {
-                    writeDescLine(output, concept.description);
-                    writeDescLine(output, concept.notes);
-                    writeDescLine(output, concept.examples);
-                    writeSee(output, concept.seeAlso);
-                    writeShape(output, concept.name);
-
-                    int i = 1;
-                    for (Parameter parameter : concept.tableOrArray.parameters) {
-                        writeField(output, parameter.name, parameter.type, parameter.description);
-                        writeField(output, "[" + i + "]", parameter.type, parameter.description);
-                        ++i;
-                    }
-
-                    output.append(NEW_LINE);
-                    break;
-                }
-                case "enum": {
-                    writeDescLine(output, concept.description);
-                    writeDescLine(output, concept.notes);
-                    writeDescLine(output, concept.examples);
-                    writeSee(output, concept.seeAlso);
-                    writeClass(output, concept.name);
-
-                    for (BasicMember option : concept._enum.options) {
-                        String desc = "(Enum) " + option.description;
-                        writeField(output, option.name, "number", desc);
-                    }
-
-                    output.append(NEW_LINE);
-                    break;
-                }
-                case "flag": {
-                    // define string-literal type
-                    String aliasName = concept.name + "Value";
-                    List<String> types = new ArrayList<>();
-                    for (BasicMember option : concept.flag.options) {
-                        types.add(option.name);
-                    }
-                    writeAliasStringLiteral(output, aliasName, types);
-                    output.append(NEW_LINE);
-
-                    writeDescLine(output, concept.description);
-                    writeDescLine(output, concept.notes);
-                    writeDescLine(output, concept.examples);
-                    writeSee(output, concept.seeAlso);
-
-                    // actual type is string-literal array
-                    writeAlias(output, concept.name, aliasName + "[]");
-
-                    output.append(NEW_LINE);
-                    break;
-                }
-                case "union": {
-                    writeDescLine(output, concept.description);
-                    writeDescLine(output, concept.notes);
-                    writeDescLine(output, concept.examples);
-                    writeSee(output, concept.seeAlso);
-
-                    List<ValueType> types = new ArrayList<>();
-                    for (Concept.CategoryUnion.Spec option : concept.union.options) {
-                        types.add(option.type);
-                        writeDescLine(output,getType(option.type) + ": " + option.description);
-                    }
-                    writeAlias(output, concept.name, types);
-                    break;
-                }
-                case "filter": {
-                    writeDescLine(output, concept.description);
-                    writeDescLine(output, concept.notes);
-                    writeDescLine(output, concept.examples);
-                    writeSee(output, concept.seeAlso);
-                    writeShape(output, concept.name);
-                    writeObjDef(output, concept.name, true);
-
-                    for (Parameter parameter : concept.filter.parameters) {
-                        writeDescLine(output, parameter.description);
-                        writeType(output, parameter.type, parameter.optional);
-                        writeValDef(output, parameter.name, concept.name);
-                        output.append(NEW_LINE);
-                    }
-                    break;
-                }
-                case "struct": {
-                    writeDescLine(output, concept.description);
-                    writeDescLine(output, concept.notes);
-                    writeDescLine(output, concept.examples);
-                    writeSee(output, concept.seeAlso);
-                    writeClass(output, concept.name);
-                    writeObjDef(output, concept.name, true);
-
-                    writeAttributes(output, concept.struct.attributes, concept.name);
-                    output.append(NEW_LINE);
-                    break;
-                }
+            if (concept.type() instanceof ValueType.Table) {
+                writeConceptAsTable(output, concept);
+            } else if (concept.type() instanceof ValueType.Union) {
+                writeConceptAsUnion(output, concept);
+            } else if (
+                concept.type() instanceof ValueType.Dictionary ||
+                concept.type() instanceof ValueType.Struct ||
+                concept.type() instanceof ValueType.Simple ||
+                concept.type() instanceof ValueType.Tuple ||
+                concept.type() instanceof ValueType.Array
+            ) {
+                // todo add realization
+            } else {
+                throw new IllegalArgumentException("Unknown concept type: " + concept.type().getNativeName());
             }
         }
     }
@@ -506,5 +407,44 @@ public final class ApiFileWriter
     private String getType(ValueType type)
     {
         return AnnotationTypeResolver.getType(type);
+    }
+
+    private void writeConceptAsTable(OutputStreamWriter output, Concept concept) throws IOException {
+        var conceptType = (ValueType.Table) concept.type();
+
+        writeDescLine(output, concept.description());
+        writeDescLine(output, concept.notes());
+        writeDescLine(output, concept.examples());
+        writeSee(output, concept.seeAlso());
+        writeClass(output, concept.name());
+        writeObjDef(output, concept.name(), true);
+        output.append(NEW_LINE);
+
+        for (Parameter parameter : conceptType.parameters()) {
+            writeDescLine(output, parameter.description);
+            writeType(output, parameter.type, parameter.optional);
+            writeValDef(output, parameter.name, concept.name());
+            output.append(NEW_LINE);
+        }
+
+        output.append(NEW_LINE);
+    }
+
+    private void writeConceptAsUnion(OutputStreamWriter output, Concept concept) throws IOException {
+        var conceptType = (ValueType.Union) concept.type();
+
+        writeDescLine(output, concept.description());
+        writeDescLine(output, concept.notes());
+        writeDescLine(output, concept.examples());
+        writeSee(output, concept.seeAlso());
+
+        var types = new ArrayList<ValueType>();
+        for (ValueType optionType : conceptType.options()) {
+            types.add(optionType);
+            writeDescLine(output, getType(optionType) + ": " + optionType.getDescription());
+        }
+        writeAlias(output, concept.name(), types);
+
+        output.append(NEW_LINE);
     }
 }

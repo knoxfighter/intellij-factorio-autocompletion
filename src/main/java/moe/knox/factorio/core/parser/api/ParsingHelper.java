@@ -13,10 +13,6 @@ public class ParsingHelper {
     public static GsonBuilder addDeserializers(GsonBuilder builder, Class excludeType) {
         builder.registerTypeAdapterFactory(RecordTypeAdapterFactory.builder().allowMissingComponentValues().create());
 
-        if (excludeType == null || excludeType != Concept.class) {
-            builder.registerTypeAdapter(Concept.class, new JsonPolymorphismDeserializer<Concept>());
-        }
-
         if (excludeType == null || excludeType != Operator.class) {
             builder.registerTypeAdapter(Operator.class, new JsonPolymorphismDeserializer<Operator>());
         }

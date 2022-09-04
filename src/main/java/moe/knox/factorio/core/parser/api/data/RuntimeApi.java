@@ -94,7 +94,7 @@ public class RuntimeApi implements Arrangeable {
         }
 
         if (concepts != null && !concepts.isEmpty()) {
-            concepts.sort(Comparator.comparingDouble(concept -> concept.order));
+            concepts.sort(Comparator.comparingDouble(Concept::order));
             concepts.forEach(Concept::arrangeElements);
         }
 
