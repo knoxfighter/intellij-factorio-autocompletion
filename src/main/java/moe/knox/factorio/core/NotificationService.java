@@ -8,9 +8,6 @@ import com.intellij.openapi.project.Project;
 import moe.knox.factorio.intellij.FactorioAutocompletionConfig;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Service
 final public class NotificationService {
     private final NotificationGroup notificationGroup;
@@ -26,35 +23,41 @@ final public class NotificationService {
     }
 
     public void notifyErrorCheckingNewVersion() {
-        raiseNotification(Message.ERROR_CHECK_VERSION, NotificationType.WARNING);
+        raiseNotification("Error checking new Version. Manual update in the Settings.", NotificationType.WARNING);
     }
 
     public void notifyErrorCreatingApiDirs() {
-        raiseNotification(Message.ERROR_CREATE_API_DIR, NotificationType.ERROR);
+        raiseNotification("Error creating the directories for the Factorio API.", NotificationType.ERROR);
     }
 
     public void notifyErrorCreatingPrototypeDirs() {
-        raiseNotification(Message.ERROR_CREATE_PROTOTYPE_DIR, NotificationType.ERROR);
+        raiseNotification("Error creating the directories for the Factorio Prototypes.", NotificationType.ERROR);
     }
 
     public void notifyErrorDownloadingVersion() {
-        raiseNotification(Message.ERROR_DOWNLOAD_VERSION, NotificationType.WARNING);
+        raiseNotification("Error downloading Version overview", NotificationType.WARNING);
     }
 
     public void notifyErrorDownloadingPrototypeDefinitions() {
-        raiseNotification(Message.ERROR_DOWNLOAD_PROTOTYPE_DEFINITIONS, NotificationType.ERROR);
+        raiseNotification("""
+            Error downloading the factorio prototype definitions. Please go online and try it again!
+            Integration is disabled until reloaded in Settings.
+        """, NotificationType.ERROR);
     }
 
     public void notifyErrorDownloadingPartPrototypeDefinitions() {
-        raiseNotification(Message.ERROR_DOWNLOAD_PARTS_PROTOTYPE_DEFINITIONS, NotificationType.ERROR);
+        raiseNotification("""
+            Error downloading parts of the factorio prototype definitions. Please try again later!
+            Integration is partially disabled until reloaded in Settings.
+        """, NotificationType.ERROR);
     }
 
     public void notifyErrorTagsDownloading() {
-        raiseNotification(Message.ERROR_GETTING_CURRENT_TAGS, NotificationType.WARNING);
+        raiseNotification("Error getting current tags. Lualib not downloaded.", NotificationType.WARNING);
     }
 
-    private void raiseNotification(Message message, NotificationType notificationType) {
-        Notification notification = notificationGroup.createNotification(message.message, notificationType);
+    private void raiseNotification(String message, NotificationType notificationType) {
+        Notification notification = notificationGroup.createNotification(message, notificationType);
         notification.addAction(createOpenSettingsNotificationAction());
         Notifications.Bus.notify(notification, project);
     }
@@ -66,28 +69,5 @@ final public class NotificationService {
                 ShowSettingsUtil.getInstance().showSettingsDialog(project, FactorioAutocompletionConfig.class);
             }
         };
-    }
-
-    private enum Message
-    {
-        ERROR_GETTING_CURRENT_TAGS("Error getting current tags. Lualib not downloaded."),
-        ERROR_DOWNLOAD_VERSION("Error downloading Version overview"),
-        ERROR_CHECK_VERSION("Error checking new Version. Manual update in the Settings."),
-        ERROR_CREATE_API_DIR("Error creating the directories for the Factorio API."),
-        ERROR_CREATE_PROTOTYPE_DIR("Error creating the directories for the Factorio Prototypes."),
-        ERROR_DOWNLOAD_PROTOTYPE_DEFINITIONS("""
-            Error downloading the factorio prototype definitions. Please go online and try it again!
-            Integration is disabled until reloaded in Settings.
-        """),
-        ERROR_DOWNLOAD_PARTS_PROTOTYPE_DEFINITIONS("""
-            Error downloading parts of the factorio prototype definitions. Please try again later!
-            Integration is partially disabled until reloaded in Settings.
-        """);
-
-        private final String message;
-
-        Message(String message) {
-            this.message = message;
-        }
     }
 }
