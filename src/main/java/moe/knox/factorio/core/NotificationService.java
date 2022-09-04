@@ -15,7 +15,7 @@ final public class NotificationService {
 
     public NotificationService(Project project) {
         this.project = project;
-        this.notificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("default");
+        this.notificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("Factorio LUA API Support");
     }
 
     public static NotificationService getInstance(Project project) {

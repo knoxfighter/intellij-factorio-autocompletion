@@ -27,7 +27,7 @@
 
         <fileBasedIndex implementation="moe.knox.factorio.intellij.PrototypeFileIndexer"/>
         
-        <notificationGroup displayType="STICKY_BALLOON" id="default" />
+        <notificationGroup displayType="STICKY_BALLOON" id="Factorio LUA API Support" />
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
