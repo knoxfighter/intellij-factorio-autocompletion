@@ -85,7 +85,7 @@ public class ApiParser extends Parser {
         String apiPath = apiRootPath + config.selectedFactorioVersion.version();
 
         if (config.useLatestVersion) {
-            var newestVersion = detectNewestAllowedVersion(project);
+            var newestVersion = detectLatestAllowedVersion(project);
 
             if (newestVersion != null && !newestVersion.equals(config.selectedFactorioVersion)) {
                 // new version detected, update it
@@ -97,7 +97,7 @@ public class ApiParser extends Parser {
         }
     }
 
-    private static FactorioApiVersion detectNewestAllowedVersion(Project project)
+    private static FactorioApiVersion detectLatestAllowedVersion(Project project)
     {
         ApiVersionCollection factorioApiVersions;
 
