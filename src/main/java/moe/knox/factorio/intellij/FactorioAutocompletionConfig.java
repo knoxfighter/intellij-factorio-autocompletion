@@ -36,7 +36,9 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
 
         try {
-            selectApiVersion.addItem(DropdownVersion.createLatest());
+            var latestDropdownVersion = DropdownVersion.createLatest();
+
+            selectApiVersion.addItem(latestDropdownVersion);
             apiVersionResolver
                     .supportedVersions()
                     .stream()
@@ -44,7 +46,12 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
                     .map(DropdownVersion::fromApiVersion)
                     .forEach(v -> selectApiVersion.addItem(v))
             ;
-            selectApiVersion.setSelectedItem(DropdownVersion.fromApiVersion(config.selectedFactorioVersion));
+
+            if (config.useLatestVersion) {
+                selectApiVersion.setSelectedItem(latestDropdownVersion);
+            } else {
+                selectApiVersion.setSelectedItem(DropdownVersion.fromApiVersion(config.selectedFactorioVersion));
+            }
 
             // hide error message
             selectApiVersion.setEnabled(true);
