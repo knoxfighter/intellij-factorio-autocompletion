@@ -111,7 +111,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
         config.integrationActive = enableIntegration;
 
-        if (!config.selectedFactorioVersion.equals(selectApiVersion.getSelectedItem())) {
+        if (!config.selectedFactorioVersion.equals(getSelectedVersion())) {
             // New Factorio Version selected
             // remove old apis
             ApiParser.removeCurrentAPI(project);
