@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.Collections;
 import java.util.Objects;
 
 public class FactorioAutocompletionConfig implements SearchableConfigurable {
@@ -38,7 +39,9 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
             selectApiVersion.addItem(DropdownVersion.createLatest());
             apiVersionResolver
                     .supportedVersions()
-                    .stream().map(DropdownVersion::fromApiVersion)
+                    .stream()
+                    .sorted(Collections.reverseOrder())
+                    .map(DropdownVersion::fromApiVersion)
                     .forEach(v -> selectApiVersion.addItem(v))
             ;
             selectApiVersion.setSelectedItem(DropdownVersion.fromApiVersion(config.selectedFactorioVersion));
@@ -48,7 +51,9 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
             loadError.setVisible(false);
             enableFactorioIntegrationCheckBox.setEnabled(true);
             reloadButton.setEnabled(config.integrationActive);
-        } catch (Exception e) {
+        }
+        // todo catch only connection problems and wrote correct message
+        catch (Exception e) {
             // show error message
             selectApiVersion.setEnabled(false);
             loadError.setText("Error loading Factorio versions. You need to have active internet connection to change these settings");
