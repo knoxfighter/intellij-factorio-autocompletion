@@ -139,12 +139,12 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
         reloadButton.setEnabled(enableIntegration);
 
-        config.useLatestVersion = getUseLatestVersion();
+        config.useLatestVersion = isUseLatestVersion();
 
         WriteAction.run(() -> FactorioLibraryProvider.reload());
     }
 
-    private boolean getUseLatestVersion() {
+    private boolean isUseLatestVersion() {
         return Objects.requireNonNull((DropdownVersion) selectApiVersion.getSelectedItem()).isLatest();
     }
 
