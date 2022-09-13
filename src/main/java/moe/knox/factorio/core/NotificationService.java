@@ -38,6 +38,10 @@ final public class NotificationService {
         raiseNotification("Error downloading Version overview", NotificationType.WARNING);
     }
 
+    public void notifyErrorDownloadingApi() {
+        raiseNotification("Error downloading api", NotificationType.ERROR);
+    }
+
     public void notifyErrorDownloadingPrototypeDefinitions() {
         raiseNotification("""
             Error downloading the factorio prototype definitions. Please go online and try it again!

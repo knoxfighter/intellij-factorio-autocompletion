@@ -120,16 +120,23 @@ public class ApiParser extends Parser {
      */
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
-        this.indicator = indicator;
-        config = FactorioAutocompletionState.getInstance(myProject);
+        try {
+            this.indicator = indicator;
+            config = FactorioAutocompletionState.getInstance(myProject);
 
-        // start the whole thing
-        assureDir();
+            // start the whole thing
+            assureDir();
 
-        downloadInProgress.set(false);
-
-        // whole thing finished, reload the Library-Provider
-        ApplicationManager.getApplication().invokeLater(() -> FactorioLibraryProvider.reload());
+            // whole thing finished, reload the Library-Provider
+            ApplicationManager.getApplication().invokeLater(() -> FactorioLibraryProvider.reload());
+        }
+        catch (Throwable e) {
+            NotificationService.getInstance(myProject).notifyErrorDownloadingApi();
+        }
+        finally {
+            downloadInProgress.set(false);
+            indicator.stop();
+        }
     }
 
     public class Attribute {
