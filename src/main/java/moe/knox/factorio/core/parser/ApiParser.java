@@ -55,8 +55,7 @@ public class ApiParser extends Parser {
             return null;
         }
 
-        FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-        String apiPath = apiRootPath + config.selectedFactorioVersion.version();
+        String apiPath = getSelectedApiVersionFilePath(project);
 
         // check if API is downloaded
         File apiPathFile = new File(apiPath);
@@ -73,8 +72,7 @@ public class ApiParser extends Parser {
 
     public static void removeCurrentAPI(Project project) {
         if (!downloadInProgress.get()) {
-            FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-            String apiPath = apiRootPath + config.selectedFactorioVersion.version();
+            String apiPath = getSelectedApiVersionFilePath(project);
             FileUtil.delete(new File(apiPath));
             FactorioLibraryProvider.reload();
         }
@@ -82,7 +80,7 @@ public class ApiParser extends Parser {
 
     public static void checkForUpdate(Project project) {
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-        String apiPath = apiRootPath + config.selectedFactorioVersion.version();
+        String apiPath = getSelectedApiVersionFilePath(project);
 
         if (config.useLatestVersion) {
             var newestVersion = detectLatestAllowedVersion(project);
@@ -1110,5 +1108,12 @@ public class ApiParser extends Parser {
 
         String globalsFile = saveDir + "globals.lua";
         saveStringToFile(globalsFile, globalsFileContent.toString());
+    }
+
+    private static String getSelectedApiVersionFilePath(Project project)
+    {
+        var config = FactorioAutocompletionState.getInstance(project);
+
+        return apiRootPath + config.selectedFactorioVersion.version();
     }
 }
