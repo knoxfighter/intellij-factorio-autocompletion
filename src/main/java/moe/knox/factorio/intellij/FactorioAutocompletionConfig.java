@@ -113,7 +113,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
     public void apply() throws ConfigurationException {
         boolean enableIntegration = enableFactorioIntegrationCheckBox.isSelected();
 
-        if (!enableIntegration && config.integrationActive) {
+        if (isIntegrationTurnedOff()) {
             // integration deactivated
             ApiParser.removeCurrentAPI(project);
             PrototypeParser.removeCurrentPrototypes();
@@ -122,7 +122,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
 
         config.integrationActive = enableIntegration;
 
-        if (!config.selectedFactorioVersion.equals(getSelectedVersion())) {
+        if (isVersionChanged()) {
             // New Factorio Version selected
             // remove old apis
             ApiParser.removeCurrentAPI(project);
@@ -156,6 +156,16 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
         }
 
         return FactorioApiVersion.createVersion(dropdownVersion.version);
+    }
+
+    private boolean isVersionChanged()
+    {
+        return !config.selectedFactorioVersion.equals(getSelectedVersion());
+    }
+
+    private boolean isIntegrationTurnedOff()
+    {
+        return config.integrationActive && !enableFactorioIntegrationCheckBox.isSelected();
     }
 
     private record DropdownVersion(String version, String name) {
