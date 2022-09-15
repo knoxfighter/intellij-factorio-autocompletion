@@ -128,9 +128,6 @@ public class ApiParser extends Parser {
             // whole thing finished, reload the Library-Provider
             ApplicationManager.getApplication().invokeLater(() -> FactorioLibraryProvider.reload());
         }
-        catch (Throwable e) {
-            NotificationService.getInstance(myProject).notifyErrorDownloadingApi();
-        }
         finally {
             downloadInProgress.set(false);
             indicator.stop();
