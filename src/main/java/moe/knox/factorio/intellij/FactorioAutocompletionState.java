@@ -4,9 +4,15 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.xmlb.Converter;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.intellij.util.xmlb.annotations.OptionTag;
+import moe.knox.factorio.core.version.ApiVersionResolver;
+import moe.knox.factorio.core.version.FactorioApiVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.IOException;
 
 @State(
         name = "FactorioAutocompletionConfig",
@@ -15,45 +21,17 @@ import org.jetbrains.annotations.Nullable;
         }
 )
 public class FactorioAutocompletionState implements PersistentStateComponent<FactorioAutocompletionState> {
-    public static class FactorioVersion {
-        public String desc;
-        public String link;
-
-        public FactorioVersion() {
-            desc = "Latest version";
-            link = "/latest/";
-        }
-
-        public FactorioVersion(String desc, String link) {
-            this.desc = desc;
-            this.link = link;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-
-            if (!(obj instanceof FactorioVersion)) {
-                return false;
-            }
-
-            FactorioVersion factorioVersion = (FactorioVersion) obj;
-
-            return factorioVersion.desc.equals(desc) && factorioVersion.link.equals(link);
-        }
-
-        @Override
-        public String toString() {
-            return desc;
-        }
-    }
-
     public boolean integrationActive = false;
     public String curVersion = "";
-    public FactorioVersion selectedFactorioVersion = new FactorioVersion();
+    @NotNull @OptionTag(converter = FactorioApiVersionConverter.class)
+    public FactorioApiVersion selectedFactorioVersion;
     public String currentLualibVersion = "";
+    public boolean useLatestVersion = true;
+
+    public FactorioAutocompletionState() throws IOException {
+        // todo move in another method ?
+        selectedFactorioVersion = (new ApiVersionResolver()).supportedVersions().latestVersion();
+    }
 
     @Nullable
     @Override
@@ -68,5 +46,22 @@ public class FactorioAutocompletionState implements PersistentStateComponent<Fac
 
     public static FactorioAutocompletionState getInstance(Project project) {
         return project.getService(FactorioAutocompletionState.class);
+    }
+
+    private static class FactorioApiVersionConverter extends Converter<FactorioApiVersion> {
+        @Override
+        public @Nullable FactorioApiVersion fromString(@NotNull String value) {
+            String[] parts = value.split(",");
+
+            var version = parts[0];
+            var latest = Boolean.parseBoolean(parts[1]);
+
+            return latest ? FactorioApiVersion.createLatestVersion(version) : FactorioApiVersion.createVersion(version);
+        }
+
+        @Override
+        public @Nullable String toString(@NotNull FactorioApiVersion value) {
+            return value.version() + "," + value.latest();
+        }
     }
 }

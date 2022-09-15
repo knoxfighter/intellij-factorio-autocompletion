@@ -10,6 +10,9 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import moe.knox.factorio.core.NotificationService;
+import moe.knox.factorio.core.version.ApiVersionCollection;
+import moe.knox.factorio.core.version.ApiVersionResolver;
+import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.intellij.FactorioAutocompletionState;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
 import org.jetbrains.annotations.NotNull;
@@ -52,8 +55,7 @@ public class ApiParser extends Parser {
             return null;
         }
 
-        FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-        String apiPath = apiRootPath + config.selectedFactorioVersion.link;
+        String apiPath = getSelectedApiVersionFilePath(project);
 
         // check if API is downloaded
         File apiPathFile = new File(apiPath);
@@ -70,8 +72,7 @@ public class ApiParser extends Parser {
 
     public static void removeCurrentAPI(Project project) {
         if (!downloadInProgress.get()) {
-            FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-            String apiPath = apiRootPath + config.selectedFactorioVersion.link;
+            String apiPath = getSelectedApiVersionFilePath(project);
             FileUtil.delete(new File(apiPath));
             FactorioLibraryProvider.reload();
         }
@@ -79,16 +80,12 @@ public class ApiParser extends Parser {
 
     public static void checkForUpdate(Project project) {
         FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-        String apiPath = apiRootPath + config.selectedFactorioVersion.link;
+        String apiPath = getSelectedApiVersionFilePath(project);
 
-        if (config.selectedFactorioVersion.desc.equals("Latest version")) {
-            Document doc = null;
-            try {
-                doc = Jsoup.connect("https://lua-api.factorio.com/").get();
-            } catch (IOException e) {
-                NotificationService.getInstance(project).notifyErrorCheckingNewVersion();
-            }
-            if (!doc.select("a").get(1).text().equals(config.curVersion)) {
+        if (config.useLatestVersion) {
+            var newestVersion = detectLatestAllowedVersion(project);
+
+            if (newestVersion != null && !newestVersion.equals(config.selectedFactorioVersion)) {
                 // new version detected, update it
                 removeCurrentAPI(project);
                 if (downloadInProgress.compareAndSet(false, true)) {
@@ -96,6 +93,20 @@ public class ApiParser extends Parser {
                 }
             }
         }
+    }
+
+    private static FactorioApiVersion detectLatestAllowedVersion(Project project)
+    {
+        ApiVersionCollection factorioApiVersions;
+
+        try {
+            factorioApiVersions = (new ApiVersionResolver()).supportedVersions();
+        } catch (IOException e) {
+            NotificationService.getInstance(project).notifyErrorCheckingNewVersion();
+            return null;
+        }
+
+        return factorioApiVersions.latestVersion();
     }
 
     /**
@@ -107,16 +118,20 @@ public class ApiParser extends Parser {
      */
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
-        this.indicator = indicator;
-        config = FactorioAutocompletionState.getInstance(myProject);
+        try {
+            this.indicator = indicator;
+            config = FactorioAutocompletionState.getInstance(myProject);
 
-        // start the whole thing
-        assureDir();
+            // start the whole thing
+            assureDir();
 
-        downloadInProgress.set(false);
-
-        // whole thing finished, reload the Library-Provider
-        ApplicationManager.getApplication().invokeLater(() -> FactorioLibraryProvider.reload());
+            // whole thing finished, reload the Library-Provider
+            ApplicationManager.getApplication().invokeLater(() -> FactorioLibraryProvider.reload());
+        }
+        finally {
+            downloadInProgress.set(false);
+            indicator.stop();
+        }
     }
 
     public class Attribute {
@@ -658,7 +673,7 @@ public class ApiParser extends Parser {
      * Here also the indicator will be updated, to show the current percentage of the parsing.
      */
     private void downloadAndParseAPI() {
-        String versionedApiLink = factorioApiBaseLink + config.selectedFactorioVersion.link;
+        String versionedApiLink = factorioApiBaseLink + config.selectedFactorioVersion.version();
 
         indicator.setIndeterminate(false);
 
@@ -1090,5 +1105,12 @@ public class ApiParser extends Parser {
 
         String globalsFile = saveDir + "globals.lua";
         saveStringToFile(globalsFile, globalsFileContent.toString());
+    }
+
+    private static String getSelectedApiVersionFilePath(Project project)
+    {
+        var config = FactorioAutocompletionState.getInstance(project);
+
+        return apiRootPath + config.selectedFactorioVersion.version();
     }
 }
