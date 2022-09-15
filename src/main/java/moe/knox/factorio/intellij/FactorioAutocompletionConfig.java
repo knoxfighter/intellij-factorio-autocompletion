@@ -28,13 +28,13 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
     private JButton reloadButton;
     private final ApiVersionResolver apiVersionResolver;
     @NotNull
-    private final FactorioApiVersion latestExistsVersion;
+    private final FactorioApiVersion latestExistingVersion;
 
     public FactorioAutocompletionConfig(@NotNull Project project) throws IOException {
         this.project = project;
         config = FactorioAutocompletionState.getInstance(project);
         apiVersionResolver = new ApiVersionResolver();
-        latestExistsVersion = apiVersionResolver.supportedVersions().latestVersion();
+        latestExistingVersion = apiVersionResolver.supportedVersions().latestVersion();
 
         enableFactorioIntegrationCheckBox.setSelected(config.integrationActive);
 
@@ -152,7 +152,7 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
         var dropdownVersion = Objects.requireNonNull((DropdownVersion) selectApiVersion.getSelectedItem());
 
         if (dropdownVersion.isLatest()) {
-            return latestExistsVersion;
+            return latestExistingVersion;
         }
 
         return FactorioApiVersion.createVersion(dropdownVersion.version);
