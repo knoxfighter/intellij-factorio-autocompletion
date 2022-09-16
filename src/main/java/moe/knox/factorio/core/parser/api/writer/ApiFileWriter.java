@@ -8,7 +8,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Writer
+public final class ApiFileWriter
 {
     private final static String NEW_LINE = System.lineSeparator();
 
