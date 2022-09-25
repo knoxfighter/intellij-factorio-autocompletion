@@ -1,4 +1,4 @@
-package moe.knox.factorio.core.parser.apiData.JsonPolymorphism;
+package moe.knox.factorio.core.parser.api.data.JsonPolymorphism;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;

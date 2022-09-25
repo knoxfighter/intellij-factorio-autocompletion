@@ -1,35 +1,14 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api.data;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Reader;
 import java.util.Comparator;
 import java.util.List;
 
 /**
  * The representation of the new json lua-api
  */
-public class JsonAPI {
-    public static JsonAPI read(Reader reader) {
-        GsonBuilder builder = new GsonBuilder();
-        Helper.addDeserializers(builder);
-        JsonAPI jsonAPI = builder
-                .create()
-                .fromJson(reader, JsonAPI.class);
-
-//        JsonAPI jsonAPI = new GsonBuilder()
-//                .registerTypeAdapter(Concept.class, new JsonPolymorphismDeserializer<Concept>())
-//                .registerTypeAdapter(Type.ComplexData.class, new JsonPolymorphismDeserializer<Type.ComplexData>())
-//                .registerTypeAdapter(Operator.class, new JsonPolymorphismDeserializer<Operator>())
-//                .create()
-//                .fromJson(reader, JsonAPI.class);
-
-        jsonAPI.sortOrder();
-
-        return jsonAPI;
-    }
-
+public class RuntimeApi {
     /**
      * The application this documentation is for.
      * Will always be "factorio".
@@ -97,17 +76,17 @@ public class JsonAPI {
     public void sortOrder() {
         if (classes != null && !classes.isEmpty()) {
             classes.sort(Comparator.comparingDouble(factorioClass -> factorioClass.order));
-            classes.forEach(factorioClass -> factorioClass.sortOrder());
+            classes.forEach(FactorioClass::sortOrder);
         }
 
         if (events != null && !events.isEmpty()) {
             events.sort(Comparator.comparingDouble(event -> event.order));
-            events.forEach(event -> event.sortOrder());
+            events.forEach(Event::sortOrder);
         }
 
         if (defines != null && !defines.isEmpty()) {
             defines.sort(Comparator.comparingDouble(define -> define.order));
-            defines.forEach(define -> define.sortOrder());
+            defines.forEach(Define::sortOrder);
         }
 
         if (builtinTypes != null && !builtinTypes.isEmpty()) {
@@ -116,7 +95,7 @@ public class JsonAPI {
 
         if (concepts != null && !concepts.isEmpty()) {
             concepts.sort(Comparator.comparingDouble(concept -> concept.order));
-            concepts.forEach(concept -> concept.sortOrder());
+            concepts.forEach(Concept::sortOrder);
         }
 
         if (globalObjects != null && !globalObjects.isEmpty()) {

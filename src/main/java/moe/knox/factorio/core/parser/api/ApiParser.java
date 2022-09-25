@@ -1,5 +1,6 @@
-package moe.knox.factorio.core.parser;
+package moe.knox.factorio.core.parser.api;
 
+import com.google.gson.GsonBuilder;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -7,34 +8,34 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
-import moe.knox.factorio.intellij.FactorioAutocompletionState;
+import moe.knox.factorio.core.parser.api.writer.Writer;
+import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.core.NotificationService;
+import moe.knox.factorio.core.parser.Parser;
+import moe.knox.factorio.intellij.FactorioState;
 import moe.knox.factorio.core.version.ApiVersionCollection;
 import moe.knox.factorio.core.version.ApiVersionResolver;
-import moe.knox.factorio.core.version.FactorioApiVersion;
-import moe.knox.factorio.intellij.FactorioAutocompletionState;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
-import moe.knox.factorio.core.parser.apiData.*;
+import moe.knox.factorio.core.parser.api.data.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jsoup.Jsoup;
 
 import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ApiParser extends Parser {
-    public static String apiRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_api/";
+    private final static String apiRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_api/";
     public static String factorioApiBaseLink = "https://lua-api.factorio.com/";
     private static AtomicBoolean downloadInProgress = new AtomicBoolean(false);
-    private FactorioAutocompletionState config;
+    private FactorioState config;
     private ProgressIndicator indicator;
     private String saveDir;
     private double curTodo = 0;
     private double maxTodo = 0;
-
     private Writer writer = new Writer();
 
     public ApiParser(@Nullable Project project, String saveDir, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
@@ -55,16 +56,15 @@ public class ApiParser extends Parser {
             return null;
         }
 
-        String apiPath = getSelectedApiVersionFilePath(project);
+        Path apiPath = getApiRuntimeDir(project);
 
         // check if API is downloaded
-        File apiPathFile = new File(apiPath);
-        if (apiPathFile.exists()) {
-            return apiPath;
+        if (Files.exists(apiPath)) {
+            return apiPath.toString();
         } else {
             // request download API
             if (downloadInProgress.compareAndSet(false, true)) {
-                ProgressManager.getInstance().run(new ApiParser(project, apiPath, "Download and Parse Factorio API", false));
+                ProgressManager.getInstance().run(new ApiParser(project, apiPath.toString(), "Download and Parse Factorio API", false));
             }
             return null;
         }
@@ -72,15 +72,14 @@ public class ApiParser extends Parser {
 
     public static void removeCurrentAPI(Project project) {
         if (!downloadInProgress.get()) {
-            String apiPath = getSelectedApiVersionFilePath(project);
-            FileUtil.delete(new File(apiPath));
+            Path apiPath = getApiRuntimeDir(project);
+            FileUtil.delete(apiPath.toFile());
             FactorioLibraryProvider.reload();
         }
     }
 
     public static void checkForUpdate(Project project) {
-        FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
-        String apiPath = getSelectedApiVersionFilePath(project);
+        FactorioState config = FactorioState.getInstance(project);
 
         if (config.useLatestVersion) {
             var newestVersion = detectLatestAllowedVersion(project);
@@ -89,7 +88,8 @@ public class ApiParser extends Parser {
                 // new version detected, update it
                 removeCurrentAPI(project);
                 if (downloadInProgress.compareAndSet(false, true)) {
-                    ProgressManager.getInstance().run(new ApiParser(project, apiPath, "Download and Parse Factorio API", false));
+                    Path apiPath = getApiRuntimeDir(project);
+                    ProgressManager.getInstance().run(new ApiParser(project, apiPath.toString(), "Download and Parse Factorio API", false));
                 }
             }
         }
@@ -120,7 +120,7 @@ public class ApiParser extends Parser {
     public void run(@NotNull ProgressIndicator indicator) {
         try {
             this.indicator = indicator;
-            config = FactorioAutocompletionState.getInstance(myProject);
+            config = FactorioState.getInstance(myProject);
 
             // start the whole thing
             assureDir();
@@ -164,16 +164,22 @@ public class ApiParser extends Parser {
     private void downloadAndParseAPI() {
         String versionedApiLink = factorioApiBaseLink + config.selectedFactorioVersion.version() + "/runtime-api.json";
 
-        JsonAPI jsonAPI;
+        RuntimeApi runtimeApi;
         try {
             InputStreamReader inputStreamReader = new InputStreamReader(new URL(versionedApiLink).openStream());
-            jsonAPI = JsonAPI.read(inputStreamReader);
+            GsonBuilder builder = new GsonBuilder();
+            ParsingHelper.addDeserializers(builder);
+            runtimeApi = builder
+                    .create()
+//                    .registerTypeAdapter(Concept.class, new JsonPolymorphismDeserializer<Concept>())
+//                    .registerTypeAdapter(Type.ComplexData.class, new JsonPolymorphismDeserializer<Type.ComplexData>())
+//                    .registerTypeAdapter(Operator.class, new JsonPolymorphismDeserializer<Operator>())
+                    .fromJson(inputStreamReader, RuntimeApi.class);
+            runtimeApi.sortOrder();
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
-
-        config.curVersion = jsonAPI.application_version;
 
         String saveFile = saveDir + "factorio.lua";
         // create file
@@ -193,17 +199,17 @@ public class ApiParser extends Parser {
         try {
             // builtin types done in `resources/library/builtin-types.lua`
 
-            writer.writeGlobalsObjects(output, jsonAPI.globalObjects);
+            writer.writeGlobalsObjects(output, runtimeApi.globalObjects);
 
             output.append("---@class defines").append(newLine);
             output.append("defines = {}").append(newLine).append(newLine);
-            writer.writeDefines(output, jsonAPI.defines, "defines");
+            writer.writeDefines(output, runtimeApi.defines, "defines");
 
             // TODO: implement autocompletion for events
 
-            writer.writeClasses(output, jsonAPI.classes);
+            writer.writeClasses(output, runtimeApi.classes);
 
-            writer.writeConcepts(output, jsonAPI.concepts);
+            writer.writeConcepts(output, runtimeApi.concepts);
 
             output.flush();
             output.close();
@@ -214,10 +220,10 @@ public class ApiParser extends Parser {
         }
     }
 
-    private static String getSelectedApiVersionFilePath(Project project)
+    private static Path getApiRuntimeDir(Project project)
     {
-        var config = FactorioAutocompletionState.getInstance(project);
+        var config = FactorioState.getInstance(project);
 
-        return apiRootPath + config.selectedFactorioVersion.version();
+        return Paths.get(apiRootPath, config.selectedFactorioVersion.version());
     }
 }

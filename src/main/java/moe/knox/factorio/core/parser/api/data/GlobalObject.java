@@ -1,4 +1,4 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api.data;
 
 /**
  * Definition of global objects (just variables in global scope)

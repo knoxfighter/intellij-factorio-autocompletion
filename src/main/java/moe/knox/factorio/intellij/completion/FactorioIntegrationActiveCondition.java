@@ -3,7 +3,7 @@ package moe.knox.factorio.intellij.completion;
 import com.intellij.patterns.PatternCondition;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
-import moe.knox.factorio.intellij.FactorioAutocompletionState;
+import moe.knox.factorio.intellij.FactorioState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,6 +14,6 @@ public class FactorioIntegrationActiveCondition extends PatternCondition<PsiElem
 
     @Override
     public boolean accepts(@NotNull PsiElement psiElement, ProcessingContext processingContext) {
-        return FactorioAutocompletionState.getInstance(psiElement.getProject()).integrationActive;
+        return FactorioState.getInstance(psiElement.getProject()).integrationActive;
     }
 }

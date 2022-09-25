@@ -1,4 +1,4 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api.data;
 
 import java.util.Comparator;
 import java.util.List;
@@ -12,7 +12,7 @@ public class ParameterGroup {
     void sortOrder() {
         if (parameters != null && !parameters.isEmpty()) {
             parameters.sort(Comparator.comparingDouble(parameter -> parameter.order));
-            parameters.forEach(parameter -> parameter.sortOrder());
+            parameters.forEach(Parameter::sortOrder);
         }
     }
 }

@@ -8,27 +8,26 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import moe.knox.factorio.core.parser.LuaLibParser;
 import moe.knox.factorio.core.util.FileIndexerUtil;
 
 import java.util.*;
 
 @Service
-final public class BasePrototypesService {
-    public static BasePrototypesService getInstance(Project project) {
-        return project.getService(BasePrototypesService.class);
+final public class PrototypesService {
+    public static PrototypesService getInstance(Project project) {
+        return project.getService(PrototypesService.class);
     }
 
     Project project;
     List<Map<String, Set<String>>> index = new ArrayList<>();
 
-    public BasePrototypesService(Project project) {
+    public PrototypesService(Project project) {
         this.project = project;
     }
 
     // Create index for base and core Prototypes
     public void reloadIndex() {
-        String currentPrototypeLink = LuaLibParser.getCurrentPrototypeLink(project);
+        String currentPrototypeLink = LuaLibDownloader.getCurrentPrototypeLink(project);
         if (currentPrototypeLink != null) {
             ReadAction.run(() -> {
                 PsiManager psiManager = PsiManager.getInstance(project);

@@ -1,14 +1,13 @@
 package moe.knox.factorio.intellij;
 
 import com.intellij.openapi.application.WriteAction;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import moe.knox.factorio.core.version.FactorioApiVersion;
-import moe.knox.factorio.core.parser.ApiParser;
-import moe.knox.factorio.core.parser.LuaLibParser;
-import moe.knox.factorio.core.parser.PrototypeParser;
+import moe.knox.factorio.core.parser.api.ApiParser;
+import moe.knox.factorio.core.LuaLibDownloader;
+import moe.knox.factorio.core.parser.prototype.PrototypeParser;
 import moe.knox.factorio.core.version.ApiVersionResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,9 +17,9 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Objects;
 
-public class FactorioAutocompletionConfig implements SearchableConfigurable {
+public class FactorioConfig implements SearchableConfigurable {
     Project project;
-    private FactorioAutocompletionState config;
+    private FactorioState config;
     private JPanel rootPanel;
     private JCheckBox enableFactorioIntegrationCheckBox;
     private JComboBox<DropdownVersion> selectApiVersion;
@@ -30,9 +29,9 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
     @NotNull
     private final FactorioApiVersion latestExistingVersion;
 
-    public FactorioAutocompletionConfig(@NotNull Project project) throws IOException {
+    public FactorioConfig(@NotNull Project project) throws IOException {
         this.project = project;
-        config = FactorioAutocompletionState.getInstance(project);
+        config = FactorioState.getInstance(project);
         apiVersionResolver = new ApiVersionResolver();
         latestExistingVersion = apiVersionResolver.supportedVersions().latestVersion();
 
@@ -74,10 +73,9 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
         }
 
         reloadButton.addActionListener(actionEvent -> {
-            ApiParser.removeCurrentAPI(project);
-            PrototypeParser.removeCurrentPrototypes();
-            LuaLibParser.removeCurrentLualib(project);
-            LuaLibParser.checkForUpdate(project);
+            removeParsedLibraries();
+
+            LuaLibDownloader.checkForUpdate(project);
             FactorioLibraryProvider.reload();
         });
     }
@@ -110,38 +108,31 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
     }
 
     @Override
-    public void apply() throws ConfigurationException {
-        boolean enableIntegration = enableFactorioIntegrationCheckBox.isSelected();
-
-        if (!enableIntegration && config.integrationActive) {
-            // integration deactivated
-            ApiParser.removeCurrentAPI(project);
-            PrototypeParser.removeCurrentPrototypes();
-            LuaLibParser.removeCurrentLualib(project);
+    public void apply() {
+        if (isIntegrationTurnedOff()) {
+            removeParsedLibraries();
         }
 
-        config.integrationActive = enableIntegration;
-
-        if (!config.selectedFactorioVersion.equals(getSelectedVersion())) {
-            // New Factorio Version selected
-            // remove old apis
+        if (isVersionChanged()) {
             ApiParser.removeCurrentAPI(project);
-            LuaLibParser.removeCurrentLualib(project);
-
-            // reload the lualib
-            LuaLibParser.checkForUpdate(project);
-
-            // save new settings
-            if (selectApiVersion.getSelectedItem() != null) {
-                config.selectedFactorioVersion = getSelectedVersion();
-            }
+            LuaLibDownloader.removeCurrentLualib(project);
+            LuaLibDownloader.checkForUpdate(project);
         }
 
-        reloadButton.setEnabled(enableIntegration);
+        reloadButton.setEnabled(enableFactorioIntegrationCheckBox.isSelected());
 
+        config.integrationActive = enableFactorioIntegrationCheckBox.isSelected();
         config.useLatestVersion = isUseLatestVersion();
+        config.selectedFactorioVersion = getSelectedVersion();
 
-        WriteAction.run(() -> FactorioLibraryProvider.reload());
+        WriteAction.run(FactorioLibraryProvider::reload);
+    }
+
+    private void removeParsedLibraries()
+    {
+        ApiParser.removeCurrentAPI(project);
+        PrototypeParser.removeCurrentPrototypes();
+        LuaLibDownloader.removeCurrentLualib(project);
     }
 
     private boolean isUseLatestVersion() {
@@ -156,6 +147,16 @@ public class FactorioAutocompletionConfig implements SearchableConfigurable {
         }
 
         return FactorioApiVersion.createVersion(dropdownVersion.version);
+    }
+
+    private boolean isVersionChanged()
+    {
+        return !config.selectedFactorioVersion.equals(getSelectedVersion());
+    }
+
+    private boolean isIntegrationTurnedOff()
+    {
+        return config.integrationActive && !enableFactorioIntegrationCheckBox.isSelected();
     }
 
     private record DropdownVersion(String version, String name) {

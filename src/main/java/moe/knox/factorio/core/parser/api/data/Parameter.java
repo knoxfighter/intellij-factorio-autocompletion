@@ -1,6 +1,7 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api.data;
 
 import com.google.gson.*;
+import moe.knox.factorio.core.parser.api.ParsingHelper;
 
 import java.util.Random;
 
@@ -21,7 +22,7 @@ public class Parameter {
         @Override
         public Parameter deserialize(JsonElement jsonElement, java.lang.reflect.Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
             GsonBuilder builder = new GsonBuilder();
-            Helper.addDeserializers(builder, Parameter.class);
+            ParsingHelper.addDeserializers(builder, Parameter.class);
             Parameter parameter = builder.create().fromJson(jsonElement, Parameter.class);
 
             if (parameter.name.equals("function") || parameter.name.equals("end")) {

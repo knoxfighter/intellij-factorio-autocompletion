@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.indexing.FileBasedIndex;
 import com.tang.intellij.lua.editor.completion.LuaLookupElement;
-import moe.knox.factorio.core.BasePrototypesService;
+import moe.knox.factorio.core.PrototypesService;
 import moe.knox.factorio.intellij.PrototypeFileIndexer;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +30,7 @@ public class DataRowByIdCompletionProvider extends CompletionProvider<Completion
         }
 
 
-        Set<String> baseKeys = BasePrototypesService.getInstance(project).getAllKeys();
+        Set<String> baseKeys = PrototypesService.getInstance(project).getAllKeys();
         for (String baseKey : baseKeys) {
             if (!baseKey.contains("-") && !baseKey.contains(".")) {
                 resultSet.addElement(new LuaLookupElement(baseKey, false, null));

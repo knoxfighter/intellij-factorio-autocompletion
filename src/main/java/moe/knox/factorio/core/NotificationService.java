@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
-import moe.knox.factorio.intellij.FactorioAutocompletionConfig;
+import moe.knox.factorio.intellij.FactorioConfig;
 import org.jetbrains.annotations.NotNull;
 
 @Service
@@ -70,7 +70,7 @@ final public class NotificationService {
         return new NotificationAction("Open Settings") {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                ShowSettingsUtil.getInstance().showSettingsDialog(project, FactorioAutocompletionConfig.class);
+                ShowSettingsUtil.getInstance().showSettingsDialog(project, FactorioConfig.class);
             }
         };
     }

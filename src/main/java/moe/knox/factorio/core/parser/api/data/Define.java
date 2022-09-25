@@ -1,4 +1,4 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api.data;
 
 import java.util.Comparator;
 import java.util.List;
@@ -41,7 +41,7 @@ public class Define {
 
         if (subkeys != null && !subkeys.isEmpty()) {
             subkeys.sort(Comparator.comparingDouble(define -> define.order));
-            subkeys.forEach(define -> define.sortOrder());
+            subkeys.forEach(Define::sortOrder);
         }
     }
 }

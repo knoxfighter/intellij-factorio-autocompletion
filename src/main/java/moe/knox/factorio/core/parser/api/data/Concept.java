@@ -1,8 +1,8 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api.data;
 
 import com.google.gson.annotations.SerializedName;
-import moe.knox.factorio.core.parser.apiData.JsonPolymorphism.JsonPolymorphism;
-import moe.knox.factorio.core.parser.apiData.JsonPolymorphism.JsonPolymorphismClass;
+import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphism;
+import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphismClass;
 
 import java.util.Comparator;
 import java.util.List;
@@ -104,17 +104,17 @@ public class Concept {
         if (table != null) {
             if (table.parameters != null && !table.parameters.isEmpty()) {
                 table.parameters.sort(Comparator.comparingDouble(parameter -> parameter.order));
-                table.parameters.forEach(parameter -> parameter.sortOrder());
+                table.parameters.forEach(Parameter::sortOrder);
             }
             if (table.variantParameterGroups != null && !table.variantParameterGroups.isEmpty()) {
                 table.variantParameterGroups.sort(Comparator.comparingDouble(parameterGroup -> parameterGroup.order));
-                table.variantParameterGroups.forEach(parameterGroup -> parameterGroup.sortOrder());
+                table.variantParameterGroups.forEach(ParameterGroup::sortOrder);
             }
         }
 
         if (tableOrArray != null && tableOrArray.parameters != null && !tableOrArray.parameters.isEmpty()) {
             tableOrArray.parameters.sort(Comparator.comparingDouble(parameter -> parameter.order));
-            tableOrArray.parameters.forEach(parameter -> parameter.sortOrder());
+            tableOrArray.parameters.forEach(Parameter::sortOrder);
         }
 
         if (_enum != null && _enum.options != null && !_enum.options.isEmpty()) {
@@ -128,17 +128,17 @@ public class Concept {
         if (filter != null) {
             if (filter.parameters != null && !filter.parameters.isEmpty()) {
                 filter.parameters.sort(Comparator.comparingDouble(parameter -> parameter.order));
-                filter.parameters.forEach(parameter -> parameter.sortOrder());
+                filter.parameters.forEach(Parameter::sortOrder);
             }
             if (filter.variantParameterGroups != null && !filter.variantParameterGroups.isEmpty()) {
                 this.filter.variantParameterGroups.sort(Comparator.comparingDouble(parameterGroup -> parameterGroup.order));
-                this.filter.variantParameterGroups.forEach(parameterGroup -> parameterGroup.sortOrder());
+                this.filter.variantParameterGroups.forEach(ParameterGroup::sortOrder);
             }
         }
 
         if (struct != null && struct.attributes != null && !struct.attributes.isEmpty()) {
             struct.attributes.sort(Comparator.comparingDouble(attribute -> attribute.order));
-            struct.attributes.forEach(attribute -> attribute.sortOrder());
+            struct.attributes.forEach(Attribute::sortOrder);
         }
 
         if (union!= null && union.options != null && !union.options.isEmpty()) {

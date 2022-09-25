@@ -1,7 +1,7 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api.data;
 
-import moe.knox.factorio.core.parser.apiData.JsonPolymorphism.JsonPolymorphism;
-import moe.knox.factorio.core.parser.apiData.JsonPolymorphism.JsonPolymorphismClass;
+import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphism;
+import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphismClass;
 
 
 @JsonPolymorphismClass("name")

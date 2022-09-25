@@ -16,16 +16,8 @@ import java.io.IOException;
 public abstract class Parser extends Task.Backgroundable {
     protected static String newLine = System.lineSeparator();
 
-    public Parser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title) {
-        super(project, title);
-    }
-
     public Parser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
         super(project, title, canBeCancelled);
-    }
-
-    public Parser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled, @Nullable PerformInBackgroundOption backgroundOption) {
-        super(project, title, canBeCancelled, backgroundOption);
     }
 
     /**

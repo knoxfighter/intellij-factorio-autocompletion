@@ -1,6 +1,5 @@
-package moe.knox.factorio.core.parser;
+package moe.knox.factorio.core.parser.prototype;
 
-import com.intellij.notification.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -10,7 +9,8 @@ import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
 import com.tang.intellij.lua.search.SearchContext;
 import moe.knox.factorio.core.NotificationService;
-import moe.knox.factorio.intellij.FactorioAutocompletionState;
+import moe.knox.factorio.core.parser.Parser;
+import moe.knox.factorio.intellij.FactorioState;
 import moe.knox.factorio.core.FactorioPrototypeState;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +37,7 @@ public class PrototypeParser extends Parser {
 
     private static AtomicBoolean downloadInProgress = new AtomicBoolean(false);
 
-    private FactorioAutocompletionState config;
+    private FactorioState config;
     private ProgressIndicator indicator;
     private String saveDir;
 
@@ -105,7 +105,7 @@ public class PrototypeParser extends Parser {
     @Override
     public void run(@NotNull ProgressIndicator progressIndicator) {
         this.indicator = progressIndicator;
-        this.config = FactorioAutocompletionState.getInstance(myProject);
+        this.config = FactorioState.getInstance(myProject);
 
         // start the whole thing
         assureDir();

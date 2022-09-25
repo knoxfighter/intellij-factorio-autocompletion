@@ -1,4 +1,4 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api.data;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -35,12 +35,12 @@ public class Method {
     void sortOrder() {
         if (parameters != null && !parameters.isEmpty()) {
             parameters.sort(Comparator.comparingDouble(parameter -> parameter.order));
-            parameters.forEach(parameter -> parameter.sortOrder());
+            parameters.forEach(Parameter::sortOrder);
         }
 
         if (variantParameterGroups != null && !variantParameterGroups.isEmpty()) {
             variantParameterGroups.sort(Comparator.comparingDouble(parameterGroup -> parameterGroup.order));
-            variantParameterGroups.forEach(parameterGroup -> parameterGroup.sortOrder());
+            variantParameterGroups.forEach(ParameterGroup::sortOrder);
         }
 
         if (variadicType != null) {

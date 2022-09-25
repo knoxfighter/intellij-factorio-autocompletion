@@ -1,4 +1,4 @@
-package moe.knox.factorio.core.parser;
+package moe.knox.factorio.core;
 
 import com.google.gson.Gson;
 import com.intellij.openapi.application.ApplicationManager;
@@ -9,9 +9,8 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
-import moe.knox.factorio.core.NotificationService;
-import moe.knox.factorio.intellij.FactorioAutocompletionState;
-import moe.knox.factorio.core.BasePrototypesService;
+import moe.knox.factorio.core.parser.Parser;
+import moe.knox.factorio.intellij.FactorioState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class LuaLibParser extends Parser {
+public class LuaLibDownloader extends Parser {
     private static final Logger LOG = Logger.getInstance(Parser.class);
 
     public static final String luaLibRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/lualib/";
@@ -35,19 +34,19 @@ public class LuaLibParser extends Parser {
 
     private String saveDir;
     private String prototypeSaveDir;
-    private FactorioAutocompletionState config;
+    private FactorioState config;
     private RefTag tag;
 
-    public LuaLibParser(@Nullable Project project, String saveDir, String prototypeSaveDir, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
+    public LuaLibDownloader(@Nullable Project project, String saveDir, String prototypeSaveDir, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
         this(project, saveDir, prototypeSaveDir, null, title, canBeCancelled);
     }
 
-    public LuaLibParser(@Nullable Project project, String saveDir, String prototypeSaveDir, RefTag tag, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
+    public LuaLibDownloader(@Nullable Project project, String saveDir, String prototypeSaveDir, RefTag tag, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
         super(project, title, canBeCancelled);
         this.saveDir = saveDir;
         this.prototypeSaveDir = prototypeSaveDir;
         this.tag = tag;
-        config = FactorioAutocompletionState.getInstance(project);
+        config = FactorioState.getInstance(project);
     }
 
     @Nullable
@@ -64,7 +63,7 @@ public class LuaLibParser extends Parser {
             return null;
         }
 
-        FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
+        FactorioState config = FactorioState.getInstance(project);
         String lualibPath = luaLibRootPath + config.selectedFactorioVersion.version();
         String prototypePath = prototypeRootPath + config.selectedFactorioVersion.version();
 
@@ -79,7 +78,7 @@ public class LuaLibParser extends Parser {
         } else {
             // else request download
             if (downloadInProgress.compareAndSet(false, true)) {
-                ProgressManager.getInstance().run(new LuaLibParser(project, lualibPath, prototypePath, "Download Factorio Lualib", false));
+                ProgressManager.getInstance().run(new LuaLibDownloader(project, lualibPath, prototypePath, "Download Factorio Lualib", false));
             }
         }
 
@@ -88,14 +87,14 @@ public class LuaLibParser extends Parser {
 
     public static void removeCurrentLualib(Project project) {
         if (!downloadInProgress.get()) {
-            FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
+            FactorioState config = FactorioState.getInstance(project);
             String apiPath = luaLibRootPath;
             FileUtil.delete(new File(apiPath));
 
             String prototypePath = prototypeRootPath;
             FileUtil.delete(new File(prototypePath));
 
-            BasePrototypesService.getInstance(project).reloadIndex();
+            PrototypesService.getInstance(project).reloadIndex();
         }
     }
 
@@ -106,7 +105,7 @@ public class LuaLibParser extends Parser {
      * @return true when an update is available or the API not existent
      */
     public static boolean checkForUpdate(Project project) {
-        FactorioAutocompletionState config = FactorioAutocompletionState.getInstance(project);
+        FactorioState config = FactorioState.getInstance(project);
         String lualibPath = luaLibRootPath + config.selectedFactorioVersion.version();
         String prototypePath = prototypeRootPath + config.selectedFactorioVersion.version();
 
@@ -122,7 +121,7 @@ public class LuaLibParser extends Parser {
 
                         // download new lualib
                         if (downloadInProgress.compareAndSet(false, true)) {
-                            ProgressManager.getInstance().run(new LuaLibParser(project, lualibPath, prototypePath, tags[tags.length - 1], "Download Factorio Lualib", false));
+                            ProgressManager.getInstance().run(new LuaLibDownloader(project, lualibPath, prototypePath, tags[tags.length - 1], "Download Factorio Lualib", false));
                         }
 
                         return true;
@@ -135,7 +134,7 @@ public class LuaLibParser extends Parser {
         } else {
             // api not there, request it...
             if (downloadInProgress.compareAndSet(false, true)) {
-                ProgressManager.getInstance().run(new LuaLibParser(project, lualibPath, prototypePath, "Download Factorio Lualib", false));
+                ProgressManager.getInstance().run(new LuaLibDownloader(project, lualibPath, prototypePath, "Download Factorio Lualib", false));
             }
             return true;
         }
@@ -201,7 +200,7 @@ public class LuaLibParser extends Parser {
                 saveZipEntry(zipInputStream, zipEntry, "/base/prototypes/", basePrototypeSubDir.toString());
             }
 
-            FactorioAutocompletionState.getInstance(myProject).currentLualibVersion = tagName;
+            FactorioState.getInstance(myProject).currentLualibVersion = tagName;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -261,7 +260,7 @@ public class LuaLibParser extends Parser {
 
                 // Reload base prototype service indexes
                 ApplicationManager.getApplication().invokeLater(() ->
-                        BasePrototypesService.getInstance(myProject).reloadIndex()
+                        PrototypesService.getInstance(myProject).reloadIndex()
                 );
             } catch (IOException e) {
                 e.printStackTrace();

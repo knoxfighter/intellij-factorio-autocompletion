@@ -1,4 +1,4 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api.data;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -21,7 +21,7 @@ public class Event {
     void sortOrder() {
         if (data != null && !data.isEmpty()) {
             data.sort(Comparator.comparingDouble(parameter -> parameter.order));
-            data.forEach(parameter -> parameter.sortOrder());
+            data.forEach(Parameter::sortOrder);
         }
     }
 }

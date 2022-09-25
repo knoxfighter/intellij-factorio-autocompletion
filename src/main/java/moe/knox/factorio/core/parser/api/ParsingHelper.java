@@ -1,14 +1,18 @@
-package moe.knox.factorio.core.parser.apiData;
+package moe.knox.factorio.core.parser.api;
 
 import com.google.gson.GsonBuilder;
-import moe.knox.factorio.core.parser.apiData.JsonPolymorphism.JsonPolymorphismDeserializer;
+import moe.knox.factorio.core.parser.api.data.Concept;
+import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphismDeserializer;
+import moe.knox.factorio.core.parser.api.data.Operator;
+import moe.knox.factorio.core.parser.api.data.Parameter;
+import moe.knox.factorio.core.parser.api.data.Type;
 
-public class Helper {
-    static GsonBuilder addDeserializers(GsonBuilder builder) {
+public class ParsingHelper {
+    public static GsonBuilder addDeserializers(GsonBuilder builder) {
         return addDeserializers(builder, null);
     }
 
-    static GsonBuilder addDeserializers(GsonBuilder builder, Class excludeType) {
+    public static GsonBuilder addDeserializers(GsonBuilder builder, Class excludeType) {
         if (excludeType == null || excludeType != Concept.class) {
             builder.registerTypeAdapter(Concept.class, new JsonPolymorphismDeserializer<Concept>());
         }
