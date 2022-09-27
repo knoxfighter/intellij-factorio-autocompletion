@@ -175,7 +175,7 @@ public class ApiParser extends Parser {
 //                    .registerTypeAdapter(Type.ComplexData.class, new JsonPolymorphismDeserializer<Type.ComplexData>())
 //                    .registerTypeAdapter(Operator.class, new JsonPolymorphismDeserializer<Operator>())
                     .fromJson(inputStreamReader, RuntimeApi.class);
-            runtimeApi.sortOrder();
+            runtimeApi.arrangeElements();
         } catch (IOException e) {
             e.printStackTrace();
             return;

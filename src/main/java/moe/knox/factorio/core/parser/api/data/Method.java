@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Comparator;
 import java.util.List;
 
-public class Method {
+public class Method implements Arrangeable {
     public String name; // The name of the method.
     public double order; // The order of the method as shown in the html.
     public String description; // The text description of the method.
@@ -32,23 +32,23 @@ public class Method {
     @SerializedName("return_description")
     public String returnDescription; // (optional): The description of the return value of the method, if it returns anything.
 
-    void sortOrder() {
+    public void arrangeElements() {
         if (parameters != null && !parameters.isEmpty()) {
             parameters.sort(Comparator.comparingDouble(parameter -> parameter.order));
-            parameters.forEach(Parameter::sortOrder);
+            parameters.forEach(Parameter::arrangeElements);
         }
 
         if (variantParameterGroups != null && !variantParameterGroups.isEmpty()) {
             variantParameterGroups.sort(Comparator.comparingDouble(parameterGroup -> parameterGroup.order));
-            variantParameterGroups.forEach(ParameterGroup::sortOrder);
+            variantParameterGroups.forEach(ParameterGroup::arrangeElements);
         }
 
         if (variadicType != null) {
-            variadicType.sortOrder();
+            variadicType.arrangeElements();
         }
 
         if (returnType != null) {
-            returnType.sortOrder();
+            returnType.arrangeElements();
         }
     }
 }
