@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Represents an event
  */
-public class Event {
+public class Event implements Arrangable {
     String name; // The name of the event.
     double order; // The order of the event as shown in the html.
     String description; // The text description of the event.
@@ -18,10 +18,10 @@ public class Event {
     List<String> seeAlso; // (optional): A list of strings that are references to other relevant classes or their methods and attributes.
     List<Parameter> data; // The event-specific information that is provided.
 
-    void sortOrder() {
+    public void arrangeElements() {
         if (data != null && !data.isEmpty()) {
             data.sort(Comparator.comparingDouble(parameter -> parameter.order));
-            data.forEach(Parameter::sortOrder);
+            data.forEach(Parameter::arrangeElements);
         }
     }
 }

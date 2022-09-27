@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * The representation of the new json lua-api
  */
-public class RuntimeApi {
+public class RuntimeApi implements Arrangable {
     /**
      * The application this documentation is for.
      * Will always be "factorio".
@@ -73,20 +73,20 @@ public class RuntimeApi {
     @SerializedName("global_objects")
     public List<GlobalObject> globalObjects;
 
-    public void sortOrder() {
+    public void arrangeElements() {
         if (classes != null && !classes.isEmpty()) {
             classes.sort(Comparator.comparingDouble(factorioClass -> factorioClass.order));
-            classes.forEach(FactorioClass::sortOrder);
+            classes.forEach(FactorioClass::arrangeElements);
         }
 
         if (events != null && !events.isEmpty()) {
             events.sort(Comparator.comparingDouble(event -> event.order));
-            events.forEach(Event::sortOrder);
+            events.forEach(Event::arrangeElements);
         }
 
         if (defines != null && !defines.isEmpty()) {
             defines.sort(Comparator.comparingDouble(define -> define.order));
-            defines.forEach(Define::sortOrder);
+            defines.forEach(Define::arrangeElements);
         }
 
         if (builtinTypes != null && !builtinTypes.isEmpty()) {
@@ -95,7 +95,7 @@ public class RuntimeApi {
 
         if (concepts != null && !concepts.isEmpty()) {
             concepts.sort(Comparator.comparingDouble(concept -> concept.order));
-            concepts.forEach(Concept::sortOrder);
+            concepts.forEach(Concept::arrangeElements);
         }
 
         if (globalObjects != null && !globalObjects.isEmpty()) {

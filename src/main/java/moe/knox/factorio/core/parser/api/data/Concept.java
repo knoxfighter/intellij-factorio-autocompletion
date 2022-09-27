@@ -13,7 +13,7 @@ import java.util.List;
  * Depending on `category` it has additional members.
  */
 @JsonPolymorphismClass("category")
-public class Concept {
+public class Concept implements Arrangable {
     public String name; // The name of the concept.
     public double order; // The order of the concept as shown in the html.
     public String description; // The text description of the concept.
@@ -100,21 +100,21 @@ public class Concept {
         public List<Attribute> attributes; // A list of attributes with the same properties as class attributes.
     }
 
-    void sortOrder() {
+    public void arrangeElements() {
         if (table != null) {
             if (table.parameters != null && !table.parameters.isEmpty()) {
                 table.parameters.sort(Comparator.comparingDouble(parameter -> parameter.order));
-                table.parameters.forEach(Parameter::sortOrder);
+                table.parameters.forEach(Parameter::arrangeElements);
             }
             if (table.variantParameterGroups != null && !table.variantParameterGroups.isEmpty()) {
                 table.variantParameterGroups.sort(Comparator.comparingDouble(parameterGroup -> parameterGroup.order));
-                table.variantParameterGroups.forEach(ParameterGroup::sortOrder);
+                table.variantParameterGroups.forEach(ParameterGroup::arrangeElements);
             }
         }
 
         if (tableOrArray != null && tableOrArray.parameters != null && !tableOrArray.parameters.isEmpty()) {
             tableOrArray.parameters.sort(Comparator.comparingDouble(parameter -> parameter.order));
-            tableOrArray.parameters.forEach(Parameter::sortOrder);
+            tableOrArray.parameters.forEach(Parameter::arrangeElements);
         }
 
         if (_enum != null && _enum.options != null && !_enum.options.isEmpty()) {
@@ -128,17 +128,17 @@ public class Concept {
         if (filter != null) {
             if (filter.parameters != null && !filter.parameters.isEmpty()) {
                 filter.parameters.sort(Comparator.comparingDouble(parameter -> parameter.order));
-                filter.parameters.forEach(Parameter::sortOrder);
+                filter.parameters.forEach(Parameter::arrangeElements);
             }
             if (filter.variantParameterGroups != null && !filter.variantParameterGroups.isEmpty()) {
                 this.filter.variantParameterGroups.sort(Comparator.comparingDouble(parameterGroup -> parameterGroup.order));
-                this.filter.variantParameterGroups.forEach(ParameterGroup::sortOrder);
+                this.filter.variantParameterGroups.forEach(ParameterGroup::arrangeElements);
             }
         }
 
         if (struct != null && struct.attributes != null && !struct.attributes.isEmpty()) {
             struct.attributes.sort(Comparator.comparingDouble(attribute -> attribute.order));
-            struct.attributes.forEach(Attribute::sortOrder);
+            struct.attributes.forEach(Attribute::arrangeElements);
         }
 
         if (union!= null && union.options != null && !union.options.isEmpty()) {

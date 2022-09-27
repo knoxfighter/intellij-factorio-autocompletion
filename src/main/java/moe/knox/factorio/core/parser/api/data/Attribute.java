@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class Attribute {
+public class Attribute implements Arrangable {
     public String name; // The name of the attribute.
     public double order; // The order of the attribute as shown in the html.
     public String description; // The text description of the attribute.
@@ -17,9 +17,9 @@ public class Attribute {
     public boolean read; // Whether the attribute can be read from.
     public boolean write; // Whether the attribute can be written to.
 
-    void sortOrder() {
+    public void arrangeElements() {
         if (type != null) {
-            type.sortOrder();
+            type.arrangeElements();
         }
     }
 }

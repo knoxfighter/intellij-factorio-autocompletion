@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * The representation of a define (defines.?.?)
  */
-public class Define {
+public class Define implements Arrangable {
     /**
      * The name of the define.
      */
@@ -34,14 +34,14 @@ public class Define {
      */
     public List<Define> subkeys;
 
-    void sortOrder() {
+    public void arrangeElements() {
         if (values != null && !values.isEmpty()) {
             values.sort(Comparator.comparingDouble(basicMember -> basicMember.order));
         }
 
         if (subkeys != null && !subkeys.isEmpty()) {
             subkeys.sort(Comparator.comparingDouble(define -> define.order));
-            subkeys.forEach(Define::sortOrder);
+            subkeys.forEach(Define::arrangeElements);
         }
     }
 }

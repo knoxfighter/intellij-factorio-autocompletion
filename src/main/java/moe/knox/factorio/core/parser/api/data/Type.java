@@ -51,13 +51,13 @@ class TypeJsonAdapter extends TypeAdapter<Type> {
  * A type is either a string, in which case that string is the simple type. Otherwise, a type is a table.
  */
 @JsonAdapter(TypeJsonAdapter.class)
-public class Type {
+public class Type implements Arrangable {
     public boolean isSimpleString = true;
     public String type;
     public ComplexData data;
 
     @JsonPolymorphismClass("complexType")
-    public class ComplexData {
+    public class ComplexData implements Arrangable {
         @SerializedName("complex_type")
         public String complexType; // A string denoting the kind of complex type.
 
@@ -106,49 +106,49 @@ public class Type {
             public String variant_parameter_description; // (optional): The text description of the optional parameter groups.
         }
 
-        void sortOrder() {
+        public void arrangeElements() {
             if (variant != null && variant.options != null && !variant.options.isEmpty()) {
-                variant.options.forEach(type1 -> type1.sortOrder());
+                variant.options.forEach(type1 -> type1.arrangeElements());
             }
 
             if (array != null && array.value != null) {
-                array.value.sortOrder();
+                array.value.arrangeElements();
             }
 
             if (dictionary != null) {
                 if (dictionary.key != null) {
-                    dictionary.key.sortOrder();
+                    dictionary.key.arrangeElements();
                 }
                 if (dictionary.value != null) {
-                    dictionary.value.sortOrder();
+                    dictionary.value.arrangeElements();
                 }
             }
 
             if (function != null && function.parameters != null && !function.parameters.isEmpty()) {
-                function.parameters.forEach(type1 -> type1.sortOrder());
+                function.parameters.forEach(type1 -> type1.arrangeElements());
             }
 
             if (luaLazyLoadedValue != null && luaLazyLoadedValue.value != null) {
-                luaLazyLoadedValue.value.sortOrder();
+                luaLazyLoadedValue.value.arrangeElements();
             }
 
             if (table != null) {
                 if (table.parameters != null && !table.parameters.isEmpty()) {
                     table.parameters.sort(Comparator.comparingDouble(parameter -> parameter.order));
-                    table.parameters.forEach(parameter -> parameter.sortOrder());
+                    table.parameters.forEach(parameter -> parameter.arrangeElements());
                 }
 
                 if (table.variant_parameter_groups != null && !table.variant_parameter_groups.isEmpty()) {
                     table.variant_parameter_groups.sort(Comparator.comparingDouble(parameterGroup -> parameterGroup.order));
-                    table.variant_parameter_groups.forEach(parameterGroup -> parameterGroup.sortOrder());
+                    table.variant_parameter_groups.forEach(parameterGroup -> parameterGroup.arrangeElements());
                 }
             }
         }
     }
 
-    void sortOrder() {
+    public void arrangeElements() {
         if (data != null) {
-            data.sortOrder();
+            data.arrangeElements();
         }
     }
 }

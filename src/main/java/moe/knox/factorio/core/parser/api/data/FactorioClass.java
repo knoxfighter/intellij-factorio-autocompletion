@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Represents a single class in factorio
  */
-public class FactorioClass {
+public class FactorioClass implements Arrangable {
     public String name;
     public double order; // The order of the class as shown in the html.
     public String description;
@@ -22,15 +22,15 @@ public class FactorioClass {
     @SerializedName("base_classes")
     public List<String> baseClasses; // (optional): A list of the names of the classes that his class inherits from.
 
-    public void sortOrder() {
+    public void arrangeElements() {
         if (methods != null && !methods.isEmpty()) {
             methods.sort(Comparator.comparingDouble(method -> method.order));
-            methods.forEach(Method::sortOrder);
+            methods.forEach(Method::arrangeElements);
         }
 
         if (attributes != null && !attributes.isEmpty()) {
             attributes.sort(Comparator.comparingDouble(attribute -> attribute.order));
-            attributes.forEach(Attribute::sortOrder);
+            attributes.forEach(Attribute::arrangeElements);
         }
     }
 }
