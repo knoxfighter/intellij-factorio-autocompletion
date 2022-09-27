@@ -5,7 +5,7 @@ import moe.knox.factorio.core.parser.api.ParsingHelper;
 
 import java.util.Random;
 
-public class Parameter implements Arrangable {
+public class Parameter implements Arrangeable {
     public String name; // The name of the parameter.
     public double order; // The order of the parameter as shown in the html.
     public String description; // The text description of the parameter.

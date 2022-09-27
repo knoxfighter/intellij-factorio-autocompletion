@@ -5,7 +5,7 @@ import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphismC
 
 
 @JsonPolymorphismClass("name")
-public class Operator implements Arrangable {
+public class Operator implements Arrangeable {
     /**
      * "index", "length": Attributes
      * "call": Method

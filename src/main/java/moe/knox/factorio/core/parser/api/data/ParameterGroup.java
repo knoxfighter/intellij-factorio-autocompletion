@@ -3,7 +3,7 @@ package moe.knox.factorio.core.parser.api.data;
 import java.util.Comparator;
 import java.util.List;
 
-public class ParameterGroup implements Arrangable {
+public class ParameterGroup implements Arrangeable {
     public String name; // The name of the parameter group.
     public double order; // The order of the parameter group as shown in the html.
     public String description; // The text description of the parameter group.

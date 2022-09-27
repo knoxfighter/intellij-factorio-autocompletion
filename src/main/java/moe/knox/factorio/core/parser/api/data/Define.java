@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * The representation of a define (defines.?.?)
  */
-public class Define implements Arrangable {
+public class Define implements Arrangeable {
     /**
      * The name of the define.
      */

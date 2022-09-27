@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Comparator;
 import java.util.List;
 
-public class Method implements Arrangable {
+public class Method implements Arrangeable {
     public String name; // The name of the method.
     public double order; // The order of the method as shown in the html.
     public String description; // The text description of the method.

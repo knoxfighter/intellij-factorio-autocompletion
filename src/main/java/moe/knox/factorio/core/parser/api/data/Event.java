@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Represents an event
  */
-public class Event implements Arrangable {
+public class Event implements Arrangeable {
     String name; // The name of the event.
     double order; // The order of the event as shown in the html.
     String description; // The text description of the event.

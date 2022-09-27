@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * The representation of the new json lua-api
  */
-public class RuntimeApi implements Arrangable {
+public class RuntimeApi implements Arrangeable {
     /**
      * The application this documentation is for.
      * Will always be "factorio".

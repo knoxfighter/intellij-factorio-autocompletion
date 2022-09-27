@@ -1,5 +1,5 @@
 package moe.knox.factorio.core.parser.api.data;
 
-interface Arrangable {
+interface Arrangeable {
     void arrangeElements();
 }

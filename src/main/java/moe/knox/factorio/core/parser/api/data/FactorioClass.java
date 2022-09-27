@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Represents a single class in factorio
  */
-public class FactorioClass implements Arrangable {
+public class FactorioClass implements Arrangeable {
     public String name;
     public double order; // The order of the class as shown in the html.
     public String description;

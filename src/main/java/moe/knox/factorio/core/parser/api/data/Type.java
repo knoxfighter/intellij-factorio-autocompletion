@@ -51,13 +51,13 @@ class TypeJsonAdapter extends TypeAdapter<Type> {
  * A type is either a string, in which case that string is the simple type. Otherwise, a type is a table.
  */
 @JsonAdapter(TypeJsonAdapter.class)
-public class Type implements Arrangable {
+public class Type implements Arrangeable {
     public boolean isSimpleString = true;
     public String type;
     public ComplexData data;
 
     @JsonPolymorphismClass("complexType")
-    public class ComplexData implements Arrangable {
+    public class ComplexData implements Arrangeable {
         @SerializedName("complex_type")
         public String complexType; // A string denoting the kind of complex type.
 

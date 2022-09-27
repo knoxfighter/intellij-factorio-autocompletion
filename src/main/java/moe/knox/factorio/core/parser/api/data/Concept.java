@@ -13,7 +13,7 @@ import java.util.List;
  * Depending on `category` it has additional members.
  */
 @JsonPolymorphismClass("category")
-public class Concept implements Arrangable {
+public class Concept implements Arrangeable {
     public String name; // The name of the concept.
     public double order; // The order of the concept as shown in the html.
     public String description; // The text description of the concept.
