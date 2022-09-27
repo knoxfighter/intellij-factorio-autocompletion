@@ -447,7 +447,7 @@ public final class Writer
 
         boolean first = true;
         for (Parameter parameter : parameters) {
-            if (stopAt != null && stopAt == parameter.name) {
+            if (stopAt != null && stopAt.equals(parameter.name)) {
                 break;
             }
 

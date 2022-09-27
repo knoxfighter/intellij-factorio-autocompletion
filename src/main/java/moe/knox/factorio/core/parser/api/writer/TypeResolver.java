@@ -66,7 +66,7 @@ final class TypeResolver
                 return getAnonymousTableType(data.table.parameters);
             }
             default:
-                throw new IllegalStateException("Unexpected value: " + data);
+                throw new IllegalStateException("Unexpected value: " + data.complexType);
         }
     }
 
