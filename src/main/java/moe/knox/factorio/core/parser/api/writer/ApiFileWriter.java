@@ -273,7 +273,7 @@ public final class ApiFileWriter
 
             if (method.takesTable) {
                 // This is a table function (use anonymous function as only param)
-                String paramType = TypeResolver.getAnonymousTableType(method.parameters);
+                String paramType = AnnotationTypeResolver.getAnonymousTableType(method.parameters);
 
                 writeParam(output, "param", paramType);
 
@@ -505,6 +505,6 @@ public final class ApiFileWriter
 
     private String getType(Type type)
     {
-        return TypeResolver.getType(type);
+        return AnnotationTypeResolver.getType(type);
     }
 }

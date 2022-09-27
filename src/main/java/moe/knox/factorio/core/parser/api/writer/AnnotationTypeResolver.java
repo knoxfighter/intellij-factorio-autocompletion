@@ -5,7 +5,7 @@ import moe.knox.factorio.core.parser.api.data.Type;
 
 import java.util.List;
 
-final class TypeResolver
+final class AnnotationTypeResolver
 {
     static String getType(Type type) {
         if (type.isSimpleString) {
