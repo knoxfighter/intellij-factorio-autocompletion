@@ -43,10 +43,12 @@ public final class ApiFileWriter
                 writeConceptAsTable(concept);
             } else if (concept.type() instanceof ValueType.Union) {
                 writeConceptAsUnion(concept);
+            } else if (concept.type() instanceof ValueType.Simple) {
+                writeConceptAsSimple(concept);
+            } else if (concept.type() instanceof ValueType.Dictionary) {
+                writeConceptAsDictionary(concept);
             } else if (
-                concept.type() instanceof ValueType.Dictionary ||
                 concept.type() instanceof ValueType.Struct ||
-                concept.type() instanceof ValueType.Simple ||
                 concept.type() instanceof ValueType.Tuple ||
                 concept.type() instanceof ValueType.Array
             ) {
@@ -429,6 +431,30 @@ public final class ApiFileWriter
             writeDescLine(output, getType(optionType) + ": " + optionType.getDescription());
         }
         writeAlias(output, concept.name(), types);
+
+        output.append(NEW_LINE);
+    }
+
+    private void writeConceptAsSimple(Concept concept) throws IOException {
+        var conceptType = (ValueType.Simple) concept.type();
+
+        writeDescLine(output, concept.description());
+        writeDescLine(output, concept.notes());
+        writeDescLine(output, concept.examples());
+        writeSee(output, concept.seeAlso());
+        writeAlias(output, concept.name(), conceptType.value());
+
+        output.append(NEW_LINE);
+    }
+
+    private void writeConceptAsDictionary(Concept concept) throws IOException {
+        var conceptType = (ValueType.Dictionary) concept.type();
+
+        writeDescLine(output, concept.description());
+        writeDescLine(output, concept.notes());
+        writeDescLine(output, concept.examples());
+        writeSee(output, concept.seeAlso());
+        writeAlias(output, concept.name(), getType(conceptType));
 
         output.append(NEW_LINE);
     }
