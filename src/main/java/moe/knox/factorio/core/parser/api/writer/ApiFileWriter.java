@@ -26,9 +26,7 @@ public final class ApiFileWriter
     public void writeRuntimeApi(RuntimeApi runtimeApi) throws IOException {
         writeGlobalsObjects(runtimeApi.globalObjects);
 
-        output.append("---@class defines").append(NEW_LINE);
-        output.append("defines = {}").append(NEW_LINE).append(NEW_LINE);
-        writeDefines(runtimeApi.defines, "defines");
+        writeDefines(runtimeApi.defines);
 
         // TODO: implement autocompletion for events
 
@@ -70,6 +68,14 @@ public final class ApiFileWriter
             output.append(NEW_LINE);
         }
         output.append(NEW_LINE);
+    }
+
+    private void writeDefines(List<Define> defines) throws IOException {
+        writeHeaderBlock("Defines");
+
+        output.append("---@class defines").append(NEW_LINE);
+        output.append("defines = {}").append(NEW_LINE).append(NEW_LINE);
+        writeDefines(defines, "defines");
     }
 
     private void writeDefines(List<Define> defines, String parents) throws IOException {
