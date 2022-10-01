@@ -4,13 +4,13 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
 import moe.knox.factorio.core.parser.api.writer.ApiFileWriter;
 import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.core.NotificationService;
-import moe.knox.factorio.core.parser.Parser;
 import moe.knox.factorio.intellij.FactorioState;
 import moe.knox.factorio.core.version.ApiVersionCollection;
 import moe.knox.factorio.core.version.ApiVersionResolver;
@@ -25,7 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ApiParser extends Parser {
+public class ApiParser extends Task.Backgroundable {
     private final static String apiRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_api/";
     private static AtomicBoolean downloadInProgress = new AtomicBoolean(false);
     private FactorioState config;
@@ -172,7 +172,7 @@ public class ApiParser extends Parser {
             writer.flush();
         } catch (IOException e) {
             e.printStackTrace();
-            showDownloadingError(true);
+            NotificationService.getInstance(myProject).notifyErrorDownloadingPartPrototypeDefinitions();
         }
     }
 

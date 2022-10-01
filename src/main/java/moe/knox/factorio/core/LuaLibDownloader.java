@@ -6,10 +6,10 @@ import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
-import moe.knox.factorio.core.parser.Parser;
 import moe.knox.factorio.intellij.FactorioState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,8 +23,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class LuaLibDownloader extends Parser {
-    private static final Logger LOG = Logger.getInstance(Parser.class);
+final public class LuaLibDownloader extends Task.Backgroundable {
+    private static final Logger LOG = Logger.getInstance(LuaLibDownloader.class);
 
     public static final String luaLibRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/lualib/";
     public static final String prototypeRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/core_prototypes/";
