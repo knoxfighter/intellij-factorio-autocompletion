@@ -103,17 +103,13 @@ public final class ApiFileWriter
             writeDescLine(output, factorioClass.examples);
             writeSee(output, factorioClass.seeAlso);
 
-            for (Operator operator : factorioClass.operators) {
-                if (operator.name == "call") {
-                    writeOverload(output, operator.method.parameters, operator.method.returnType);
-                }
-            }
+            writeOperators(factorioClass);
 
             writeClass(output, factorioClass.name, factorioClass.baseClasses);
             writeObjDef(output, factorioClass.name, true);
             output.append(NEW_LINE);
 
-            writeAttributes(output, factorioClass.attributes, factorioClass.name);
+            writeAttributes(factorioClass.attributes, factorioClass.name);
             writeMethods(output, factorioClass.methods, factorioClass.name);
 
             output.append(NEW_LINE);
@@ -177,17 +173,21 @@ public final class ApiFileWriter
         }
     }
 
-    private void writeAttributes(Writer output, List<Attribute> attributes, String className) throws IOException {
+    private void writeAttributes(List<Attribute> attributes, String className) throws IOException {
         for (Attribute attribute : attributes) {
-            writeDescLine(output, attribute.description);
-            writeDescLine(output, attribute.notes);
-            writeDescLine(output, attribute.examples);
-            writeSee(output, attribute.seeAlso);
-            writeReadWrite(output, attribute.read, attribute.write);
-            writeType(output, attribute.type);
-            writeValDef(output, attribute.name, className);
-            output.append(NEW_LINE);
+            writeAttribute(attribute, className);
         }
+    }
+
+    private void writeAttribute(Attribute attribute, String className) throws IOException {
+        writeDescLine(output, attribute.description);
+        writeDescLine(output, attribute.notes);
+        writeDescLine(output, attribute.examples);
+        writeSee(output, attribute.seeAlso);
+        writeReadWrite(output, attribute.read, attribute.write);
+        writeType(output, attribute.type);
+        writeValDef(output, attribute.name, className);
+        output.append(NEW_LINE);
     }
 
     private void writeMethods(Writer output, List<Method> methods, String className) throws IOException {
@@ -434,5 +434,14 @@ public final class ApiFileWriter
                 .append("----------------------------------------------").append(NEW_LINE)
                 .append(NEW_LINE).append(NEW_LINE).append(NEW_LINE)
         ;
+    }
+
+    private void writeOperators(FactorioClass factorioClass) throws IOException {
+        for (Operator operator : factorioClass.operators) {
+            switch (operator.getType()) {
+                case CALL -> writeOverload(output, operator.method.parameters, operator.method.returnType);
+                case INDEX, LENGTH -> writeAttribute(operator.attribute, factorioClass.name);
+            }
+        }
     }
 }
