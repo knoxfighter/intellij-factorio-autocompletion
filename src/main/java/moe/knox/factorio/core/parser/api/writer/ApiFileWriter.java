@@ -1,6 +1,7 @@
 package moe.knox.factorio.core.parser.api.writer;
 
 import moe.knox.factorio.core.parser.api.data.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -37,6 +38,8 @@ public final class ApiFileWriter
     }
 
     private void writeConcepts(List<Concept> concepts) throws IOException {
+        writeHeaderBlock("Concepts");
+
         for (Concept concept : concepts) {
             if (concept.type() instanceof ValueType.Table) {
                 writeConceptAsTable(concept);
@@ -57,6 +60,8 @@ public final class ApiFileWriter
     }
 
     private void writeGlobalsObjects(List<GlobalObject> globalObjects) throws IOException {
+        writeHeaderBlock("Global objects");
+
         // global objects
         for (GlobalObject globalObject : globalObjects) {
             writeDescLine(output, globalObject.description);
@@ -68,6 +73,8 @@ public final class ApiFileWriter
     }
 
     private void writeDefines(List<Define> defines, String parents) throws IOException {
+        writeHeaderBlock("Defines");
+
         for (Define define : defines) {
             writeDescLine(output, define.description);
 
@@ -88,6 +95,8 @@ public final class ApiFileWriter
     }
 
     private void writeClasses(List<FactorioClass> classes) throws IOException {
+        writeHeaderBlock("Classes");
+
         for (FactorioClass factorioClass : classes) {
             writeDescLine(output, factorioClass.description);
             writeDescLine(output, factorioClass.notes);
@@ -470,5 +479,14 @@ public final class ApiFileWriter
         writeAlias(output, concept.name(), types);
 
         output.append(NEW_LINE);
+    }
+
+    private void writeHeaderBlock(@NotNull String blockName) throws IOException {
+        output.append(NEW_LINE)
+                .append("----------------------------------------------").append(NEW_LINE)
+                .append("-".repeat(10)).append(" ").append(blockName).append(NEW_LINE)
+                .append("----------------------------------------------").append(NEW_LINE)
+                .append(NEW_LINE).append(NEW_LINE).append(NEW_LINE)
+        ;
     }
 }
