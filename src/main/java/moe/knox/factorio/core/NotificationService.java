@@ -60,6 +60,10 @@ final public class NotificationService {
         raiseNotification("Error getting current tags. Lualib not downloaded.", NotificationType.WARNING);
     }
 
+    public void notifyErrorCreatingLuaLib() {
+        raiseNotification("Error creating LuaLib directory", NotificationType.WARNING);
+    }
+
     private void raiseNotification(String message, NotificationType notificationType) {
         Notification notification = notificationGroup.createNotification(message, notificationType);
         notification.addAction(createOpenSettingsNotificationAction());

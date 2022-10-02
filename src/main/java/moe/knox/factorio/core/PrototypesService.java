@@ -9,7 +9,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import moe.knox.factorio.core.util.FileIndexerUtil;
+import moe.knox.factorio.intellij.library.service.LuaLibService;
 
+import java.nio.file.Path;
 import java.util.*;
 
 @Service
@@ -27,12 +29,12 @@ final public class PrototypesService {
 
     // Create index for base and core Prototypes
     public void reloadIndex() {
-        String currentPrototypeLink = LuaLibDownloader.getCurrentPrototypeLink(project);
-        if (currentPrototypeLink != null) {
+        Path currentPrototypePath = LuaLibService.getInstance(project).getCurrentCorePrototypePath();
+        if (currentPrototypePath != null) {
             ReadAction.run(() -> {
                 PsiManager psiManager = PsiManager.getInstance(project);
 
-                VirtualFile rootFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(currentPrototypeLink);
+                VirtualFile rootFile = LocalFileSystem.getInstance().refreshAndFindFileByPath(currentPrototypePath.toString());
                 VfsUtil.iterateChildrenRecursively(
                         rootFile,
                         virtualFile -> true,
