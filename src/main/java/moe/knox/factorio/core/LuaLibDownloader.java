@@ -1,23 +1,19 @@
 package moe.knox.factorio.core;
 
-import com.google.gson.Gson;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import moe.knox.factorio.core.version.FactorioApiVersion;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 final public class LuaLibDownloader {
     private static final Logger LOG = Logger.getInstance(LuaLibDownloader.class);
-    private static final String luaLibGithubTagsLink = "https://api.github.com/repos/wube/factorio-data/git/refs/tags";
     private static final String luaLibGithubTagsZipLink = "https://api.github.com/repos/wube/factorio-data/zipball";
 
     private final Path luaLibRootPath;
@@ -101,39 +97,6 @@ final public class LuaLibDownloader {
         }
     }
 
-    private RefTag[] downloadTags() throws GettingTagException {
-        RefTag[] tags;
-
-        try {
-            URL url = new URL(luaLibGithubTagsLink);
-            InputStreamReader inputStream = new InputStreamReader(url.openStream());
-            Gson gson = new Gson();
-            tags = gson.fromJson(inputStream, RefTag[].class);
-        } catch (Throwable e) {
-            throw new GettingTagException(e);
-        }
-
-        if (tags.length == 0) {
-            throw new GettingTagException();
-        }
-
-        return tags;
-    }
-
-    private @NotNull RefTag getTag(FactorioApiVersion selectedVersion) throws GettingTagException {
-        RefTag[] tags = downloadTags();
-        RefTag tagForVersion = null;
-
-        for (RefTag tag : tags) {
-            if (tag.ref.substring(tag.ref.lastIndexOf("/") + 1).equals(selectedVersion.version())) {
-                tagForVersion = tag;
-                break;
-            }
-        }
-
-        return Objects.requireNonNull(tagForVersion);
-    }
-
     /**
      * When an update is available it will also remove the old one and start the download of the new one.
      *
@@ -145,11 +108,5 @@ final public class LuaLibDownloader {
         Path corePrototypeVersionPath = corePrototypeRootPath.resolve(selectedVersion.version());
 
         return !luaLibVersionPath.toFile().exists() || !corePrototypeVersionPath.toFile().exists();
-    }
-
-    private static class RefTag {
-        String ref;
-        String mode_id;
-        String url;
     }
 }
