@@ -6,9 +6,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.core.parser.api.ApiParser;
-import moe.knox.factorio.core.parser.prototype.PrototypeParser;
 import moe.knox.factorio.core.version.ApiVersionResolver;
 import moe.knox.factorio.intellij.library.service.LuaLibService;
+import moe.knox.factorio.intellij.library.service.PrototypeService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -129,14 +129,14 @@ public class FactorioConfig implements SearchableConfigurable {
     private void removeParsedLibraries()
     {
         ApiParser.removeCurrentAPI(project);
-        PrototypeParser.removeCurrentPrototypes();
+        PrototypeService.getInstance(project).removeCurrentPrototypes();
         LuaLibService.getInstance(project).removeLuaLibFiles();
     }
 
     private void updateLibraries()
     {
         ApiParser.checkForUpdate(project);
-        PrototypeParser.getCurrentPrototypeLink(project);
+        PrototypeService.getInstance(project).checkForUpdate();
         LuaLibService.getInstance(project).checkForUpdate();
     }
 
