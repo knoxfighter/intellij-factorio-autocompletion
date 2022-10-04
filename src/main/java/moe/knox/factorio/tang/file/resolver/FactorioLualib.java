@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import moe.knox.factorio.intellij.FactorioState;
-import moe.knox.factorio.intellij.library.service.LuaLibService;
+import moe.knox.factorio.intellij.service.LuaLibService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

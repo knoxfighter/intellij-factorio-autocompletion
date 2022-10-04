@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import moe.knox.factorio.core.util.FileIndexerUtil;
-import moe.knox.factorio.intellij.library.service.LuaLibService;
+import moe.knox.factorio.intellij.service.LuaLibService;
 
 import java.nio.file.Path;
 import java.util.*;
