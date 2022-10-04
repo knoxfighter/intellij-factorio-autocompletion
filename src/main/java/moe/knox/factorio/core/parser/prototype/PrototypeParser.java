@@ -397,25 +397,25 @@ public class PrototypeParser {
                 }
             }
         }
-    }
 
-    private class Property {
-        String name;
-        String type;
-        SubPrototype inlineType = new SubPrototype();
-        List<String> description = new ArrayList<>();
-        boolean optional = false;
+        private static class Property {
+            String name;
+            String type;
+            SubPrototype inlineType = new SubPrototype();
+            List<String> description = new ArrayList<>();
+            boolean optional = false;
 
-        public Property() {
+            public Property() {
 
+            }
+
+            public Property(String name) {
+                this.name = name;
+            }
         }
 
-        public Property(String name) {
-            this.name = name;
+        private static class SubPrototype {
+            List<Property> properties = new ArrayList<>();
         }
-    }
-
-    private class SubPrototype {
-        List<Property> properties = new ArrayList<>();
     }
 }
