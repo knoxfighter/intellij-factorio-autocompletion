@@ -112,8 +112,8 @@ public class FactorioConfig implements SearchableConfigurable {
         }
 
         if (isVersionChanged()) {
-            ApiService.getInstance(project).removeCurrentAPI();
-            LuaLibService.getInstance(project).removeLuaLibFiles();
+            ApiService.getInstance(project).removeLibraryFiles();
+            LuaLibService.getInstance(project).removeLibraryFiles();
             LuaLibService.getInstance(project).checkForUpdate();
         }
 
@@ -128,9 +128,9 @@ public class FactorioConfig implements SearchableConfigurable {
 
     private void removeParsedLibraries()
     {
-        ApiService.getInstance(project).removeCurrentAPI();
-        PrototypeService.getInstance(project).removeCurrentPrototypes();
-        LuaLibService.getInstance(project).removeLuaLibFiles();
+        ApiService.getInstance(project).removeLibraryFiles();
+        PrototypeService.getInstance(project).removeLibraryFiles();
+        LuaLibService.getInstance(project).removeLibraryFiles();
     }
 
     private void updateLibraries()

@@ -18,7 +18,7 @@ public class FactorioStartupActivity implements StartupActivity {
             ApiService.getInstance(project).checkForUpdate();
 
             if (update) {
-                PrototypeService.getInstance(project).removeCurrentPrototypes();
+                PrototypeService.getInstance(project).removeLibraryFiles();
                 PrototypeService.getInstance(project).checkForUpdate();
             }
 

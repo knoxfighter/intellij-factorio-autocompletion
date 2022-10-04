@@ -39,7 +39,7 @@ public class ApiService {
         return new ApiService(project);
     }
 
-    public void removeCurrentAPI() {
+    public void removeLibraryFiles() {
         if (downloadInProgress.get()) {
             return;
         }
@@ -58,7 +58,7 @@ public class ApiService {
         FactorioVersion newestVersion = detectLatestAllowedVersion();
 
         if (newestVersion != null && !newestVersion.equals(config.selectedFactorioVersion)) {
-            removeCurrentAPI();
+            removeLibraryFiles();
 
             if (downloadInProgress.compareAndSet(false, true)) {
                 ProgressManager.getInstance().run(new ApiTask());

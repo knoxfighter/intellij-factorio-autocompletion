@@ -69,7 +69,7 @@ public class LuaLibService {
         return path;
     }
 
-    public void removeLuaLibFiles() {
+    public void removeLibraryFiles() {
         if (downloadInProgress.get()) {
             return;
         }
