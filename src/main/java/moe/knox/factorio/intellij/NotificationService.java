@@ -1,11 +1,10 @@
-package moe.knox.factorio.core;
+package moe.knox.factorio.intellij;
 
 import com.intellij.notification.*;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
-import moe.knox.factorio.intellij.FactorioConfig;
 import org.jetbrains.annotations.NotNull;
 
 @Service

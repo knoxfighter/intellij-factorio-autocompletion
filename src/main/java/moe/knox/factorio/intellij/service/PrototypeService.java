@@ -6,7 +6,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import moe.knox.factorio.core.NotificationService;
+import moe.knox.factorio.intellij.NotificationService;
 import moe.knox.factorio.core.PrototypesService;
 import moe.knox.factorio.core.parser.prototype.PrototypeParser;
 import moe.knox.factorio.core.version.FactorioVersion;
