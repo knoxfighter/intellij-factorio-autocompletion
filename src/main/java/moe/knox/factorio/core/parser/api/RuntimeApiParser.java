@@ -10,11 +10,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-public final class ApiSpecificationParser {
+public final class RuntimeApiParser {
     private final String factorioApiBaseLink = "https://lua-api.factorio.com";
 
-    public RuntimeApi parse(FactorioApiVersion version) throws CoreException
-    {
+    public RuntimeApi parse(FactorioApiVersion version) throws CoreException {
         try (InputStreamReader inputStreamReader = new InputStreamReader(createVersionStream(version))) {
             GsonBuilder builder = new GsonBuilder();
             ParsingHelper.addDeserializers(builder);

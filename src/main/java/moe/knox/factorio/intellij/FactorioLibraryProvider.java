@@ -15,7 +15,7 @@ import com.intellij.util.PathUtil;
 import com.intellij.util.io.URLUtil;
 import com.tang.intellij.lua.lang.LuaIcons;
 import com.tang.intellij.lua.psi.LuaFileUtil;
-import moe.knox.factorio.core.parser.api.ApiParser;
+import moe.knox.factorio.intellij.library.service.ApiService;
 import moe.knox.factorio.intellij.library.service.PrototypeService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,9 +56,9 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
 
         // libDir for downloaded factorio api
         VirtualFile dynDir = null;
-        String downloadedApiDir = ApiParser.getCurrentApiLink(project);
-        if (downloadedApiDir != null && !downloadedApiDir.isEmpty()) {
-            libList.add(createLibrary(downloadedApiDir, "Factorio API"));
+        Path apiPath = ApiService.getInstance(project).getApiPath();
+        if (apiPath != null) {
+            libList.add(createLibrary(apiPath.toString(), "Factorio API"));
         }
 
         // protoDir for downloaded factorio prototypes

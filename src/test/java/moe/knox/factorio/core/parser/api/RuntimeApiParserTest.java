@@ -11,12 +11,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.IOException;
 import java.util.Set;
 
-public class ApiSpecificationParserTest extends TestCase {
-    private ApiSpecificationParser service;
+public class RuntimeApiParserTest extends TestCase {
+    private RuntimeApiParser service;
 
     @BeforeEach
     protected void setUp() {
-        service = new ApiSpecificationParser();
+        service = new RuntimeApiParser();
     }
 
     public static Set<FactorioApiVersion> providerVersions() throws IOException {
