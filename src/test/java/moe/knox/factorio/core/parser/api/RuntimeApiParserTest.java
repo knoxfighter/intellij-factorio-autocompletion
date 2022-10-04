@@ -25,7 +25,7 @@ public class RuntimeApiParserTest extends TestCase {
 
     @ParameterizedTest
     @MethodSource("providerVersions")
-    void parse(FactorioVersion version) {
+    void parse(FactorioVersion version) throws IOException {
         RuntimeApi runtimeApi = service.parse(version);
 
         assertNotNull(runtimeApi);
