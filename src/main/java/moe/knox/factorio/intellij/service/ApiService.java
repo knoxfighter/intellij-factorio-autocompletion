@@ -13,7 +13,7 @@ import moe.knox.factorio.core.version.FactorioVersionResolver;
 import moe.knox.factorio.core.version.FactorioVersion;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
 import moe.knox.factorio.intellij.FactorioState;
-import moe.knox.factorio.intellij.util.FilesystemUtil;
+import moe.knox.factorio.intellij.util.FileUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ public class ApiService {
     private ApiService(Project project) {
         this.project = project;
 
-        Path pluginDir = FilesystemUtil.getPluginDir();
+        Path pluginDir = FileUtil.getPluginDir();
         Path apiRootPath = pluginDir.resolve("factorio_api");
         apiParser = new ApiParser(apiRootPath);
     }

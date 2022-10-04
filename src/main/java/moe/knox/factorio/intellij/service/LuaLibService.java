@@ -11,7 +11,7 @@ import moe.knox.factorio.core.NotificationService;
 import moe.knox.factorio.core.PrototypesService;
 import moe.knox.factorio.core.version.FactorioVersion;
 import moe.knox.factorio.intellij.FactorioState;
-import moe.knox.factorio.intellij.util.FilesystemUtil;
+import moe.knox.factorio.intellij.util.FileUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -26,7 +26,7 @@ public class LuaLibService {
     private LuaLibService(Project project) {
         this.project = project;
 
-        Path pluginDir = FilesystemUtil.getPluginDir();
+        Path pluginDir = FileUtil.getPluginDir();
         Path luaLibRootPath = pluginDir.resolve("lualib");
         Path corePrototypesRootPath = pluginDir.resolve("core_prototypes");
         luaLibParser = new LuaLibParser(luaLibRootPath, corePrototypesRootPath);

@@ -12,7 +12,7 @@ import moe.knox.factorio.core.parser.prototype.PrototypeParser;
 import moe.knox.factorio.core.version.FactorioVersion;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
 import moe.knox.factorio.intellij.FactorioState;
-import moe.knox.factorio.intellij.util.FilesystemUtil;
+import moe.knox.factorio.intellij.util.FileUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ public class PrototypeService {
     private PrototypeService(Project project) {
         this.project = project;
 
-        Path pluginDir = FilesystemUtil.getPluginDir();
+        Path pluginDir = FileUtil.getPluginDir();
         Path prototypesRootPath = pluginDir.resolve("factorio_prototypes");
         prototypeParser = new PrototypeParser(prototypesRootPath);
     }
