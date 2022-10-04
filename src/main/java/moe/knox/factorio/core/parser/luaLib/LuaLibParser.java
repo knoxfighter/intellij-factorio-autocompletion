@@ -2,7 +2,6 @@ package moe.knox.factorio.core.parser.luaLib;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
-import moe.knox.factorio.core.GettingTagException;
 import moe.knox.factorio.core.version.FactorioVersion;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +41,7 @@ final public class LuaLibParser {
         return Files.exists(versionPath) ? versionPath : null;
     }
 
-    public void downloadAll(FactorioVersion version) throws IOException, GettingTagException {
+    public void downloadAll(FactorioVersion version) throws IOException {
         Path luaLibRootPathSubDir = luaLibRootPath.resolve(version.version());
         Path corePrototypeSubDir = corePrototypeRootPath.resolve(version.version()).resolve("core");
         Path basePrototypeSubDir = corePrototypeRootPath.resolve(version.version()).resolve("base");
@@ -104,7 +103,7 @@ final public class LuaLibParser {
      * @param version
      * @return true when an update is available or the API not existent
      */
-    public boolean checkForUpdate(FactorioVersion version) throws GettingTagException {
+    public boolean checkForUpdate(FactorioVersion version) {
         Path luaLibVersionPath = luaLibRootPath.resolve(version.version());
         Path corePrototypeVersionPath = corePrototypeRootPath.resolve(version.version());
 

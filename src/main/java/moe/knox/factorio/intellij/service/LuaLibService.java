@@ -6,7 +6,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import moe.knox.factorio.core.GettingTagException;
 import moe.knox.factorio.core.parser.luaLib.LuaLibParser;
 import moe.knox.factorio.core.NotificationService;
 import moe.knox.factorio.core.PrototypesService;
@@ -15,7 +14,6 @@ import moe.knox.factorio.intellij.FactorioState;
 import moe.knox.factorio.intellij.util.FilesystemUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -91,9 +89,9 @@ public class LuaLibService {
             if (needUpdate && downloadInProgress.compareAndSet(false, true)) {
                 ProgressManager.getInstance().run(new LuaLibDownloadTask());
             }
-        } catch (GettingTagException e) {
+        } catch (Throwable e) {
             LOG.error(e);
-            NotificationService.getInstance(project).notifyErrorTagsDownloading();
+            NotificationService.getInstance(project).notifyErrorLuaLibUpdating();
         }
 
         return needUpdate;
@@ -112,12 +110,9 @@ public class LuaLibService {
                 luaLibParser.downloadAll(selectedVersion);
 
                 ApplicationManager.getApplication().invokeLater(() -> PrototypesService.getInstance(project).reloadIndex());
-            } catch (GettingTagException e) {
+            } catch (Throwable e) {
                 LOG.error(e);
-                NotificationService.getInstance(project).notifyErrorTagsDownloading();
-            } catch (IOException e) {
-                LOG.error(e);
-                NotificationService.getInstance(project).notifyErrorCreatingLuaLib();
+                NotificationService.getInstance(project).notifyErrorLuaLibUpdating();
             } finally {
                 downloadInProgress.set(false);
             }

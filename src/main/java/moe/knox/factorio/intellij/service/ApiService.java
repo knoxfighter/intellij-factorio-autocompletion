@@ -88,7 +88,8 @@ public class ApiService {
         try {
             factorioApiVersions = (new FactorioVersionResolver()).supportedVersions();
         } catch (IOException e) {
-            NotificationService.getInstance(project).notifyErrorCheckingNewVersion();
+            LOG.error(e);
+            NotificationService.getInstance(project).notifyErrorApiUpdating();
             return null;
         }
 
@@ -108,9 +109,9 @@ public class ApiService {
                 apiParser.parse(selectedVersion);
 
                 ApplicationManager.getApplication().invokeLater(FactorioLibraryProvider::reload);
-            } catch (IOException e) {
+            } catch (Throwable e) {
                 LOG.error(e);
-                NotificationService.getInstance(project).notifyErrorCreatingApiDirs();
+                NotificationService.getInstance(project).notifyErrorApiUpdating();
             } finally {
                 downloadInProgress.set(false);
             }

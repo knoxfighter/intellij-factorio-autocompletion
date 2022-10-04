@@ -1,8 +1,6 @@
 package moe.knox.factorio.core.parser.luaLib;
 
 import junit.framework.TestCase;
-import moe.knox.factorio.core.GettingTagException;
-import moe.knox.factorio.core.parser.luaLib.LuaLibParser;
 import moe.knox.factorio.core.version.FactorioVersionResolver;
 import moe.knox.factorio.core.version.FactorioVersion;
 import org.junit.jupiter.api.BeforeAll;
@@ -41,7 +39,7 @@ public class LuaLibParserTest extends TestCase {
 
     @ParameterizedTest
     @MethodSource("providerVersions")
-    void downloadAll(FactorioVersion version) throws GettingTagException, IOException {
+    void downloadAll(FactorioVersion version) throws IOException {
         luaLibParser.downloadAll(version);
     }
 }

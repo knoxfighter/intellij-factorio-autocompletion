@@ -22,46 +22,22 @@ final public class NotificationService {
         return project.getService(NotificationService.class);
     }
 
-    public void notifyErrorCheckingNewVersion() {
-        raiseNotification("Error checking new Version. Manual update in the Settings.", NotificationType.WARNING);
-    }
-
-    public void notifyErrorCreatingApiDirs() {
-        raiseNotification("Error creating the directories for the Factorio API.", NotificationType.ERROR);
-    }
-
-    public void notifyErrorCreatingPrototypeDirs() {
-        raiseNotification("Error creating the directories for the Factorio Prototypes.", NotificationType.ERROR);
-    }
-
-    public void notifyErrorDownloadingVersion() {
-        raiseNotification("Error downloading Version overview", NotificationType.WARNING);
-    }
-
-    public void notifyErrorDownloadingApi() {
-        raiseNotification("Error downloading api", NotificationType.ERROR);
-    }
-
-    public void notifyErrorDownloadingPrototypeDefinitions() {
+    public void notifyErrorLuaLibUpdating() {
         raiseNotification("""
-            Error downloading the factorio prototype definitions. Please go online and try it again!
-            Integration is disabled until reloaded in Settings.
+            Error checking LuaLib update. Please try again later!
         """, NotificationType.ERROR);
     }
 
-    public void notifyErrorDownloadingPartPrototypeDefinitions() {
+    public void notifyErrorPrototypeUpdating() {
         raiseNotification("""
-            Error downloading parts of the factorio prototype definitions. Please try again later!
-            Integration is partially disabled until reloaded in Settings.
+            Error checking Prototype update. Please try again later!
         """, NotificationType.ERROR);
     }
 
-    public void notifyErrorTagsDownloading() {
-        raiseNotification("Error getting current tags. Lualib not downloaded.", NotificationType.WARNING);
-    }
-
-    public void notifyErrorCreatingLuaLib() {
-        raiseNotification("Error creating LuaLib directory", NotificationType.WARNING);
+    public void notifyErrorApiUpdating() {
+        raiseNotification("""
+            Error checking Factorio Api update. Please try again later!
+        """, NotificationType.ERROR);
     }
 
     private void raiseNotification(String message, NotificationType notificationType) {
