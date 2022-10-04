@@ -10,7 +10,7 @@ import moe.knox.factorio.core.GettingTagException;
 import moe.knox.factorio.core.LuaLibDownloader;
 import moe.knox.factorio.core.NotificationService;
 import moe.knox.factorio.core.PrototypesService;
-import moe.knox.factorio.core.version.FactorioApiVersion;
+import moe.knox.factorio.core.version.FactorioVersion;
 import moe.knox.factorio.intellij.FactorioState;
 import moe.knox.factorio.intellij.util.FilesystemUtil;
 import org.jetbrains.annotations.NotNull;
@@ -44,7 +44,7 @@ public class LuaLibService {
             return null;
         }
 
-        FactorioApiVersion version = FactorioState.getInstance(project).selectedFactorioVersion;
+        FactorioVersion version = FactorioState.getInstance(project).selectedFactorioVersion;
 
         var path = luaLibDownloader.getLuaLibPath(version);
 
@@ -60,7 +60,7 @@ public class LuaLibService {
             return null;
         }
 
-        FactorioApiVersion version = FactorioState.getInstance(project).selectedFactorioVersion;
+        FactorioVersion version = FactorioState.getInstance(project).selectedFactorioVersion;
 
         var path = luaLibDownloader.getPrototypePath(version);
 
@@ -84,7 +84,7 @@ public class LuaLibService {
         boolean needUpdate = false;
 
         try {
-            FactorioApiVersion selectedVersion = FactorioState.getInstance(project).selectedFactorioVersion;
+            FactorioVersion selectedVersion = FactorioState.getInstance(project).selectedFactorioVersion;
 
             needUpdate = luaLibDownloader.checkForUpdate(selectedVersion);
 
@@ -107,7 +107,7 @@ public class LuaLibService {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
             try {
-                FactorioApiVersion selectedVersion = FactorioState.getInstance(project).selectedFactorioVersion;
+                FactorioVersion selectedVersion = FactorioState.getInstance(project).selectedFactorioVersion;
 
                 luaLibDownloader.downloadAll(selectedVersion);
 

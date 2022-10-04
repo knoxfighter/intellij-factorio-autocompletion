@@ -2,7 +2,7 @@ package moe.knox.factorio.core.parser.api;
 
 import com.intellij.openapi.util.io.FileUtil;
 import moe.knox.factorio.core.parser.api.writer.ApiFileWriter;
-import moe.knox.factorio.core.version.FactorioApiVersion;
+import moe.knox.factorio.core.version.FactorioVersion;
 import moe.knox.factorio.core.parser.api.data.*;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +19,7 @@ public class ApiParser {
         runtimeApiParser = new RuntimeApiParser();
     }
 
-    public @Nullable Path getApiPath(FactorioApiVersion version) {
+    public @Nullable Path getApiPath(FactorioVersion version) {
         Path versionPath = getVersionPath(version);
 
         return Files.exists(versionPath) ? versionPath : null;
@@ -29,7 +29,7 @@ public class ApiParser {
         FileUtil.delete(apiRootPath.toFile());
     }
 
-    public void parse(FactorioApiVersion version) throws IOException {
+    public void parse(FactorioVersion version) throws IOException {
         Path versionPath = getVersionPath(version);
 
         Files.createDirectories(versionPath);
@@ -45,7 +45,7 @@ public class ApiParser {
         }
     }
 
-    private Path getVersionPath(FactorioApiVersion version) {
+    private Path getVersionPath(FactorioVersion version) {
         return apiRootPath.resolve(version.version());
     }
 }

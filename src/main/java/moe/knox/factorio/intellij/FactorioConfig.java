@@ -4,8 +4,8 @@ import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
-import moe.knox.factorio.core.version.FactorioApiVersion;
-import moe.knox.factorio.core.version.ApiVersionResolver;
+import moe.knox.factorio.core.version.FactorioVersion;
+import moe.knox.factorio.core.version.FactorioVersionResolver;
 import moe.knox.factorio.intellij.library.service.ApiService;
 import moe.knox.factorio.intellij.library.service.LuaLibService;
 import moe.knox.factorio.intellij.library.service.PrototypeService;
@@ -25,15 +25,15 @@ public class FactorioConfig implements SearchableConfigurable {
     private JComboBox<DropdownVersion> selectApiVersion;
     private JLabel loadError;
     private JButton reloadButton;
-    private final ApiVersionResolver apiVersionResolver;
+    private final FactorioVersionResolver factorioVersionResolver;
     @NotNull
-    private final FactorioApiVersion latestExistingVersion;
+    private final FactorioVersion latestExistingVersion;
 
     public FactorioConfig(@NotNull Project project) throws IOException {
         this.project = project;
         config = FactorioState.getInstance(project);
-        apiVersionResolver = new ApiVersionResolver();
-        latestExistingVersion = apiVersionResolver.supportedVersions().latestVersion();
+        factorioVersionResolver = new FactorioVersionResolver();
+        latestExistingVersion = factorioVersionResolver.supportedVersions().latestVersion();
 
         enableFactorioIntegrationCheckBox.setSelected(config.integrationActive);
 
@@ -42,7 +42,7 @@ public class FactorioConfig implements SearchableConfigurable {
             var latestDropdownVersion = DropdownVersion.createLatest();
 
             selectApiVersion.addItem(latestDropdownVersion);
-            apiVersionResolver
+            factorioVersionResolver
                     .supportedVersions()
                     .stream()
                     .sorted(Comparator.reverseOrder())
@@ -144,14 +144,14 @@ public class FactorioConfig implements SearchableConfigurable {
         return Objects.requireNonNull((DropdownVersion) selectApiVersion.getSelectedItem()).isLatest();
     }
 
-    private FactorioApiVersion getSelectedVersion() {
+    private FactorioVersion getSelectedVersion() {
         var dropdownVersion = Objects.requireNonNull((DropdownVersion) selectApiVersion.getSelectedItem());
 
         if (dropdownVersion.isLatest()) {
             return latestExistingVersion;
         }
 
-        return FactorioApiVersion.createVersion(dropdownVersion.version);
+        return FactorioVersion.createVersion(dropdownVersion.version);
     }
 
     private boolean isVersionChanged()
@@ -175,7 +175,7 @@ public class FactorioConfig implements SearchableConfigurable {
             return new DropdownVersion("latest", "Latest version");
         }
 
-        public static DropdownVersion fromApiVersion(FactorioApiVersion v)
+        public static DropdownVersion fromApiVersion(FactorioVersion v)
         {
             return new DropdownVersion(v.version(), v.version());
         }

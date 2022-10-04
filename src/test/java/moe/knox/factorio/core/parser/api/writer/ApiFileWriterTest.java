@@ -2,7 +2,7 @@ package moe.knox.factorio.core.parser.api.writer;
 
 import junit.framework.TestCase;
 import moe.knox.factorio.core.parser.api.RuntimeApiParser;
-import moe.knox.factorio.core.version.ApiVersionResolver;
+import moe.knox.factorio.core.version.FactorioVersionResolver;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
@@ -17,7 +17,7 @@ public class ApiFileWriterTest extends TestCase {
     @Test
     void writeRuntimeApi(@TempDir(cleanup = CleanupMode.NEVER) Path tempDir) throws IOException {
         var parser = new RuntimeApiParser();
-        var version = (new ApiVersionResolver()).supportedVersions().latestVersion();
+        var version = (new FactorioVersionResolver()).supportedVersions().latestVersion();
         var runtimeApi = parser.parse(version);
 
         var outputFileName = tempDir.toString() + "/factorio.lua";

@@ -8,9 +8,9 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import moe.knox.factorio.core.NotificationService;
 import moe.knox.factorio.core.parser.api.ApiParser;
-import moe.knox.factorio.core.version.ApiVersionCollection;
-import moe.knox.factorio.core.version.ApiVersionResolver;
-import moe.knox.factorio.core.version.FactorioApiVersion;
+import moe.knox.factorio.core.version.FactorioVersionCollection;
+import moe.knox.factorio.core.version.FactorioVersionResolver;
+import moe.knox.factorio.core.version.FactorioVersion;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
 import moe.knox.factorio.intellij.FactorioState;
 import moe.knox.factorio.intellij.util.FilesystemUtil;
@@ -55,7 +55,7 @@ public class ApiService {
             return;
         }
 
-        FactorioApiVersion newestVersion = detectLatestAllowedVersion();
+        FactorioVersion newestVersion = detectLatestAllowedVersion();
 
         if (newestVersion != null && !newestVersion.equals(config.selectedFactorioVersion)) {
             removeCurrentAPI();
@@ -71,7 +71,7 @@ public class ApiService {
             return null;
         }
 
-        FactorioApiVersion version = FactorioState.getInstance(project).selectedFactorioVersion;
+        FactorioVersion version = FactorioState.getInstance(project).selectedFactorioVersion;
 
         var path = apiParser.getApiPath(version);
 
@@ -82,11 +82,11 @@ public class ApiService {
         return path;
     }
 
-    private FactorioApiVersion detectLatestAllowedVersion() {
-        ApiVersionCollection factorioApiVersions;
+    private FactorioVersion detectLatestAllowedVersion() {
+        FactorioVersionCollection factorioApiVersions;
 
         try {
-            factorioApiVersions = (new ApiVersionResolver()).supportedVersions();
+            factorioApiVersions = (new FactorioVersionResolver()).supportedVersions();
         } catch (IOException e) {
             NotificationService.getInstance(project).notifyErrorCheckingNewVersion();
             return null;
@@ -103,7 +103,7 @@ public class ApiService {
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
             try {
-                FactorioApiVersion selectedVersion = FactorioState.getInstance(project).selectedFactorioVersion;
+                FactorioVersion selectedVersion = FactorioState.getInstance(project).selectedFactorioVersion;
 
                 apiParser.parse(selectedVersion);
 

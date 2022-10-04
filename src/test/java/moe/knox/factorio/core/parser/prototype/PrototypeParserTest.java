@@ -1,8 +1,8 @@
 package moe.knox.factorio.core.parser.prototype;
 
 import junit.framework.TestCase;
-import moe.knox.factorio.core.version.ApiVersionResolver;
-import moe.knox.factorio.core.version.FactorioApiVersion;
+import moe.knox.factorio.core.version.FactorioVersionResolver;
+import moe.knox.factorio.core.version.FactorioVersion;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.CleanupMode;
@@ -32,13 +32,13 @@ public class PrototypeParserTest extends TestCase {
         prototypeParser = new PrototypeParser(prototypeParserRootPath);
     }
 
-    public static Set<FactorioApiVersion> providerVersions() throws IOException {
-        return (new ApiVersionResolver()).supportedVersions();
+    public static Set<FactorioVersion> providerVersions() throws IOException {
+        return (new FactorioVersionResolver()).supportedVersions();
     }
 
     @ParameterizedTest
     @MethodSource("providerVersions")
-    void parse(FactorioApiVersion version) throws IOException {
+    void parse(FactorioVersion version) throws IOException {
         prototypeParser.parse(version);
     }
 }

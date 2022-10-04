@@ -2,7 +2,7 @@ package moe.knox.factorio.core;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
-import moe.knox.factorio.core.version.FactorioApiVersion;
+import moe.knox.factorio.core.version.FactorioVersion;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -29,28 +29,28 @@ final public class LuaLibDownloader {
         FileUtil.delete(corePrototypeRootPath.toFile());
     }
 
-    public @Nullable Path getLuaLibPath(FactorioApiVersion version) {
+    public @Nullable Path getLuaLibPath(FactorioVersion version) {
         Path versionPath = luaLibRootPath.resolve(version.version());
 
         return Files.exists(versionPath) ? versionPath : null;
     }
 
-    public @Nullable Path getPrototypePath(FactorioApiVersion version) {
+    public @Nullable Path getPrototypePath(FactorioVersion version) {
         Path versionPath = corePrototypeRootPath.resolve(version.version());
 
         return Files.exists(versionPath) ? versionPath : null;
     }
 
-    public void downloadAll(FactorioApiVersion selectedVersion) throws IOException, GettingTagException {
-        Path luaLibRootPathSubDir = luaLibRootPath.resolve(selectedVersion.version());
-        Path corePrototypeSubDir = corePrototypeRootPath.resolve(selectedVersion.version()).resolve("core");
-        Path basePrototypeSubDir = corePrototypeRootPath.resolve(selectedVersion.version()).resolve("base");
+    public void downloadAll(FactorioVersion version) throws IOException, GettingTagException {
+        Path luaLibRootPathSubDir = luaLibRootPath.resolve(version.version());
+        Path corePrototypeSubDir = corePrototypeRootPath.resolve(version.version()).resolve("core");
+        Path basePrototypeSubDir = corePrototypeRootPath.resolve(version.version()).resolve("base");
 
         Files.createDirectories(luaLibRootPathSubDir);
         Files.createDirectories(corePrototypeSubDir);
         Files.createDirectories(basePrototypeSubDir);
 
-        URL url = new URL(luaLibGithubTagsZipLink + "/" + selectedVersion.version());
+        URL url = new URL(luaLibGithubTagsZipLink + "/" + version.version());
 
         InputStream inputStream = url.openStream();
         ZipInputStream zipInputStream = new ZipInputStream(inputStream);
@@ -100,12 +100,12 @@ final public class LuaLibDownloader {
     /**
      * When an update is available it will also remove the old one and start the download of the new one.
      *
-     * @param selectedVersion
+     * @param version
      * @return true when an update is available or the API not existent
      */
-    public boolean checkForUpdate(FactorioApiVersion selectedVersion) throws GettingTagException {
-        Path luaLibVersionPath = luaLibRootPath.resolve(selectedVersion.version());
-        Path corePrototypeVersionPath = corePrototypeRootPath.resolve(selectedVersion.version());
+    public boolean checkForUpdate(FactorioVersion version) throws GettingTagException {
+        Path luaLibVersionPath = luaLibRootPath.resolve(version.version());
+        Path corePrototypeVersionPath = corePrototypeRootPath.resolve(version.version());
 
         return !luaLibVersionPath.toFile().exists() || !corePrototypeVersionPath.toFile().exists();
     }

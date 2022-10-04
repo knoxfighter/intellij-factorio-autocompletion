@@ -6,20 +6,18 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
+public class FactorioVersionResolverTest extends TestCase {
 
-public class ApiVersionResolverTest extends TestCase {
-
-    private ApiVersionResolver apiVersionResolver;
+    private FactorioVersionResolver factorioVersionResolver;
 
     @BeforeEach
     protected void setUp() {
-        apiVersionResolver = new ApiVersionResolver();
+        factorioVersionResolver = new FactorioVersionResolver();
     }
 
     @Test
     void supportedVersions() throws IOException {
-        var versions = apiVersionResolver.supportedVersions();
+        var versions = factorioVersionResolver.supportedVersions();
 
         assertFalse("Versions cant be empty", versions.isEmpty());
     }

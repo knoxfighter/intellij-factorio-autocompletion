@@ -13,28 +13,28 @@ import java.util.TreeSet;
 
 /**
  * Return collection of supported api versions
- * @see FactorioApiVersion
+ * @see FactorioVersion
  */
-public final class ApiVersionResolver {
+public final class FactorioVersionResolver {
     final private SemVer minimalSupportedVersion = new SemVer("1.1.62", 1, 1, 62);
     final private static String versionsHtmlPage = "https://lua-api.factorio.com/";
 
-    public ApiVersionCollection supportedVersions() throws IOException {
+    public FactorioVersionCollection supportedVersions() throws IOException {
         var allVersions = getAllVersions();
         var lastVersion = Collections.max(allVersions);
-        var supportedVersions = new ApiVersionCollection();
+        var supportedVersions = new FactorioVersionCollection();
 
         for (SemVer version : allVersions) {
             if (!version.isGreaterOrEqualThan(minimalSupportedVersion)) {
                 continue;
             }
 
-            FactorioApiVersion factorioVersion;
+            FactorioVersion factorioVersion;
 
             if (version.equals(lastVersion)) {
-                factorioVersion = FactorioApiVersion.createLatestVersion(version.getRawVersion());
+                factorioVersion = FactorioVersion.createLatestVersion(version.getRawVersion());
             } else {
-                factorioVersion = FactorioApiVersion.createVersion(version.getRawVersion());
+                factorioVersion = FactorioVersion.createVersion(version.getRawVersion());
             }
 
             supportedVersions.add(factorioVersion);

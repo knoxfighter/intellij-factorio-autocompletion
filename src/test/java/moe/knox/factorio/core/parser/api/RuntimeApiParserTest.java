@@ -1,8 +1,8 @@
 package moe.knox.factorio.core.parser.api;
 
 import junit.framework.TestCase;
-import moe.knox.factorio.core.version.ApiVersionResolver;
-import moe.knox.factorio.core.version.FactorioApiVersion;
+import moe.knox.factorio.core.version.FactorioVersionResolver;
+import moe.knox.factorio.core.version.FactorioVersion;
 import moe.knox.factorio.core.parser.api.data.RuntimeApi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,13 +19,13 @@ public class RuntimeApiParserTest extends TestCase {
         service = new RuntimeApiParser();
     }
 
-    public static Set<FactorioApiVersion> providerVersions() throws IOException {
-        return (new ApiVersionResolver()).supportedVersions();
+    public static Set<FactorioVersion> providerVersions() throws IOException {
+        return (new FactorioVersionResolver()).supportedVersions();
     }
 
     @ParameterizedTest
     @MethodSource("providerVersions")
-    void parse(FactorioApiVersion version) {
+    void parse(FactorioVersion version) {
         RuntimeApi runtimeApi = service.parse(version);
 
         assertNotNull(runtimeApi);

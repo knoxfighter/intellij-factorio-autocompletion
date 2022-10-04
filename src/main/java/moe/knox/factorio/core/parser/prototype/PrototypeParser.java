@@ -2,7 +2,7 @@ package moe.knox.factorio.core.parser.prototype;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
-import moe.knox.factorio.core.version.FactorioApiVersion;
+import moe.knox.factorio.core.version.FactorioVersion;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,7 +61,7 @@ public class PrototypeParser {
         this.prototypesRootPath = prototypesRootPath;
     }
 
-    public @Nullable Path getPrototypePath(FactorioApiVersion version)
+    public @Nullable Path getPrototypePath(FactorioVersion version)
     {
         Path versionPath = prototypesRootPath.resolve(version.version());
 
@@ -72,8 +72,8 @@ public class PrototypeParser {
         FileUtil.delete(prototypesRootPath.toFile());
     }
 
-    public void parse(FactorioApiVersion selectedVersion) throws IOException {
-        Path prototypesSubdirPath = prototypesRootPath.resolve(selectedVersion.version());
+    public void parse(FactorioVersion version) throws IOException {
+        Path prototypesSubdirPath = prototypesRootPath.resolve(version.version());
 
         if (Files.exists(prototypesSubdirPath)) {
             return;
@@ -81,7 +81,7 @@ public class PrototypeParser {
 
         Files.createDirectories(prototypesSubdirPath);
 
-        parseInternal(selectedVersion);
+        parseInternal(version);
     }
 
     public List<String> parsePrototypeTypes() throws IOException {
@@ -104,8 +104,8 @@ public class PrototypeParser {
         return prototypeIds;
     }
 
-    private void parseInternal(FactorioApiVersion selectedVersion) throws IOException {
-        Path prototypesSubdirPath = prototypesRootPath.resolve(selectedVersion.version());
+    private void parseInternal(FactorioVersion version) throws IOException {
+        Path prototypesSubdirPath = prototypesRootPath.resolve(version.version());
 
         parsePrototypeTypes();
 

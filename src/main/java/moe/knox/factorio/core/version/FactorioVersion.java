@@ -5,24 +5,24 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public record FactorioApiVersion(String version, boolean latest) implements Comparable<FactorioApiVersion> {
+public record FactorioVersion(String version, boolean latest) implements Comparable<FactorioVersion> {
     @Override
     public String toString() {
         return version;
     }
 
-    public static FactorioApiVersion createVersion(String version)
+    public static FactorioVersion createVersion(String version)
     {
-        return new FactorioApiVersion(version, false);
+        return new FactorioVersion(version, false);
     }
 
-    public static FactorioApiVersion createLatestVersion(String version)
+    public static FactorioVersion createLatestVersion(String version)
     {
-        return new FactorioApiVersion(version, true);
+        return new FactorioVersion(version, true);
     }
 
     @Override
-    public int compareTo(@NotNull FactorioApiVersion o) {
+    public int compareTo(@NotNull FactorioVersion o) {
         SemVer verA = Objects.requireNonNull(SemVer.parseFromText(version));
         SemVer verB = Objects.requireNonNull(SemVer.parseFromText(o.version));
 
