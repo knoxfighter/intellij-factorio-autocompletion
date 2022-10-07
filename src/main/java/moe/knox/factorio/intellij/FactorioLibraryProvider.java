@@ -24,9 +24,7 @@ import javax.swing.*;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 
 public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
     @NotNull
@@ -34,7 +32,7 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
     public Collection<SyntheticLibrary> getAdditionalProjectLibraries(@NotNull Project project) {
         // Do nothing, if integration is deactivated
         if (!FactorioState.getInstance(project).integrationActive) {
-            return Arrays.asList();
+            return List.of();
         }
 
         String jarPath = PathUtil.getJarPathForClass(FactorioLibraryProvider.class);
@@ -121,7 +119,7 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
         @NotNull
         @Override
         public Collection<VirtualFile> getSourceRoots() {
-            return Arrays.asList(root);
+            return Collections.singletonList(root);
         }
 
         @Nullable
