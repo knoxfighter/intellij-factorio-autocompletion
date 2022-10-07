@@ -149,7 +149,7 @@ public class PrototypeParser {
             String prototypeLink = prototypesBaseLink + link;
             Document prototypeDoc;
             try {
-                prototypeDoc = Jsoup.connect(prototypeLink).get();
+                prototypeDoc = Jsoup.connect(prototypeLink).timeout(10 * 1000).get();
             } catch (IOException e) {
                 if (e instanceof HttpStatusException && ((HttpStatusException) e).getStatusCode() == 404) {
                     return true;
