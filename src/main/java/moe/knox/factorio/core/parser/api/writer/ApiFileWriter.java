@@ -1,6 +1,6 @@
 package moe.knox.factorio.core.parser.api.writer;
 
-import moe.knox.factorio.core.parser.api.data.*;
+import moe.knox.factorio.api.parser.data.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

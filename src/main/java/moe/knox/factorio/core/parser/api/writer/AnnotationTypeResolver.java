@@ -1,7 +1,7 @@
 package moe.knox.factorio.core.parser.api.writer;
 
-import moe.knox.factorio.core.parser.api.data.Parameter;
-import moe.knox.factorio.core.parser.api.data.ValueType;
+import moe.knox.factorio.api.parser.data.Parameter;
+import moe.knox.factorio.api.parser.data.ValueType;
 
 import java.util.List;
 

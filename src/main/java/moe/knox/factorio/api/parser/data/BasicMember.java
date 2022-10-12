@@ -1,9 +1,6 @@
-package moe.knox.factorio.core.parser.api.data;
+package moe.knox.factorio.api.parser.data;
 
-/**
- * Definition of global objects (just variables in global scope)
- */
-public class GlobalObject {
+public class BasicMember {
     /**
      * The name of the member.
      */
@@ -18,9 +15,4 @@ public class GlobalObject {
      * The text description of the member.
      */
     public String description;
-
-    /**
-     * The class name of the global object.
-     */
-    public String type;
 }

@@ -1,14 +1,12 @@
-package moe.knox.factorio.core.parser.api.data;
+package moe.knox.factorio.api.parser.data;
 
 import com.google.gson.annotations.SerializedName;
+import moe.knox.factorio.api.parser.deserializer.postprocessing.PostProcessable;
 
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * The representation of the new json lua-api
- */
-public class RuntimeApi implements Arrangeable {
+public class RuntimeApi implements PostProcessable {
     /**
      * The application this documentation is for.
      * Will always be "factorio".
@@ -25,16 +23,18 @@ public class RuntimeApi implements Arrangeable {
      * The version of the game that this documentation is for.
      * An example would be "1.1.30".
      */
-    public String application_version;
+    @SerializedName("application_version")
+    public String applicationVersion;
 
     /**
      * The version of the machine-readable format itself.
      * It is incremented every time the format changes.
      * The version this documentation reflects is stated at the top.
      * <p>
-     * Currently: 1
+     * Currently: 2
      */
-    public String api_version;
+    @SerializedName("api_version")
+    public int apiVersion;
 
     /**
      * The list of classes (LuaObjects) the API provides.
@@ -73,33 +73,20 @@ public class RuntimeApi implements Arrangeable {
     @SerializedName("global_objects")
     public List<GlobalObject> globalObjects;
 
-    public void arrangeElements() {
-        if (classes != null && !classes.isEmpty()) {
-            classes.sort(Comparator.comparingDouble(factorioClass -> factorioClass.order));
-            classes.forEach(FactorioClass::arrangeElements);
-        }
+    /**
+     * The list of functions that the game provides as global variables to provide some specific functionality.
+     * @since 3
+     */
+    @SerializedName("global_functions")
+    public List<Method> globalFunctions;
 
-        if (events != null && !events.isEmpty()) {
-            events.sort(Comparator.comparingDouble(event -> event.order));
-            events.forEach(Event::arrangeElements);
-        }
-
-        if (defines != null && !defines.isEmpty()) {
-            defines.sort(Comparator.comparingDouble(define -> define.order));
-            defines.forEach(Define::arrangeElements);
-        }
-
-        if (builtinTypes != null && !builtinTypes.isEmpty()) {
-            builtinTypes.sort(Comparator.comparingDouble(builtinType -> builtinType.order));
-        }
-
-        if (concepts != null && !concepts.isEmpty()) {
-            concepts.sort(Comparator.comparingDouble(Concept::order));
-            concepts.forEach(Concept::arrangeElements);
-        }
-
-        if (globalObjects != null && !globalObjects.isEmpty()) {
-            globalObjects.sort(Comparator.comparingDouble(globalObject -> globalObject.order));
-        }
+    @Override
+    public void postProcess() {
+        classes.sort(Comparator.comparingDouble(value -> value.order));
+        events.sort(Comparator.comparingDouble(value -> value.order));
+        defines.sort(Comparator.comparingDouble(value -> value.order));
+        builtinTypes.sort(Comparator.comparingDouble(value -> value.order));
+        concepts.sort(Comparator.comparingDouble(value -> value.order));
+        globalObjects.sort(Comparator.comparingDouble(value -> value.order));
     }
 }

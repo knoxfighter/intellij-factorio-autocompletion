@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
+import moe.knox.factorio.api.parser.data.RuntimeApi;
 import moe.knox.factorio.core.parser.api.writer.ApiFileWriter;
 import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.core.NotificationService;
@@ -15,7 +16,6 @@ import moe.knox.factorio.intellij.FactorioState;
 import moe.knox.factorio.core.version.ApiVersionCollection;
 import moe.knox.factorio.core.version.ApiVersionResolver;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
-import moe.knox.factorio.core.parser.api.data.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -158,11 +158,13 @@ public class ApiParser extends Parser {
      * Here also the indicator will be updated, to show the current percentage of the parsing.
      */
     private void downloadAndParseAPI() {
-        ApiSpecificationParser apiSpecificationParser = new ApiSpecificationParser();
-
         RuntimeApi runtimeApi;
-
-        runtimeApi = apiSpecificationParser.parse(config.selectedFactorioVersion);
+        try {
+            runtimeApi = moe.knox.factorio.api.parser.Parser.fromWebsite(config.selectedFactorioVersion.version());
+        } catch (IOException e) {
+            showDownloadingError(false);
+            return;
+        }
 
         var outputFileName = Paths.get(saveDir, "factorio.lua").toString();
 
