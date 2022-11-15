@@ -133,6 +133,10 @@ public class Method implements PostProcessable {
     public void postProcess() {
         parameters.sort(Comparator.comparingDouble(value -> value.order));
 
+        if (returnValues != null) {
+            returnValues.sort(Comparator.comparingDouble(value -> value.order));
+        }
+
         if (variantParameterGroups != null) {
             variantParameterGroups.sort(Comparator.comparingDouble(value -> value.order));
         }

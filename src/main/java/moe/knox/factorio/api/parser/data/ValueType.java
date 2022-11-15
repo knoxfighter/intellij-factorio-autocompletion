@@ -6,8 +6,10 @@ import moe.knox.factorio.api.parser.deserializer.JsonPolymorphism.JsonPolymorphi
 import moe.knox.factorio.api.parser.deserializer.JsonPolymorphism.JsonPolymorphismValue;
 import moe.knox.factorio.api.parser.deserializer.ValueTypeJsonDeserializer;
 import moe.knox.factorio.api.parser.deserializer.ValueTypeLiteralDeserializer;
+import moe.knox.factorio.api.parser.deserializer.postprocessing.PostProcessable;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -65,6 +67,11 @@ public interface ValueType {
     record Literal(Object value, @Nullable String description) implements ValueType {}
 
     /**
+     * This Type is a `LuaLazyLoadedValue` class.
+     * Which is a generic class with {@link LuaLazyLoadedValue#value} as type.
+     * <br>
+     * @see <a href="https://lua-api.factorio.com/latest/LuaLazyLoadedValue.html">https://lua-api.factorio.com/latest/LuaLazyLoadedValue.html</a>
+     *
      * @param value The type of the LuaLazyLoadedValue.
      */
     @JsonPolymorphismValue("LuaLazyLoadedValue")
@@ -77,19 +84,58 @@ public interface ValueType {
     @JsonPolymorphismValue("struct")
     record Struct(List<Attribute> attributes) implements ValueType {}
 
+    @JsonPolymorphismValue("table")
+    class Table implements ValueType, PostProcessable {
+        /**
+         * The parameters present in the table.
+         */
+        public List<Parameter> parameters;
+
+        /**
+         * The optional parameters that depend on one of the main parameters.
+         */
+        @Nullable
+        @SerializedName("variant_parameter_groups")
+        public List<ParameterGroup> variantParameterGroups;
+
+        /**
+         * The text description of the optional parameter groups.
+         */
+        @Nullable
+        @SerializedName("variant_parameter_description")
+        public String variantParameterDescription;
+
+        @Override
+        public void postProcess() {
+            parameters.sort(Comparator.comparingDouble(value -> value.order));
+            if (variantParameterGroups != null) {
+                variantParameterGroups.sort(Comparator.comparingDouble(value -> value.order));
+            }
+        }
+    }
+
     /**
-     * @param parameters The parameters present in the table.
-     * @param variantParameterGroups The optional parameters that depend on one of the main parameters.
-     * @param variantParameterDescription The text description of the optional parameter groups.
+     * Same as {@link ValueType.Table}.
+     * It has to be different meaning and implementation, therefore it is its own type.
      */
-    @JsonPolymorphismValue({"table", "tuple"})
-    record Table(
-            List<Parameter> parameters,
-            @Nullable
-            @SerializedName("variant_parameter_groups")
-            List<ParameterGroup> variantParameterGroups,
-            @Nullable
-            @SerializedName("variant_parameter_description")
-            String variantParameterDescription
-    ) implements ValueType {}
+    @JsonPolymorphismValue("tuple")
+    class Tuple implements ValueType, PostProcessable {
+        public List<Parameter> parameters;
+
+        @Nullable
+        @SerializedName("variant_parameter_groups")
+        public List<ParameterGroup> variantParameterGroups;
+
+        @Nullable
+        @SerializedName("variant_parameter_description")
+        public String variantParameterDescription;
+
+        @Override
+        public void postProcess() {
+            parameters.sort(Comparator.comparingDouble(value -> value.order));
+            if (variantParameterGroups != null) {
+                variantParameterGroups.sort(Comparator.comparingDouble(value -> value.order));
+            }
+        }
+    }
 }

@@ -59,21 +59,24 @@ public class Concept {
      * @deprecated removed in v3. Use {@link Concept#type} instead.
      */
     @Deprecated
-    String category;
+    public String category;
 
     /**
      * The type of the concept.
      * This is the replacement for {@link Concept#category}.
      * @since 3
      */
-    ValueType type;
+    public ValueType type;
 
     /**
-     * A simple collection of parameters.
+     * A simple collection of parameters.<br>
+     * This is a copy of {@link ValueType.Table}, here cause java doesn't allow multiple inheritance :(
+     * <br>
+     * "filter" has the same fields as "table", therefore it is here as well.
      * @deprecated removed in v3. Use {@link Concept#type} instead
      */
     @Deprecated
-    @JsonPolymorphismValue("table")
+    @JsonPolymorphismValue({"table", "filter"})
     public static class Table extends Concept implements PostProcessable {
         /**
          * The parameters present in the table.
@@ -189,41 +192,6 @@ public class Concept {
         @Override
         public void postProcess() {
             options.sort(Comparator.comparingDouble(value -> value.order));
-        }
-    }
-
-    /**
-     * An event or prototype filter.
-     * @deprecated removed in v3. Use {@link Concept#type} instead
-     */
-    @Deprecated
-    @JsonPolymorphismValue("filter")
-    public static class Filter extends Concept implements PostProcessable {
-        /**
-         * The always-present parameters for the filter.
-         */
-        public List<Parameter> parameters;
-
-        /**
-         * The optional filter parameters that depend on the specific `filter` parameter used.
-         */
-        @Nullable
-        @SerializedName("variant_parameter_groups")
-        public List<ParameterGroup> variantParameterGroups;
-
-        /**
-         * The text description of the optional filter groups.
-         */
-        @Nullable
-        @SerializedName("variant_parameter_description")
-        public String variantParameterDescription;
-
-        @Override
-        public void postProcess() {
-            parameters.sort(Comparator.comparingDouble(value -> value.order));
-            if (variantParameterGroups != null) {
-                variantParameterGroups.sort(Comparator.comparingDouble(value -> value.order));
-            }
         }
     }
 

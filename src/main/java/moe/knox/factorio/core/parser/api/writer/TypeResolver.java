@@ -3,69 +3,69 @@ package moe.knox.factorio.core.parser.api.writer;
 import moe.knox.factorio.api.parser.data.Parameter;
 import moe.knox.factorio.api.parser.data.ValueType;
 
+import java.util.ArrayList;
 import java.util.List;
 
-final class AnnotationTypeResolver
+// TODO: use parameter groups again (can use overloads for now)
+
+final class TypeResolver
 {
+    private static int UID = 0;
+    static class AdditionalType {
+        String name;
+        List<Parameter> parameters;
+
+        public AdditionalType(List<Parameter> parameters) {
+            // TODO: use human understandable names
+            this.name = "added_type_" + UID;
+            UID++;
+            this.parameters = parameters;
+        }
+    }
+    static List<AdditionalType> additionalTypes = new ArrayList<>();
+
     /**
-     * @return String in format {@code "{["huhu"]:number, ["baum"]:string}"}
+     * add parameters to the additional types to be created later.
+     * @return unique name of the new additional type.
      */
     static String presentTableParams(List<Parameter> parameters) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append('{');
-        boolean first = true;
-        for (Parameter parameter : parameters) {
-            if (first) {
-                first = false;
-            } else {
-                stringBuilder.append(",");
-            }
-            stringBuilder.append("[\"").append(parameter.name).append("\"]:").append(getType(parameter.type));
-            if (parameter.optional) {
-                stringBuilder.append("|nil");
-            }
-        }
-        stringBuilder.append('}');
-        return stringBuilder.toString();
+        AdditionalType additionalType = new AdditionalType(parameters);
+        additionalTypes.add(additionalType);
+        return additionalType.name;
     }
 
     static String getType(ValueType type) {
         String result;
         if (type instanceof ValueType.Simple simple) {
             return simple.value();
-        } else if (type instanceof ValueType.Union union) {
+        } else if (type instanceof ValueType.Variant union) {
             result = presentUnion(union);
         } else if (type instanceof ValueType.Array array) {
             result = presentArray(array);
-        } else if (type instanceof ValueType.LuaCustomTable luaCustomTable) {
-            result = luaCustomTableType(luaCustomTable);
         } else if (type instanceof ValueType.Dictionary dictionary) {
             result = presentDictionary(dictionary);
         } else if (type instanceof ValueType.Function function) {
             result = presentFunction(function);
         } else if (type instanceof ValueType.Table table) {
             result = presentTable(table);
+        } else if (type instanceof ValueType.Tuple tuple) {
+            // TODO: implement tuple (EmmyLUA does not support typed tuples)
+//            result = presentTuple(tuple);
+            result = "any";
         } else if (type instanceof ValueType.LuaLazyLoadedValue) {
             // TODO override `LuaLazyLoadedValue` class with generic
-            result = type.getNativeName();
-        } else if (type instanceof ValueType.Tuple tuple) {
-            result = presentTuple(tuple);
+            // knox: Disabled until further rework is done
+//            result = type.getNativeName();
+            result = "any";
         } else if (type instanceof ValueType.Type type1) {
             result = presentType(type1);
         } else if (type instanceof ValueType.Literal literal) {
             result = presentLiteral(literal);
         } else {
-            throw new IllegalStateException("Unexpected value: " + type.getNativeName());
+            throw new IllegalStateException("Unknown type");
         }
 
         return result;
-    }
-
-    /**
-     * @return String in format {@code "table<A, B>"}
-     */
-    private static String luaCustomTableType(ValueType.LuaCustomTable type) {
-        return "table<" + getType(type.key()) + ", " + getType(type.value()) + ">";
     }
 
     /**
@@ -97,15 +97,16 @@ final class AnnotationTypeResolver
     /**
      * @return String in format {@code "TYPE1|TYPE2"}
      */
-    private static String presentUnion(ValueType.Union type) {
+    private static String presentUnion(ValueType.Variant type) {
         StringBuilder stringBuilder = new StringBuilder();
         boolean first = true;
         for (ValueType option : type.options()) {
+            String actualType = getType(option);
             if (!first) {
                 stringBuilder.append('|');
             }
             first = false;
-            stringBuilder.append(getType(option));
+            stringBuilder.append(actualType);
         }
 
         return stringBuilder.toString();
@@ -120,45 +121,33 @@ final class AnnotationTypeResolver
         try {
             stringBuilder.append(getType(type.value())).append("[]");
         } catch (NullPointerException e) {
-            e.printStackTrace(); // todo check it
+            e.printStackTrace(); // TODO: check it, where does it throw that NPE potentially?
         }
 
         return stringBuilder.toString();
     }
 
     /**
-     * @return String in format {@code "{["huhu"]:number, ["baum"]:string}"}
+     * @see TypeResolver#presentTableParams
      */
     private static String presentTable(ValueType.Table type) {
-        return presentTableParams(type.parameters());
-    }
-
-    private static String presentTuple(ValueType.Tuple type) {
-        // TODO how present tuple ??
-        StringBuilder stringBuilder = new StringBuilder();
-        boolean first = true;
-        for (ValueType.Tuple.TypeTupleParameter parameter : type.parameters()) {
-            if (!first) {
-                stringBuilder.append(',');
-            }
-            first = false;
-            stringBuilder
-                    .append(getType(parameter.type()))
-                    .append(" ")
-                    .append(parameter.name())
-            ;
-        }
-
-        return stringBuilder.toString();
+        return presentTableParams(type.parameters);
+        // TODO: add variant parameter groups
     }
 
     private static String presentType(ValueType.Type typeWithDescription) {
-        // TODO how present type ??
-        return typeWithDescription.value();
+        // Only return the type here
+        // The description should only be used for params and therefore can be added as `@param <word> <text>` to the overlying function itself.
+        return getType(typeWithDescription.value());
     }
 
     private static String presentLiteral(ValueType.Literal type) {
-        // TODO how present literal ??
-        return "\"" + type.value() + "\"";
+        // TODO how present non-string literals ??
+        // Only available for string, do nothing for every other type (for now)
+        if (type.value() instanceof String) {
+            return "\"" + type.value() + "\"";
+        }
+        // TODO: present literals for all types.
+        return "";
     }
 }
