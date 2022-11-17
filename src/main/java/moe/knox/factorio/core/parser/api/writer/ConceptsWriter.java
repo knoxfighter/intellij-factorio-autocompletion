@@ -1,5 +1,7 @@
 package moe.knox.factorio.core.parser.api.writer;
 
+import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.text.StringUtil;
 import moe.knox.factorio.api.parser.data.Concept;
 import moe.knox.factorio.api.parser.data.Parameter;
 import moe.knox.factorio.api.parser.data.ValueType;
@@ -60,10 +62,12 @@ public class ConceptsWriter {
      * Those are attributes.
      * Concepts and additional types use `parameters` as `attributes`!
      */
-    static void writeParameter(Writer output, @NotNull List<Parameter> parameters, String parent) throws IOException {
+    static void writeParameter(Writer output, @NotNull List<Parameter> parameters, String parent, String name) throws IOException {
         for (Parameter parameter : parameters) {
+            String paramName = name + StringUtil.capitalize(parameter.name);
+
             writeDescLine(output, parameter.description);
-            writeType(output, parameter.type, parameter.optional);
+            writeType(output, parameter.type, paramName, parameter.optional);
             writeValDef(output, parameter.name, parent);
             output.append(NEW_LINE);
         }
@@ -72,7 +76,7 @@ public class ConceptsWriter {
     private static void writeOldTable(Writer output, @NotNull Concept.Table concept) throws IOException {
         writeObjDef(output, concept);
 
-        writeParameter(output, concept.parameters, concept.name);
+        writeParameter(output, concept.parameters, concept.name, concept.name);
 
         // TODO add variant parameter group
 
@@ -86,7 +90,7 @@ public class ConceptsWriter {
     private static void writeOldTableOrArray(Writer output, @NotNull Concept.TableOrArray concept) throws IOException {
         writeObjDef(output, concept);
 
-        writeParameter(output, concept.parameters, concept.name);
+        writeParameter(output, concept.parameters, concept.name, concept.name);
 
         output.append(NEW_LINE);
     }
@@ -110,14 +114,18 @@ public class ConceptsWriter {
     }
 
     private static void writeOldUnion(Writer output, @NotNull Concept.Union concept) throws IOException {
-        var types = new ArrayList<ValueType>();
+        var types = new ArrayList<String>();
+        int i = 0;
         for (Concept.Union.Spec optionType : concept.options) {
-            types.add(optionType.type);
+            String typeName = concept.name + "Option" + i;
+            String actualType = getType(optionType.type, typeName);
+            types.add(actualType);
             if (optionType.description != null) {
-                writeDescLine(output, getType(optionType.type) + ": " + optionType.description);
+                writeDescLine(output, actualType + ": " + optionType.description);
             }
+            ++i;
         }
-        writeAlias(output, concept.name, types.stream(), valueType -> getType(valueType));
+        writeAlias(output, concept.name, types);
 
         output.append(NEW_LINE);
     }
@@ -153,7 +161,7 @@ public class ConceptsWriter {
 
         ValueType.Table type = (ValueType.Table) concept.type;
 
-        writeParameter(output, type.parameters, concept.name);
+        writeParameter(output, type.parameters, concept.name, concept.name);
 
         // TODO add variant parameter group
 
@@ -177,7 +185,7 @@ public class ConceptsWriter {
     }
 
     private static void writeModernAlias(Writer output, Concept concept) throws IOException {
-        writeAlias(output, concept.name, getType(concept.type));
+        writeAlias(output, concept.name, getType(concept.type, concept.name));
 
         output.append(NEW_LINE);
     }

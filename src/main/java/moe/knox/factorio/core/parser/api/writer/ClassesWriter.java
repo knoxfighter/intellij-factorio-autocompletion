@@ -1,5 +1,6 @@
 package moe.knox.factorio.core.parser.api.writer;
 
+import com.intellij.openapi.util.text.StringUtil;
 import moe.knox.factorio.api.parser.data.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,6 +11,7 @@ import java.util.List;
 
 import static moe.knox.factorio.core.parser.api.writer.TypeResolver.getType;
 import static moe.knox.factorio.core.parser.api.writer.GeneralWriter.*;
+import static moe.knox.factorio.core.parser.api.writer.TypeResolver.presentTableParams;
 
 public class ClassesWriter {
     /**
@@ -117,7 +119,8 @@ public class ClassesWriter {
         writeDescLine(output, attribute.examples);
         writeSee(output, attribute.seeAlso);
         writeReadWrite(output, attribute.read, attribute.write);
-        writeType(output, attribute.type);
+        String name = className + StringUtil.capitalize(attribute.name);
+        writeType(output, attribute.type, name);
         writeValDef(output, attribute.name, className);
         output.append(NEW_LINE);
     }
@@ -160,16 +163,19 @@ public class ClassesWriter {
             writeDescLine(output, method.examples);
             writeSee(output, method.seeAlso);
 
+            String methodName = className + StringUtil.capitalize(method.name);
+
             if (method.takesTable) {
                 // This is a table function (use anonymous function as only param)
-                String paramType = TypeResolver.presentTableParams(method.parameters);
+                String paramName = methodName + "Param";
+                String paramType = TypeResolver.presentTableParams(method.parameters, paramName);
 
                 writeParam(output, "param", paramType);
 
                 if (method.returnValues != null && !method.returnValues.isEmpty()) {
-                    writeReturnValues(output, method.returnValues);
+                    writeReturnValues(output, method.returnValues, methodName);
                 } else if (method.returnType != null) {
-                    writeReturn(output, method.returnType, method.returnDescription);
+                    writeReturn(output, method.returnType, method.returnDescription, methodName);
                 }
 
                 writeFunctionDef(output, className, method.name, "param");
@@ -177,19 +183,20 @@ public class ClassesWriter {
                 List<String> strList = new ArrayList<>();
 
                 for (Parameter parameter : method.parameters) {
-                    writeParam(output, parameter.name, parameter.type, parameter.description);
+                    writeParam(output, parameter.name, parameter.type, parameter.description, methodName);
 
                     if (parameter.optional) {
-                        writeOverload(output, method.parameters, method.returnType, parameter.name);
+                        writeOverload(output, method.parameters, method.returnType, methodName, parameter.name);
+                        // TODO: use multiple return values
                     }
 
                     strList.add(parameter.name);
                 }
 
                 if (method.returnValues != null && !method.returnValues.isEmpty()) {
-                    writeReturnValues(output, method.returnValues);
+                    writeReturnValues(output, method.returnValues, methodName);
                 } else if (method.returnType != null) {
-                    writeReturn(output, method.returnType, method.returnDescription);
+                    writeReturn(output, method.returnType, method.returnDescription, methodName);
                 }
 
                 writeFunctionDef(output, className, method.name, strList.toArray(new String[0]));
@@ -198,8 +205,9 @@ public class ClassesWriter {
         }
     }
 
-    private static void writeParam(Writer output, String name, ValueType type, String description) throws IOException {
-        writeParam(output, name, getType(type), description);
+    private static void writeParam(Writer output, String name, ValueType type, String description, String methodName) throws IOException {
+        String subName = methodName + StringUtil.capitalize(name);
+        writeParam(output, name, getType(type, subName), description);
     }
 
     private static void writeParam(Writer output, String name, String type) throws IOException {
@@ -219,18 +227,19 @@ public class ClassesWriter {
      * }
      * </pre>
      */
-    private static void writeReturnValues(@NotNull Writer output, @NotNull List<Parameter> returnValues) throws IOException {
+    private static void writeReturnValues(@NotNull Writer output, @NotNull List<Parameter> returnValues, String methodName) throws IOException {
         output.append("---@return ");
 
-        boolean first = true;
+        int i = 0;
         for (Parameter returnValue : returnValues) {
-            if (!first) {
+            if (i > 0) {
                 output.append(", ");
             }
 
-            output.append(getType(returnValue.type));
+            String name = methodName + "Return" + i;
+            output.append(getType(returnValue.type, name));
 
-            first = false;
+            ++i;
         }
         output.append(NEW_LINE);
     }
@@ -243,8 +252,9 @@ public class ClassesWriter {
      * }
      * </pre>
      */
-    private static void writeReturn(@NotNull Writer output, ValueType type, @NotNull String desc) throws IOException {
-        output.append("---@return ").append(getType(type)).append(' ');
+    private static void writeReturn(@NotNull Writer output, ValueType type, @NotNull String desc, String methodName) throws IOException {
+        String name = methodName + "Return";
+        output.append("---@return ").append(getType(type, name)).append(' ');
         if (!desc.isEmpty()) {
             desc = desc.replace('\n', ' ');
             output.append(desc);
@@ -252,8 +262,8 @@ public class ClassesWriter {
         output.append(NEW_LINE);
     }
 
-    private static void writeOverload(Writer output, List<Parameter> parameters, ValueType returnType) throws IOException {
-        writeOverload(output, parameters, returnType, null);
+    private static void writeOverload(Writer output, List<Parameter> parameters, ValueType returnType, String methodName) throws IOException {
+        writeOverload(output, parameters, returnType, methodName, null);
     }
 
     /**
@@ -266,7 +276,7 @@ public class ClassesWriter {
      *
      * @param stopAt the name of the parameter to stop at, this allows to easily add optional params as overloads
      */
-    private static void writeOverload(@NotNull Writer output, @NotNull List<Parameter> parameters, ValueType returnType, String stopAt) throws IOException {
+    private static void writeOverload(@NotNull Writer output, @NotNull List<Parameter> parameters, ValueType returnType, String methodName, String stopAt) throws IOException {
         output.append("---@overload fun(");
 
         boolean first = true;
@@ -281,13 +291,15 @@ public class ClassesWriter {
                 output.append(',');
             }
 
-            output.append(parameter.name).append(':').append(getType(parameter.type));
+            String subtypeName = methodName + StringUtil.capitalize(parameter.name);
+            output.append(parameter.name).append(':').append(getType(parameter.type, subtypeName));
         }
 
         output.append(')');
 
         if (returnType != null) {
-            output.append(':').append(getType(returnType));
+            String subtypeName = methodName + "Return";
+            output.append(':').append(getType(returnType, subtypeName));
         }
 
         output.append(NEW_LINE);

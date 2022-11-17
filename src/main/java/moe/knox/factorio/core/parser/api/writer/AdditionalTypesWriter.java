@@ -24,7 +24,7 @@ public class AdditionalTypesWriter {
             writeClass(output, additionalType.name);
             writeObjDef(output, additionalType.name);
 
-            ConceptsWriter.writeParameter(output, additionalType.parameters, additionalType.name);
+            ConceptsWriter.writeParameter(output, additionalType.parameters, additionalType.name, additionalType.name);
         }
     }
 }

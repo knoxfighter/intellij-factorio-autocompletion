@@ -1,14 +1,9 @@
 package moe.knox.factorio.core.parser.api.writer;
 
-import moe.knox.factorio.api.parser.data.*;
+import moe.knox.factorio.api.parser.data.RuntimeApi;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 // TODO: Add variadic parameters back in!

@@ -49,12 +49,12 @@ public class GeneralWriter {
         writeType(output, type, false);
     }
 
-    static void writeType(Writer output, ValueType type) throws IOException {
-        writeType(output, getType(type), false);
+    static void writeType(Writer output, ValueType type, String name) throws IOException {
+        writeType(output, getType(type, name), false);
     }
 
-    static void writeType(Writer output, ValueType type, boolean optional) throws IOException {
-        writeType(output, getType(type), optional);
+    static void writeType(Writer output, ValueType type, String name, boolean optional) throws IOException {
+        writeType(output, getType(type, name), optional);
     }
 
     static void writeType(Writer output, String type, boolean optional) throws IOException {

@@ -227,4 +227,54 @@ GameViewSettings.update_entity_selection = nil
 
         MatcherAssert.assertThat(fileOutput, CoreMatchers.containsString(expectedOutput));
     }
+
+    @Test
+    void checkAdditonalType() {
+        String expectedOutput = """
+---@class LuaSurfaceClone_areaParam
+LuaSurfaceClone_areaParam = {}
+
+---@type BoundingBox
+LuaSurfaceClone_areaParam.source_area = nil
+
+---@type BoundingBox
+LuaSurfaceClone_areaParam.destination_area = nil
+
+---@type SurfaceIdentification|nil
+LuaSurfaceClone_areaParam.destination_surface = nil
+
+---@type LuaForce|string|nil
+LuaSurfaceClone_areaParam.destination_force = nil
+
+--- If tiles should be cloned
+---@type boolean|nil
+LuaSurfaceClone_areaParam.clone_tiles = nil
+
+--- If entities should be cloned
+---@type boolean|nil
+LuaSurfaceClone_areaParam.clone_entities = nil
+
+--- If decoratives should be cloned
+---@type boolean|nil
+LuaSurfaceClone_areaParam.clone_decoratives = nil
+
+--- If the destination entities should be cleared
+---@type boolean|nil
+LuaSurfaceClone_areaParam.clear_destination_entities = nil
+
+--- If the destination decoratives should be cleared
+---@type boolean|nil
+LuaSurfaceClone_areaParam.clear_destination_decoratives = nil
+
+--- If the destination surface should be expanded when destination_area is outside current bounds. Default false.
+---@type boolean|nil
+LuaSurfaceClone_areaParam.expand_map = nil
+
+--- If true, the building effect smoke will be shown around the new entities.
+---@type boolean|nil
+LuaSurfaceClone_areaParam.create_build_effect_smoke = nil
+""";
+
+        MatcherAssert.assertThat(fileOutput, CoreMatchers.containsString(expectedOutput));
+    }
 }
