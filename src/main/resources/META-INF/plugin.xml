@@ -1,13 +1,14 @@
 <idea-plugin>
-    <id>moe.knox.factorio.autocompletion</id>
-    <name>Factorio LUA API Support</name>
-    <vendor email="knoxfighter@asdff45.de">knoxfighter</vendor>
+    <id>serieznyi.factorio.autocompletion</id>
+    <name>Factorio LUA API Support Fork</name>
+    <vendor email="serieznyi@gmail.com">Maxim Mironyuk</vendor>
 
     <description><![CDATA[
     Adds Support for the Factorio LUA API. This implements a full code completion.
-    EmmyLua has to be installed for this plugin to work.
 
     To use the code completion, it has to be activated under `Settings > Languages & Frameworks > Factorio Autocompletion`
+
+    Fork of abandoned plugin <a  href="https://plugins.jetbrains.com/plugin/13330-factorio-lua-api-support">Factorio LUA API Support</a>.
     ]]></description>
 
     <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html

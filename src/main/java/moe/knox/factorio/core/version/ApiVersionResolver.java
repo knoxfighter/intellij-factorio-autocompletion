@@ -17,21 +17,21 @@ import java.util.TreeSet;
  */
 public final class ApiVersionResolver {
     final private SemVer minimalSupportedVersion = new SemVer("1.1.62", 1, 1, 62);
+    final private SemVer maximalSupportedVersion = new SemVer("1.1.68", 1, 1, 88);
     final private static String versionsHtmlPage = "https://lua-api.factorio.com/";
 
     public ApiVersionCollection supportedVersions() throws IOException {
         var allVersions = getAllVersions();
-        var lastVersion = Collections.max(allVersions);
         var supportedVersions = new ApiVersionCollection();
 
         for (SemVer version : allVersions) {
-            if (!version.isGreaterOrEqualThan(minimalSupportedVersion)) {
+            if (version.compareTo(minimalSupportedVersion) < 0 || version.compareTo(maximalSupportedVersion) > 0) {
                 continue;
             }
 
             FactorioApiVersion factorioVersion;
 
-            if (version.equals(lastVersion)) {
+            if (version.equals(maximalSupportedVersion)) {
                 factorioVersion = FactorioApiVersion.createLatestVersion(version.getRawVersion());
             } else {
                 factorioVersion = FactorioApiVersion.createVersion(version.getRawVersion());

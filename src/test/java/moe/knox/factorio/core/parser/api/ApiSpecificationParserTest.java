@@ -1,6 +1,5 @@
 package moe.knox.factorio.core.parser.api;
 
-import junit.framework.TestCase;
 import moe.knox.factorio.core.version.ApiVersionResolver;
 import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.core.parser.api.data.RuntimeApi;
@@ -11,7 +10,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.IOException;
 import java.util.Set;
 
-public class ApiSpecificationParserTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ApiSpecificationParserTest {
     private ApiSpecificationParser service;
 
     @BeforeEach
