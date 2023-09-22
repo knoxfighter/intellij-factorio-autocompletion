@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.4.0-IDEA231-eap-2] - 22.08.2022
+### Fixed
+- Build correct jar file for 2023.*
+
 ## [1.4.0-IDEA231-eap-1] - 12.08.2022
 ### Added
 - Compatibility with jetbrains IDEs 2023.*
