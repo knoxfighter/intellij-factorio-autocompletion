@@ -13,7 +13,7 @@
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Enable Factorio Integration"/>
+          <text resource-bundle="FactorioAutocompletition" key="ui.enableFactorioIntegration"/>
         </properties>
       </component>
       <vspacer id="d1290">
@@ -42,7 +42,7 @@
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Reload Integration"/>
+          <text resource-bundle="FactorioAutocompletition" key="ui.reloadIntegration"/>
         </properties>
       </component>
     </children>
