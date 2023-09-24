@@ -25,6 +25,7 @@ public class FactorioConfig implements SearchableConfigurable {
     private JComboBox<DropdownVersion> selectApiVersion;
     private JLabel loadError;
     private JButton reloadButton;
+    private JLabel selectApiVersionLabel;
     private final ApiVersionResolver apiVersionResolver;
     @NotNull
     private final FactorioApiVersion latestExistingVersion;
