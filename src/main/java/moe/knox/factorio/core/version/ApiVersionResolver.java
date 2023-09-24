@@ -24,7 +24,7 @@ public final class ApiVersionResolver {
         var supportedVersions = new ApiVersionCollection();
 
         for (SemVer version : allVersions) {
-            if (version.compareTo(minimalSupportedVersion) < 0 || version.compareTo(maximalSupportedVersion) >= 0) {
+            if (!isSupportedVersion(version)) {
                 continue;
             }
 
@@ -40,6 +40,10 @@ public final class ApiVersionResolver {
         }
 
         return supportedVersions;
+    }
+
+    private boolean isSupportedVersion(SemVer version) {
+        return version.compareTo(minimalSupportedVersion) > 0 && version.compareTo(maximalSupportedVersion) < 0;
     }
 
     private Set<SemVer> getAllVersions()  throws IOException
