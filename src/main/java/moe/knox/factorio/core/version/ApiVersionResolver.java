@@ -7,7 +7,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -17,7 +16,7 @@ import java.util.TreeSet;
  */
 public final class ApiVersionResolver {
     final private SemVer minimalSupportedVersion = new SemVer("1.1.62", 1, 1, 62);
-    final private SemVer maximalSupportedVersion = new SemVer("1.1.68", 1, 1, 88);
+    final private SemVer maximalSupportedVersion = new SemVer("1.2.0", 1, 2, 0);
     final private static String versionsHtmlPage = "https://lua-api.factorio.com/";
 
     public ApiVersionCollection supportedVersions() throws IOException {
