@@ -24,7 +24,7 @@ public final class ApiVersionResolver {
         var supportedVersions = new ApiVersionCollection();
 
         for (SemVer version : allVersions) {
-            if (version.compareTo(minimalSupportedVersion) < 0 || version.compareTo(maximalSupportedVersion) > 0) {
+            if (version.compareTo(minimalSupportedVersion) < 0 || version.compareTo(maximalSupportedVersion) >= 0) {
                 continue;
             }
 
