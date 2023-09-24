@@ -7,8 +7,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * Return collection of supported api versions
@@ -20,33 +22,29 @@ public final class ApiVersionResolver {
     final private static String versionsHtmlPage = "https://lua-api.factorio.com/";
 
     public ApiVersionCollection supportedVersions() throws IOException {
-        var allVersions = getAllVersions();
-        var supportedVersions = new ApiVersionCollection();
+        TreeSet<SemVer> allSupportedVersions = allVersions()
+                .stream()
+                .filter(this::isSupported)
+                .collect(Collectors.toCollection(TreeSet::new));
+        SemVer lastSupportedVersion = Objects.requireNonNull(allSupportedVersions.last());
+        var collection = new ApiVersionCollection();
 
-        for (SemVer version : allVersions) {
-            if (!isSupportedVersion(version)) {
-                continue;
-            }
-
-            FactorioApiVersion factorioVersion;
-
-            if (version.equals(maximalSupportedVersion)) {
-                factorioVersion = FactorioApiVersion.createLatestVersion(version.getRawVersion());
+        for (SemVer v : allSupportedVersions) {
+            if (v.equals(lastSupportedVersion)) {
+                collection.add(FactorioApiVersion.createLatestVersion(v.toString()));
             } else {
-                factorioVersion = FactorioApiVersion.createVersion(version.getRawVersion());
+                collection.add(FactorioApiVersion.createVersion(v.toString()));
             }
-
-            supportedVersions.add(factorioVersion);
         }
 
-        return supportedVersions;
+        return collection;
     }
 
-    private boolean isSupportedVersion(SemVer version) {
+    private boolean isSupported(SemVer version) {
         return version.compareTo(minimalSupportedVersion) > 0 && version.compareTo(maximalSupportedVersion) < 0;
     }
 
-    private Set<SemVer> getAllVersions()  throws IOException
+    private Set<SemVer> allVersions()  throws IOException
     {
         var versions = new TreeSet<SemVer>();
 
