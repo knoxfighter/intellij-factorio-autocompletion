@@ -14,15 +14,14 @@ import java.util.*;
 
 @Service
 final public class PrototypesService {
-    public static PrototypesService getInstance(Project project) {
-        return project.getService(PrototypesService.class);
-    }
-
     Project project;
     List<Map<String, Set<String>>> index = new ArrayList<>();
-
     public PrototypesService(Project project) {
         this.project = project;
+    }
+
+    public static PrototypesService getInstance(Project project) {
+        return project.getService(PrototypesService.class);
     }
 
     // Create index for base and core Prototypes

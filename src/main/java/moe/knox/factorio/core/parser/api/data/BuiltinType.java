@@ -1,9 +1,9 @@
 package moe.knox.factorio.core.parser.api.data;
 
 /**
- *  The representation of Builtin Types
- *
- *  These have to be hardcoded since there is no information what they really are :(
+ * The representation of Builtin Types
+ * <p>
+ * These have to be hardcoded since there is no information what they really are :(
  */
 public class BuiltinType {
     String name; // The name of the builtin type.

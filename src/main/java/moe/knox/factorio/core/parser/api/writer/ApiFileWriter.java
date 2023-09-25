@@ -11,15 +11,13 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ApiFileWriter
-{
+public final class ApiFileWriter {
     private static final Logger logger = Logger.getInstance(ValueTypeJsonDeserializer.class);
 
     private final static String NEW_LINE = System.lineSeparator();
     private final Writer output;
 
-    public ApiFileWriter(Writer output)
-    {
+    public ApiFileWriter(Writer output) {
         this.output = output;
     }
 
@@ -52,9 +50,9 @@ public final class ApiFileWriter
             } else if (concept.type() instanceof ValueType.Dictionary) {
                 writeConceptAsDictionary(concept);
             } else if (
-                concept.type() instanceof ValueType.Struct ||
-                concept.type() instanceof ValueType.Tuple ||
-                concept.type() instanceof ValueType.Array
+                    concept.type() instanceof ValueType.Struct ||
+                            concept.type() instanceof ValueType.Tuple ||
+                            concept.type() instanceof ValueType.Array
             ) {
                 // todo add realization
             } else {
@@ -395,8 +393,7 @@ public final class ApiFileWriter
         output.append("---@alias ").append(name).append(' ').append(type).append(NEW_LINE);
     }
 
-    private String getType(ValueType type)
-    {
+    private String getType(ValueType type) {
         return AnnotationTypeResolver.getType(type);
     }
 

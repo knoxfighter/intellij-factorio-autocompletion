@@ -25,8 +25,7 @@ public class Operator implements Arrangeable {
         }
     }
 
-    public Type getType()
-    {
+    public Type getType() {
         return Type.fromNativeName(name);
     }
 

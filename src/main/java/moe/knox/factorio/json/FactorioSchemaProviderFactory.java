@@ -16,11 +16,11 @@ public class FactorioSchemaProviderFactory implements JsonSchemaProviderFactory 
     @NotNull
     @Override
     public List<JsonSchemaFileProvider> getProviders(@NotNull Project project) {
-        return Arrays.asList(new FactorioSchemaFileProvider(project));
+        return List.of(new FactorioSchemaFileProvider(project));
     }
 
     class FactorioSchemaFileProvider implements JsonSchemaFileProvider {
-        private Project project;
+        private final Project project;
 
         public FactorioSchemaFileProvider(Project project) {
             this.project = project;

@@ -20,8 +20,7 @@ public class PathPatternCondition extends PatternCondition<PsiElement> {
 
         if (callExpr != null) {
             for (PsiElement callExprChild : callExpr.getChildren()) {
-                if (callExprChild instanceof LuaNameExpr) {
-                    LuaNameExpr indexExpr = (LuaNameExpr) callExprChild;
+                if (callExprChild instanceof LuaNameExpr indexExpr) {
                     if (indexExpr.getName().equals("require")) {
                         return true;
                     }

@@ -44,16 +44,16 @@ final public class NotificationService {
 
     public void notifyErrorDownloadingPrototypeDefinitions() {
         raiseNotification("""
-            Error downloading the factorio prototype definitions. Please go online and try it again!
-            Integration is disabled until reloaded in Settings.
-        """, NotificationType.ERROR);
+                    Error downloading the factorio prototype definitions. Please go online and try it again!
+                    Integration is disabled until reloaded in Settings.
+                """, NotificationType.ERROR);
     }
 
     public void notifyErrorDownloadingPartPrototypeDefinitions() {
         raiseNotification("""
-            Error downloading parts of the factorio prototype definitions. Please try again later!
-            Integration is partially disabled until reloaded in Settings.
-        """, NotificationType.ERROR);
+                    Error downloading parts of the factorio prototype definitions. Please try again later!
+                    Integration is partially disabled until reloaded in Settings.
+                """, NotificationType.ERROR);
     }
 
     public void notifyErrorTagsDownloading() {

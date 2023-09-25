@@ -1,7 +1,6 @@
 package moe.knox.factorio.core.parser;
 
 import com.google.common.io.Files;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
@@ -64,7 +63,6 @@ public abstract class Parser extends Task.Backgroundable {
         } catch (IOException e) {
             e.printStackTrace();
             showDownloadingError(true);
-            return;
         }
     }
 }

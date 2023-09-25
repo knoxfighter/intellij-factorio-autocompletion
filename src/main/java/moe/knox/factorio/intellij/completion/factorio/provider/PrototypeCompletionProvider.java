@@ -97,7 +97,7 @@ public class PrototypeCompletionProvider extends CompletionProvider<CompletionPa
                 document.insertString(insertionContext.getTailOffset(), "{{}}");
                 offsetRemoval += 2;
             } else if (type.getKind().equals(TyKind.Class)) {
-                if (type instanceof  TySerializedClass && ((TySerializedClass) type).getClassName().equals("LocalisedString")) {
+                if (type instanceof TySerializedClass && ((TySerializedClass) type).getClassName().equals("LocalisedString")) {
                     document.insertString(insertionContext.getTailOffset(), "{\"\"}");
                     offsetRemoval += 2;
                 } else {
@@ -106,11 +106,9 @@ public class PrototypeCompletionProvider extends CompletionProvider<CompletionPa
                 }
             } else if (type.getKind().equals(TyKind.Primitive)) {
                 TyPrimitiveKind primitiveKind = null;
-                if (type instanceof TyPrimitive) {
-                    TyPrimitive tyPrimitive = (TyPrimitive) type;
+                if (type instanceof TyPrimitive tyPrimitive) {
                     primitiveKind = tyPrimitive.getPrimitiveKind();
-                } else if (type instanceof TyPrimitiveClass) {
-                    TyPrimitiveClass tyPrimitiveClass = (TyPrimitiveClass) type;
+                } else if (type instanceof TyPrimitiveClass tyPrimitiveClass) {
                     primitiveKind = tyPrimitiveClass.getPrimitiveKind();
                 }
                 if (primitiveKind != null && primitiveKind == TyPrimitiveKind.String) {

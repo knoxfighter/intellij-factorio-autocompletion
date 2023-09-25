@@ -6,8 +6,7 @@ import moe.knox.factorio.core.parser.api.ParsingHelper;
 import moe.knox.factorio.core.parser.api.data.ValueType;
 import org.jetbrains.annotations.NotNull;
 
-public class ValueTypeJsonDeserializer implements JsonDeserializer<ValueType>
-{
+public class ValueTypeJsonDeserializer implements JsonDeserializer<ValueType> {
     private static final Logger logger = Logger.getInstance(ValueTypeJsonDeserializer.class);
 
     @Override
@@ -23,8 +22,7 @@ public class ValueTypeJsonDeserializer implements JsonDeserializer<ValueType>
         return null;
     }
 
-    private ValueType deserializeComplexType(JsonElement jsonElement)
-    {
+    private ValueType deserializeComplexType(JsonElement jsonElement) {
         try {
             var jsonObject = jsonElement.getAsJsonObject();
             var complexTypeNativeName = jsonObject.get("complex_type").getAsString();

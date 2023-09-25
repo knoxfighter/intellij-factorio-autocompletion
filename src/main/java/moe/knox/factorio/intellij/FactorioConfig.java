@@ -4,31 +4,31 @@ import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
-import moe.knox.factorio.core.version.FactorioApiVersion;
-import moe.knox.factorio.core.parser.api.ApiParser;
 import moe.knox.factorio.core.LuaLibDownloader;
+import moe.knox.factorio.core.parser.api.ApiParser;
 import moe.knox.factorio.core.parser.prototype.PrototypeParser;
 import moe.knox.factorio.core.version.ApiVersionResolver;
+import moe.knox.factorio.core.version.FactorioApiVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.Comparator;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Objects;
 
 public class FactorioConfig implements SearchableConfigurable {
+    private final ApiVersionResolver apiVersionResolver;
+    @NotNull
+    private final FactorioApiVersion latestExistingVersion;
     Project project;
-    private FactorioState config;
+    private final FactorioState config;
     private JPanel rootPanel;
     private JCheckBox enableFactorioIntegrationCheckBox;
     private JComboBox<DropdownVersion> selectApiVersion;
     private JLabel loadError;
     private JButton reloadButton;
     private JLabel selectApiVersionLabel;
-    private final ApiVersionResolver apiVersionResolver;
-    @NotNull
-    private final FactorioApiVersion latestExistingVersion;
 
     public FactorioConfig(@NotNull Project project) throws IOException {
         this.project = project;
@@ -127,15 +127,13 @@ public class FactorioConfig implements SearchableConfigurable {
         WriteAction.run(FactorioLibraryProvider::reload);
     }
 
-    private void removeParsedLibraries()
-    {
+    private void removeParsedLibraries() {
         ApiParser.removeCurrentAPI(project);
         PrototypeParser.removeCurrentPrototypes();
         LuaLibDownloader.removeCurrentLualib(project);
     }
 
-    private void updateLibraries()
-    {
+    private void updateLibraries() {
         ApiParser.checkForUpdate(project);
         PrototypeParser.getCurrentPrototypeLink(project);
         LuaLibDownloader.checkForUpdate(project);
@@ -155,30 +153,25 @@ public class FactorioConfig implements SearchableConfigurable {
         return FactorioApiVersion.createVersion(dropdownVersion.version);
     }
 
-    private boolean isVersionChanged()
-    {
+    private boolean isVersionChanged() {
         return !config.selectedFactorioVersion.equals(getSelectedVersion());
     }
 
-    private boolean isIntegrationTurnedOff()
-    {
+    private boolean isIntegrationTurnedOff() {
         return config.integrationActive && !enableFactorioIntegrationCheckBox.isSelected();
     }
 
     private record DropdownVersion(String version, String name) {
-        public boolean isLatest()
-        {
-            return version.equals("latest");
-        }
-
-        public static DropdownVersion createLatest()
-        {
+        public static DropdownVersion createLatest() {
             return new DropdownVersion("latest", "Latest version");
         }
 
-        public static DropdownVersion fromApiVersion(FactorioApiVersion v)
-        {
+        public static DropdownVersion fromApiVersion(FactorioApiVersion v) {
             return new DropdownVersion(v.version(), v.version());
+        }
+
+        public boolean isLatest() {
+            return version.equals("latest");
         }
 
         @Override

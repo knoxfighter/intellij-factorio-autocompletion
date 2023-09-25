@@ -1,8 +1,11 @@
 package moe.knox.factorio.intellij.completion;
 
-import com.intellij.codeInsight.completion.*;
-import com.tang.intellij.lua.psi.*;
-
+import com.intellij.codeInsight.completion.CompletionContributor;
+import com.intellij.codeInsight.completion.CompletionType;
+import com.tang.intellij.lua.psi.LuaIndexExpr;
+import com.tang.intellij.lua.psi.LuaLiteralExpr;
+import com.tang.intellij.lua.psi.LuaTableField;
+import com.tang.intellij.lua.psi.LuaTypes;
 import moe.knox.factorio.intellij.completion.factorio.condition.PathPatternCondition;
 import moe.knox.factorio.intellij.completion.factorio.condition.PrototypePatternCondition;
 import moe.knox.factorio.intellij.completion.factorio.condition.PrototypeTypePatternCondition;
@@ -10,6 +13,7 @@ import moe.knox.factorio.intellij.completion.factorio.provider.PathCompletionPro
 import moe.knox.factorio.intellij.completion.factorio.provider.PrototypeCompletionProvider;
 import moe.knox.factorio.intellij.completion.factorio.provider.PrototypeTableCompletionProvider;
 import moe.knox.factorio.intellij.completion.factorio.provider.PrototypeTypeCompletionProvider;
+
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class MainCompletionContributor extends CompletionContributor {

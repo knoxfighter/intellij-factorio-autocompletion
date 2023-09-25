@@ -22,7 +22,8 @@ import java.io.IOException;
 )
 public class FactorioState implements PersistentStateComponent<FactorioState> {
     public boolean integrationActive = false;
-    @NotNull @OptionTag(converter = FactorioApiVersionConverter.class)
+    @NotNull
+    @OptionTag(converter = FactorioApiVersionConverter.class)
     public FactorioApiVersion selectedFactorioVersion;
     public String currentLualibVersion = "";
     public boolean useLatestVersion = true;
@@ -30,6 +31,10 @@ public class FactorioState implements PersistentStateComponent<FactorioState> {
     public FactorioState() throws IOException {
         // todo move in another method ?
         selectedFactorioVersion = (new ApiVersionResolver()).supportedVersions().latestVersion();
+    }
+
+    public static FactorioState getInstance(Project project) {
+        return project.getService(FactorioState.class);
     }
 
     @Nullable
@@ -41,10 +46,6 @@ public class FactorioState implements PersistentStateComponent<FactorioState> {
     @Override
     public void loadState(@NotNull FactorioState state) {
         XmlSerializerUtil.copyBean(state, this);
-    }
-
-    public static FactorioState getInstance(Project project) {
-        return project.getService(FactorioState.class);
     }
 
     private static class FactorioApiVersionConverter extends Converter<FactorioApiVersion> {

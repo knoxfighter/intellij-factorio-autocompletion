@@ -1,9 +1,10 @@
 package moe.knox.factorio.core.parser.api;
 
-import com.google.gson.*;
+import com.google.gson.GsonBuilder;
 import marcono1234.gson.recordadapter.RecordTypeAdapterFactory;
-import moe.knox.factorio.core.parser.api.data.*;
 import moe.knox.factorio.core.parser.api.data.JsonPolymorphism.JsonPolymorphismDeserializer;
+import moe.knox.factorio.core.parser.api.data.Operator;
+import moe.knox.factorio.core.parser.api.data.Parameter;
 
 public class ParsingHelper {
     public static GsonBuilder addDeserializers(GsonBuilder builder) {
