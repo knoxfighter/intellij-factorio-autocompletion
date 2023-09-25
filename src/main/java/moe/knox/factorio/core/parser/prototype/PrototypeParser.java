@@ -1,18 +1,21 @@
 package moe.knox.factorio.core.parser.prototype;
 
+import com.google.common.io.Files;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
 import com.tang.intellij.lua.search.SearchContext;
+import lombok.CustomLog;
 import moe.knox.factorio.core.FactorioPrototypeState;
 import moe.knox.factorio.core.NotificationService;
-import moe.knox.factorio.core.parser.Parser;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
 import moe.knox.factorio.intellij.FactorioState;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jsoup.HttpStatusException;
@@ -27,32 +30,34 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class PrototypeParser extends Parser {
+@CustomLog
+public class PrototypeParser extends Task.Backgroundable {
+    private static final String NEW_LINE = System.lineSeparator();
     public static final String prototypeRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_prototypes/";
     public static final String prototypesBaseLink = "https://wiki.factorio.com";
     private static final String prototypeLibPath = prototypeRootPath + "library/";
     private static final AtomicBoolean downloadInProgress = new AtomicBoolean(false);
     private static final List<String> rootTypes = Arrays.asList(
-        "float",
-        "double",
-        "int",
-        "int8",
-        "int16",
-        "int32",
-        "int64",
-        "uint",
-        "uint8",
-        "uint16",
-        "uint32",
-        "uint64",
-        "string",
-        "LocalisedString",
-        "bool"
+            "float",
+            "double",
+            "int",
+            "int8",
+            "int16",
+            "int32",
+            "int64",
+            "uint",
+            "uint8",
+            "uint16",
+            "uint32",
+            "uint64",
+            "string",
+            "LocalisedString",
+            "bool"
     );
     private static final List<String> prototypeTypeWhitelist = Arrays.asList(
-        "Types/ItemProductPrototype",
-        "Types/ItemToPlace",
-        "Types/DamagePrototype"
+            "Types/ItemProductPrototype",
+            "Types/ItemToPlace",
+            "Types/DamagePrototype"
     );
     private FactorioState config;
     private ProgressIndicator indicator;
@@ -144,7 +149,7 @@ public class PrototypeParser extends Parser {
             protoOverview = Jsoup.connect(prototypesOverviewLink).get();
         } catch (IOException e) {
             System.out.println("error downloading the main Prototype page");
-            showDownloadingError(false);
+            NotificationService.getInstance(myProject).notifyErrorDownloadingPrototypeDefinitions();
             return;
         }
 
@@ -218,7 +223,7 @@ public class PrototypeParser extends Parser {
                     return true;
                 }
                 System.out.printf("error downloading the single prototype page: %s", link);
-                showDownloadingError(false);
+                NotificationService.getInstance(myProject).notifyErrorDownloadingPrototypeDefinitions();
                 return false;
             }
 
@@ -409,27 +414,27 @@ public class PrototypeParser extends Parser {
 
         private void saveTable(StringBuilder fileContent, List<String> description, String name, @Nullable String parentType, List<Property> properties) {
             for (String s : description) {
-                fileContent.append("---").append(s).append(newLine);
+                fileContent.append("---").append(s).append(NEW_LINE);
             }
 
             fileContent.append("---@class ").append(name);
             if (parentType != null && !parentType.isEmpty()) {
                 fileContent.append(" : ").append(parentType);
             }
-            fileContent.append(newLine);
-            fileContent.append("local ").append(name).append(" = {}").append(newLine).append(newLine);
+            fileContent.append(NEW_LINE);
+            fileContent.append("local ").append(name).append(" = {}").append(NEW_LINE).append(NEW_LINE);
 
             // add all properties
             for (Property property : properties) {
                 for (String s : property.description) {
-                    fileContent.append("--- ").append(s).append(newLine);
+                    fileContent.append("--- ").append(s).append(NEW_LINE);
                 }
 
                 // add type
-                fileContent.append("---@type ").append(property.type).append(newLine);
+                fileContent.append("---@type ").append(property.type).append(NEW_LINE);
 
                 // add attribute definition
-                fileContent.append(name).append(".").append(property.name).append(" = nil").append(newLine).append(newLine);
+                fileContent.append(name).append(".").append(property.name).append(" = nil").append(NEW_LINE).append(NEW_LINE);
 
                 if (property.inlineType.properties.size() > 0) {
                     saveTable(fileContent, new ArrayList<>(), property.type, null, property.inlineType.properties);
@@ -456,5 +461,36 @@ public class PrototypeParser extends Parser {
 
     private class SubPrototype {
         List<Property> properties = new ArrayList<>();
+    }
+
+    /**
+     * removed "::" and all variants of newLines from the given string and returns it.
+     *
+     * @param s remove from this String
+     * @return string with removed things
+     */
+    @NotNull
+    @Contract(pure = true)
+    protected String removeNewLines(@NotNull String s) {
+        return s.replaceAll("(::)|(\\r\\n|\\r|\\n)", "");
+    }
+
+    /**
+     * Save the fileContent to the specified file. The file is saved within the main application and with write access.
+     * The result of this invoke of the main application is avaited.
+     *
+     * @param filePath    The Path to the file to save to
+     * @param fileContent The content of the file
+     */
+    protected void saveStringToFile(String filePath, String fileContent) {
+        // create file
+        File file = new File(filePath);
+        try {
+            file.createNewFile();
+            Files.write(fileContent.getBytes(), file);
+        } catch (IOException e) {
+            log.error(e);
+            NotificationService.getInstance(myProject).notifyErrorDownloadingPartPrototypeDefinitions();
+        }
     }
 }

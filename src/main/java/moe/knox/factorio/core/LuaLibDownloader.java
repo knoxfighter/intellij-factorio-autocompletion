@@ -5,11 +5,11 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
 import lombok.CustomLog;
-import moe.knox.factorio.core.parser.Parser;
 import moe.knox.factorio.intellij.FactorioState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +24,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 @CustomLog
-public class LuaLibDownloader extends Parser {
+public class LuaLibDownloader extends Task.Backgroundable {
     public static final String luaLibRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/lualib/";
     public static final String prototypeRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/core_prototypes/";
     public static final String lualibGithubTagsLink = "https://api.github.com/repos/wube/factorio-data/git/refs/tags";
@@ -224,8 +224,7 @@ public class LuaLibDownloader extends Parser {
             } else {
                 // save file
                 byte[] buffer = new byte[2048];
-                try (FileOutputStream fos = new FileOutputStream(path.toFile());
-                     BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length)) {
+                try (FileOutputStream fos = new FileOutputStream(path.toFile()); BufferedOutputStream bos = new BufferedOutputStream(fos, buffer.length)) {
 
                     int len;
                     while ((len = zipInputStream.read(buffer)) > 0) {
@@ -255,9 +254,7 @@ public class LuaLibDownloader extends Parser {
                 downloadExtractZip(this.tag);
 
                 // Reload base prototype service indexes
-                ApplicationManager.getApplication().invokeLater(() ->
-                        PrototypesService.getInstance(myProject).reloadIndex()
-                );
+                ApplicationManager.getApplication().invokeLater(() -> PrototypesService.getInstance(myProject).reloadIndex());
             } catch (IOException e) {
                 log.error(e);
 //                Notification notification = notificationGroup.createNotification("Error creating Lualib Directory", NotificationType.WARNING);
