@@ -182,20 +182,20 @@ public class LuaLibDownloader extends Parser {
             String tagName = tag.ref.substring(tag.ref.lastIndexOf("/") + 1);
             URL url = new URL("https://api.github.com/repos/wube/factorio-data/zipball/" + tagName);
             InputStream inputStream = url.openStream();
-            ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+            try (ZipInputStream zipInputStream = new ZipInputStream(inputStream)) {
+                Path corePrototypeSubDir = Paths.get(prototypeSaveDir, "core");
+                Path basePrototypeSubDir = Paths.get(prototypeSaveDir, "base");
 
-            Path corePrototypeSubDir = Paths.get(prototypeSaveDir, "core");
-            Path basePrototypeSubDir = Paths.get(prototypeSaveDir, "base");
+                Files.createDirectories(corePrototypeSubDir);
+                Files.createDirectories(basePrototypeSubDir);
 
-            Files.createDirectories(corePrototypeSubDir);
-            Files.createDirectories(basePrototypeSubDir);
-
-            // Iterate over all files in the zip and only save the needed
-            ZipEntry zipEntry;
-            while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                saveZipEntry(zipInputStream, zipEntry, "/lualib/", saveDir);
-                saveZipEntry(zipInputStream, zipEntry, "/core/prototypes/", corePrototypeSubDir.toString());
-                saveZipEntry(zipInputStream, zipEntry, "/base/prototypes/", basePrototypeSubDir.toString());
+                // Iterate over all files in the zip and only save the needed
+                ZipEntry zipEntry;
+                while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+                    saveZipEntry(zipInputStream, zipEntry, "/lualib/", saveDir);
+                    saveZipEntry(zipInputStream, zipEntry, "/core/prototypes/", corePrototypeSubDir.toString());
+                    saveZipEntry(zipInputStream, zipEntry, "/base/prototypes/", basePrototypeSubDir.toString());
+                }
             }
 
             FactorioState.getInstance(myProject).currentLualibVersion = tagName;

@@ -48,21 +48,22 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
         }
 
         String jarPath = PathUtil.getJarPathForClass(FactorioLibraryProvider.class);
+        Collection<SyntheticLibrary> libList = new ArrayList<>();
 
         // libDir for hardcoded things (builtin-types)
-        VirtualFile libDir = null;
         try {
-            libDir = VfsUtil.findFileByURL(URLUtil.getJarEntryURL(new File(jarPath), "library"));
+            var libDir = VfsUtil.findFileByURL(URLUtil.getJarEntryURL(new File(jarPath), "library"));
+
+            Objects.requireNonNull(libDir);
+
+            for (VirtualFile libDirChild : libDir.getChildren()) {
+                libDirChild.putUserData(LuaFileUtil.INSTANCE.getPREDEFINED_KEY(), true);
+            }
+
+            libList.add(new FactorioLibrary(libDir, "Factorio Builtins"));
         } catch (MalformedURLException e) {
             log.error(e);
         }
-
-        for (VirtualFile libDirChild : libDir.getChildren()) {
-            libDirChild.putUserData(LuaFileUtil.INSTANCE.getPREDEFINED_KEY(), true);
-        }
-
-        Collection<SyntheticLibrary> libList = new ArrayList<>();
-        libList.add(new FactorioLibrary(libDir, "Factorio Builtins"));
 
         // libDir for downloaded factorio api
         VirtualFile dynDir = null;

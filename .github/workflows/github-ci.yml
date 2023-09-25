@@ -52,7 +52,6 @@ jobs:
         run: ./gradlew sonarqube
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_SCANNER_OPTS: "-Dsonar.projectVersion=$CI_COMMIT_TAG"
       - name: Run SonarQube analysis
         if: github.ref == 'refs/heads/master'
         run: ./gradlew sonarqube
