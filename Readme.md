@@ -5,7 +5,7 @@
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=serieznyi_intellij-factorio-autocompletion&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=serieznyi_intellij-factorio-autocompletion)
 
 [![Build status](https://github.com/serieznyi/intellij-factorio-autocompletion/actions/workflows/build-gradle-project.yml/badge.svg?branch=develop)](https://github.com/serieznyi/intellij-factorio-autocompletion/actions/workflows/build-gradle-project.yml?query=branch%3Amaster)
-[![Jetbrains plugin](https://img.shields.io/jetbrains/plugin/v/22696-factorio-lua-api-support-fork.svg?style=flat-square)](https://plugins.jetbrains.com/plugin/13330-factorio-lua-api-support)
+[![Jetbrains plugin](https://img.shields.io/jetbrains/plugin/v/22696-factorio-lua-api-support-fork.svg?style=flat-square)](https://plugins.jetbrains.com/plugin/22696-factorio-lua-api-support-fork)
 
 Fork of abandoned plugin [Factorio LUA API Support](https://plugins.jetbrains.com/plugin/13330-factorio-lua-api-support").
 

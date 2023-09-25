@@ -7,9 +7,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * Return collection of supported api versions
@@ -17,33 +18,33 @@ import java.util.TreeSet;
  */
 public final class ApiVersionResolver {
     final private SemVer minimalSupportedVersion = new SemVer("1.1.62", 1, 1, 62);
-    final private SemVer maximalSupportedVersion = new SemVer("1.1.68", 1, 1, 88);
+    final private SemVer maximalSupportedVersion = new SemVer("1.2.0", 1, 2, 0);
     final private static String versionsHtmlPage = "https://lua-api.factorio.com/";
 
     public ApiVersionCollection supportedVersions() throws IOException {
-        var allVersions = getAllVersions();
-        var supportedVersions = new ApiVersionCollection();
+        TreeSet<SemVer> allSupportedVersions = allVersions()
+                .stream()
+                .filter(this::isSupported)
+                .collect(Collectors.toCollection(TreeSet::new));
+        SemVer lastSupportedVersion = Objects.requireNonNull(allSupportedVersions.last());
+        var collection = new ApiVersionCollection();
 
-        for (SemVer version : allVersions) {
-            if (version.compareTo(minimalSupportedVersion) < 0 || version.compareTo(maximalSupportedVersion) > 0) {
-                continue;
-            }
-
-            FactorioApiVersion factorioVersion;
-
-            if (version.equals(maximalSupportedVersion)) {
-                factorioVersion = FactorioApiVersion.createLatestVersion(version.getRawVersion());
+        for (SemVer v : allSupportedVersions) {
+            if (v.equals(lastSupportedVersion)) {
+                collection.add(FactorioApiVersion.createLatestVersion(v.toString()));
             } else {
-                factorioVersion = FactorioApiVersion.createVersion(version.getRawVersion());
+                collection.add(FactorioApiVersion.createVersion(v.toString()));
             }
-
-            supportedVersions.add(factorioVersion);
         }
 
-        return supportedVersions;
+        return collection;
     }
 
-    private Set<SemVer> getAllVersions()  throws IOException
+    private boolean isSupported(SemVer version) {
+        return version.compareTo(minimalSupportedVersion) > 0 && version.compareTo(maximalSupportedVersion) < 0;
+    }
+
+    private Set<SemVer> allVersions()  throws IOException
     {
         var versions = new TreeSet<SemVer>();
 

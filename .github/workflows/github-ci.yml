@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout project sources
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
@@ -45,7 +47,7 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       - run: git fetch --all
-      - name: Run SonarQube analysis
+      - name: Run SonarQube analysis with Quality Gates
         if: github.ref != 'refs/heads/master'
         run: ./gradlew sonarqube
         env:

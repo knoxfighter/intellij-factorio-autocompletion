@@ -1,6 +1,8 @@
 package moe.knox.factorio.core.parser.api.writer;
 
+import com.intellij.openapi.diagnostic.Logger;
 import moe.knox.factorio.core.parser.api.data.*;
+import moe.knox.factorio.core.parser.api.data.desirealizer.ValueTypeJsonDeserializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -11,6 +13,8 @@ import java.util.List;
 
 public final class ApiFileWriter
 {
+    private static final Logger logger = Logger.getInstance(ValueTypeJsonDeserializer.class);
+
     private final static String NEW_LINE = System.lineSeparator();
     private final Writer output;
 
@@ -54,7 +58,7 @@ public final class ApiFileWriter
             ) {
                 // todo add realization
             } else {
-                throw new IllegalArgumentException("Unknown concept type: " + concept.type().getNativeName());
+                logger.warn("Unknown concept type: " + concept.type().getNativeName());
             }
         }
     }

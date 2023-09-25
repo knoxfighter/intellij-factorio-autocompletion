@@ -111,4 +111,6 @@ public interface ValueType extends Arrangeable {
     }
 
     record LuaLazyLoadedValue(ValueType value) implements ValueType {}
+
+    record Unknown() implements ValueType {}
 }
