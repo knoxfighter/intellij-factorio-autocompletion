@@ -1,7 +1,13 @@
 # Intellij Factorio Autocompletion
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=serieznyi_intellij-factorio-autocompletion&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=serieznyi_intellij-factorio-autocompletion)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=serieznyi_intellij-factorio-autocompletion&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=serieznyi_intellij-factorio-autocompletion)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=serieznyi_intellij-factorio-autocompletion&metric=bugs)](https://sonarcloud.io/summary/new_code?id=serieznyi_intellij-factorio-autocompletion)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=serieznyi_intellij-factorio-autocompletion&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=serieznyi_intellij-factorio-autocompletion)
 
-[![Build status](https://github.com/knoxfighter/intellij-factorio-autocompletion/actions/workflows/build-gradle-project.yml/badge.svg?branch=develop)](https://github.com/knoxfighter/intellij-factorio-autocompletion/actions/workflows/build-gradle-project.yml?query=branch%3Adevelop)
-[![Jetbrains plugin](https://img.shields.io/jetbrains/plugin/v/13330-factorio-lua-api-support.svg?style=flat-square)](https://plugins.jetbrains.com/plugin/13330-factorio-lua-api-support)
+[![Build status](https://github.com/serieznyi/intellij-factorio-autocompletion/actions/workflows/build-gradle-project.yml/badge.svg?branch=develop)](https://github.com/serieznyi/intellij-factorio-autocompletion/actions/workflows/build-gradle-project.yml?query=branch%3Amaster)
+[![Jetbrains plugin](https://img.shields.io/jetbrains/plugin/v/22696-factorio-lua-api-support-fork.svg?style=flat-square)](https://plugins.jetbrains.com/plugin/13330-factorio-lua-api-support)
+
+Fork of abandoned plugin [Factorio LUA API Support](https://plugins.jetbrains.com/plugin/13330-factorio-lua-api-support").
 
 This is a plugin for the jetbrains IDEs. It adds autocompletion to LUA Files for the Factorio LUA-API.
 

@@ -1,0 +1,60 @@
+name: Project CI
+on: [push]
+env:
+  JAVA_DISTRIBUTION: "temurin"
+  JAVA_VERSION: "17"
+  GRADLE_BUILD_ACTION_CACHE_DEBUG_ENABLED: true
+  ACTIONS_STEP_DEBUG: true
+  ARTIFACT_FILES: .
+jobs:
+  build:
+    name: Build, Test and Analyse
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project sources
+        uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: wrapper
+      - name: Compile project
+        run: ./gradlew testClasses
+      - name: Run JUnit
+        run: ./gradlew test
+      - name: Archive JUnit result
+        uses: actions/upload-artifact@v3
+        with:
+          name: junit-report
+          path: build/reports/junit
+      - name: Archive Jacoco Coverage result
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-coverage-report
+          path: build/reports/jacoco
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - run: git fetch --all
+      - name: Run SonarQube analysis
+        if: github.ref != 'refs/heads/master'
+        run: ./gradlew sonarqube
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_SCANNER_OPTS: "-Dsonar.projectVersion=$CI_COMMIT_TAG"
+      - name: Run SonarQube analysis
+        if: github.ref == 'refs/heads/master'
+        run: ./gradlew sonarqube
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_SCANNER_OPTS: "-Dsonar.qualitygate.wait=true -Dsonar.projectVersion=$CI_COMMIT_TAG"
