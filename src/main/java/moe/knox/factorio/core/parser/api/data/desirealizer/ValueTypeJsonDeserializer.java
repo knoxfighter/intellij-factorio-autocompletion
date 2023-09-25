@@ -1,14 +1,13 @@
 package moe.knox.factorio.core.parser.api.data.desirealizer;
 
 import com.google.gson.*;
-import com.intellij.openapi.diagnostic.Logger;
+import lombok.CustomLog;
 import moe.knox.factorio.core.parser.api.ParsingHelper;
 import moe.knox.factorio.core.parser.api.data.ValueType;
 import org.jetbrains.annotations.NotNull;
 
+@CustomLog
 public class ValueTypeJsonDeserializer implements JsonDeserializer<ValueType> {
-    private static final Logger logger = Logger.getInstance(ValueTypeJsonDeserializer.class);
-
     @Override
     public ValueType deserialize(JsonElement jsonElement, java.lang.reflect.Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         if (jsonElement.isJsonPrimitive()) {
@@ -33,7 +32,7 @@ public class ValueTypeJsonDeserializer implements JsonDeserializer<ValueType> {
 
             return (builder.create()).fromJson(jsonElement, clazz);
         } catch (UnknownComplexTypeException e) {
-            logger.warn("Unknown value type: " + e.getValueType());
+            log.warn("Unknown value type: " + e.getValueType());
             return new ValueType.Unknown();
         }
     }

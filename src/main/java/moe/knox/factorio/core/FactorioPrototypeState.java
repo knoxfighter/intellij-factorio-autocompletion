@@ -3,6 +3,7 @@ package moe.knox.factorio.core;
 import com.intellij.openapi.util.JDOMUtil;
 import com.intellij.serialization.SerializationException;
 import com.intellij.util.xmlb.XmlSerializer;
+import lombok.CustomLog;
 import moe.knox.factorio.core.parser.prototype.PrototypeParser;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -13,6 +14,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@CustomLog
 public class FactorioPrototypeState {
     private static FactorioPrototypeState instance;
     private static final String file = PrototypeParser.prototypeRootPath + "prototype.xml";
@@ -23,9 +25,9 @@ public class FactorioPrototypeState {
         try {
             data = XmlSerializer.deserialize(new File(file).toURI().toURL(), DataHolder.class);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.error(e);
         } catch (SerializationException e) {
-//            e.printStackTrace();
+            log.error(e);
             data = new DataHolder();
         }
     }
@@ -62,7 +64,7 @@ public class FactorioPrototypeState {
         try {
             JDOMUtil.write(document, "\n");
         } catch (UncheckedIOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
     }
 

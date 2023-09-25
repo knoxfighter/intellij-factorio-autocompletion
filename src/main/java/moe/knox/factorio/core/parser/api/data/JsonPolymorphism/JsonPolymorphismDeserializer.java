@@ -2,11 +2,13 @@ package moe.knox.factorio.core.parser.api.data.JsonPolymorphism;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import lombok.CustomLog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 
+@CustomLog
 public class JsonPolymorphismDeserializer<T> implements JsonDeserializer<T> {
     @Override
     public T deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
@@ -19,7 +21,7 @@ public class JsonPolymorphismDeserializer<T> implements JsonDeserializer<T> {
         try {
             srcField = TypeToken.get(type).getRawType().getDeclaredField(srcFieldName);
         } catch (NoSuchFieldException e) {
-            e.printStackTrace();
+            log.error(e);
             return res;
         }
 
@@ -33,7 +35,7 @@ public class JsonPolymorphismDeserializer<T> implements JsonDeserializer<T> {
         try {
             srcFieldVal = srcField.get(res);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            log.error(e);
             return res;
         }
 
@@ -49,7 +51,7 @@ public class JsonPolymorphismDeserializer<T> implements JsonDeserializer<T> {
         try {
             field.set(res, data);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            log.error(e);
             return res;
         }
 

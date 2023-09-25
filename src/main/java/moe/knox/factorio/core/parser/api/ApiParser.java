@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
+import lombok.CustomLog;
 import moe.knox.factorio.core.NotificationService;
 import moe.knox.factorio.core.parser.Parser;
 import moe.knox.factorio.core.parser.api.data.RuntimeApi;
@@ -25,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@CustomLog
 public class ApiParser extends Parser {
     private final static String apiRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_api/";
     private static final AtomicBoolean downloadInProgress = new AtomicBoolean(false);
@@ -175,7 +177,7 @@ public class ApiParser extends Parser {
 
             writer.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
             showDownloadingError(true);
         }
     }

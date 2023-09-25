@@ -1,10 +1,12 @@
 package moe.knox.factorio.core.parser.api.writer;
 
+import lombok.CustomLog;
 import moe.knox.factorio.core.parser.api.data.Parameter;
 import moe.knox.factorio.core.parser.api.data.ValueType;
 
 import java.util.List;
 
+@CustomLog
 final class AnnotationTypeResolver {
     /**
      * @return String in format {@code "{["huhu"]:number, ["baum"]:string}"}
@@ -119,7 +121,7 @@ final class AnnotationTypeResolver {
         try {
             stringBuilder.append(getType(type.value())).append("[]");
         } catch (NullPointerException e) {
-            e.printStackTrace(); // todo check it
+            log.error(e);
         }
 
         return stringBuilder.toString();

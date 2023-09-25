@@ -15,6 +15,7 @@ import com.intellij.util.PathUtil;
 import com.intellij.util.io.URLUtil;
 import com.tang.intellij.lua.lang.LuaIcons;
 import com.tang.intellij.lua.psi.LuaFileUtil;
+import lombok.CustomLog;
 import moe.knox.factorio.core.parser.api.ApiParser;
 import moe.knox.factorio.core.parser.prototype.PrototypeParser;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +26,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.util.*;
 
+@CustomLog
 public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
     public static void reload() {
         WriteAction.run(() -> {
@@ -52,7 +54,7 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
         try {
             libDir = VfsUtil.findFileByURL(URLUtil.getJarEntryURL(new File(jarPath), "library"));
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.error(e);
         }
 
         for (VirtualFile libDirChild : libDir.getChildren()) {

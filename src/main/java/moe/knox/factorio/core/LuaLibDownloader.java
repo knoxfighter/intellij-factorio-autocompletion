@@ -3,12 +3,12 @@ package moe.knox.factorio.core;
 import com.google.gson.Gson;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
+import lombok.CustomLog;
 import moe.knox.factorio.core.parser.Parser;
 import moe.knox.factorio.intellij.FactorioState;
 import org.jetbrains.annotations.NotNull;
@@ -23,11 +23,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@CustomLog
 public class LuaLibDownloader extends Parser {
     public static final String luaLibRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/lualib/";
     public static final String prototypeRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/core_prototypes/";
     public static final String lualibGithubTagsLink = "https://api.github.com/repos/wube/factorio-data/git/refs/tags";
-    private static final Logger LOG = Logger.getInstance(Parser.class);
     private static final AtomicBoolean downloadInProgress = new AtomicBoolean(false);
 
     private final String saveDir;
@@ -146,7 +146,7 @@ public class LuaLibDownloader extends Parser {
             Gson gson = new Gson();
             tags = gson.fromJson(inputStream, RefTag[].class);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
         return tags;
     }
@@ -200,7 +200,7 @@ public class LuaLibDownloader extends Parser {
 
             FactorioState.getInstance(myProject).currentLualibVersion = tagName;
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
         }
     }
 
@@ -219,7 +219,7 @@ public class LuaLibDownloader extends Parser {
                 try {
                     Files.createDirectories(path);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error(e);
                 }
             } else {
                 // save file
@@ -231,10 +231,8 @@ public class LuaLibDownloader extends Parser {
                     while ((len = zipInputStream.read(buffer)) > 0) {
                         bos.write(buffer, 0, len);
                     }
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error(e);
                 }
             }
         }
@@ -261,8 +259,7 @@ public class LuaLibDownloader extends Parser {
                         PrototypesService.getInstance(myProject).reloadIndex()
                 );
             } catch (IOException e) {
-                e.printStackTrace();
-                LOG.error(e);
+                log.error(e);
 //                Notification notification = notificationGroup.createNotification("Error creating Lualib Directory", NotificationType.WARNING);
 //                notification.addAction(new NotificationAction("Open Settings") {
 //                    @Override

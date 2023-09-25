@@ -4,6 +4,7 @@ import com.google.common.io.Files;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
+import lombok.CustomLog;
 import moe.knox.factorio.core.NotificationService;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 
+@CustomLog
 public abstract class Parser extends Task.Backgroundable {
     protected static String newLine = System.lineSeparator();
 
@@ -61,7 +63,7 @@ public abstract class Parser extends Task.Backgroundable {
             file.createNewFile();
             Files.write(fileContent.getBytes(), file);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e);
             showDownloadingError(true);
         }
     }
