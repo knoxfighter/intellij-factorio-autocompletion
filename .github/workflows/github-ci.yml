@@ -45,7 +45,7 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       - run: git fetch --all
-      - name: Run SonarQube analysis
+      - name: Run SonarQube analysis with Quality Gates
         if: github.ref != 'refs/heads/master'
         run: ./gradlew sonarqube
         env:
