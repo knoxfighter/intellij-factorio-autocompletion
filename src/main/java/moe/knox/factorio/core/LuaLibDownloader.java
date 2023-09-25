@@ -24,17 +24,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class LuaLibDownloader extends Parser {
-    private static final Logger LOG = Logger.getInstance(Parser.class);
-
     public static final String luaLibRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/lualib/";
     public static final String prototypeRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/core_prototypes/";
     public static final String lualibGithubTagsLink = "https://api.github.com/repos/wube/factorio-data/git/refs/tags";
+    private static final Logger LOG = Logger.getInstance(Parser.class);
+    private static final AtomicBoolean downloadInProgress = new AtomicBoolean(false);
 
-    private static AtomicBoolean downloadInProgress = new AtomicBoolean(false);
-
-    private String saveDir;
-    private String prototypeSaveDir;
-    private FactorioState config;
+    private final String saveDir;
+    private final String prototypeSaveDir;
+    private final FactorioState config;
     private RefTag tag;
 
     public LuaLibDownloader(@Nullable Project project, String saveDir, String prototypeSaveDir, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {

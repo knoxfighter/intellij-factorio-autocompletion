@@ -2,8 +2,8 @@ package moe.knox.factorio.core.parser.api;
 
 import com.google.gson.GsonBuilder;
 import moe.knox.factorio.core.CoreException;
-import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.core.parser.api.data.RuntimeApi;
+import moe.knox.factorio.core.version.FactorioApiVersion;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,8 +13,7 @@ import java.net.URL;
 public final class ApiSpecificationParser {
     private final String factorioApiBaseLink = "https://lua-api.factorio.com";
 
-    public RuntimeApi parse(FactorioApiVersion version) throws CoreException
-    {
+    public RuntimeApi parse(FactorioApiVersion version) throws CoreException {
         try (InputStreamReader inputStreamReader = new InputStreamReader(createVersionStream(version))) {
             GsonBuilder builder = new GsonBuilder();
             ParsingHelper.addDeserializers(builder);

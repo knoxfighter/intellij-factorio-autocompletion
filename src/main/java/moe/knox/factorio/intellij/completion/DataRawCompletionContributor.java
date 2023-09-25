@@ -1,6 +1,6 @@
 package moe.knox.factorio.intellij.completion;
 
-import com.intellij.codeInsight.completion.*;
+import com.intellij.codeInsight.completion.CompletionType;
 import com.tang.intellij.lua.psi.LuaIndexExpr;
 import com.tang.intellij.lua.psi.LuaLiteralExpr;
 import com.tang.intellij.lua.psi.LuaTypes;

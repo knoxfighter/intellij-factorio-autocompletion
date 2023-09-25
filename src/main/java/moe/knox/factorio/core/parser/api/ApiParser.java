@@ -7,15 +7,15 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
-import moe.knox.factorio.core.parser.api.writer.ApiFileWriter;
-import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.core.NotificationService;
 import moe.knox.factorio.core.parser.Parser;
-import moe.knox.factorio.intellij.FactorioState;
+import moe.knox.factorio.core.parser.api.data.RuntimeApi;
+import moe.knox.factorio.core.parser.api.writer.ApiFileWriter;
 import moe.knox.factorio.core.version.ApiVersionCollection;
 import moe.knox.factorio.core.version.ApiVersionResolver;
+import moe.knox.factorio.core.version.FactorioApiVersion;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
-import moe.knox.factorio.core.parser.api.data.*;
+import moe.knox.factorio.intellij.FactorioState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,12 +27,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ApiParser extends Parser {
     private final static String apiRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_api/";
-    private static AtomicBoolean downloadInProgress = new AtomicBoolean(false);
+    private static final AtomicBoolean downloadInProgress = new AtomicBoolean(false);
     private FactorioState config;
     private ProgressIndicator indicator;
-    private String saveDir;
+    private final String saveDir;
     private double curTodo = 0;
-    private double maxTodo = 0;
+    private final double maxTodo = 0;
 
     public ApiParser(@Nullable Project project, String saveDir, @NlsContexts.ProgressTitle @NotNull String title, boolean canBeCancelled) {
         super(project, title, canBeCancelled);
@@ -91,8 +91,7 @@ public class ApiParser extends Parser {
         }
     }
 
-    private static FactorioApiVersion detectLatestAllowedVersion(Project project)
-    {
+    private static FactorioApiVersion detectLatestAllowedVersion(Project project) {
         ApiVersionCollection factorioApiVersions;
 
         try {
@@ -103,6 +102,12 @@ public class ApiParser extends Parser {
         }
 
         return factorioApiVersions.latestVersion();
+    }
+
+    private static Path getApiRuntimeDir(Project project) {
+        var config = FactorioState.getInstance(project);
+
+        return Paths.get(apiRootPath, config.selectedFactorioVersion.version());
     }
 
     /**
@@ -123,8 +128,7 @@ public class ApiParser extends Parser {
 
             // whole thing finished, reload the Library-Provider
             ApplicationManager.getApplication().invokeLater(() -> FactorioLibraryProvider.reload());
-        }
-        finally {
+        } finally {
             downloadInProgress.set(false);
             indicator.stop();
         }
@@ -174,12 +178,5 @@ public class ApiParser extends Parser {
             e.printStackTrace();
             showDownloadingError(true);
         }
-    }
-
-    private static Path getApiRuntimeDir(Project project)
-    {
-        var config = FactorioState.getInstance(project);
-
-        return Paths.get(apiRootPath, config.selectedFactorioVersion.version());
     }
 }

@@ -15,19 +15,9 @@ import java.util.List;
 
 public class FactorioPrototypeState {
     private static FactorioPrototypeState instance;
-    private static String file = PrototypeParser.prototypeRootPath + "prototype.xml";
+    private static final String file = PrototypeParser.prototypeRootPath + "prototype.xml";
 
     private DataHolder data;
-
-    public static class DataHolder {
-        public DataHolder() {
-            kuckuck = "";
-            prototypeTypes = new ArrayList<>();
-        }
-
-        public List<String> prototypeTypes;
-        public String kuckuck;
-    }
 
     private FactorioPrototypeState() {
         try {
@@ -38,6 +28,13 @@ public class FactorioPrototypeState {
 //            e.printStackTrace();
             data = new DataHolder();
         }
+    }
+
+    public static synchronized FactorioPrototypeState getInstance() {
+        if (instance == null) {
+            instance = new FactorioPrototypeState();
+        }
+        return instance;
     }
 
     public void setKuckuck(String kuckuck) {
@@ -69,10 +66,12 @@ public class FactorioPrototypeState {
         }
     }
 
-    public static synchronized FactorioPrototypeState getInstance() {
-        if (instance == null) {
-            instance = new FactorioPrototypeState();
+    public static class DataHolder {
+        public List<String> prototypeTypes;
+        public String kuckuck;
+        public DataHolder() {
+            kuckuck = "";
+            prototypeTypes = new ArrayList<>();
         }
-        return instance;
     }
 }

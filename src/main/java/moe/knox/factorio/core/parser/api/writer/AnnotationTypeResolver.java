@@ -5,8 +5,7 @@ import moe.knox.factorio.core.parser.api.data.ValueType;
 
 import java.util.List;
 
-final class AnnotationTypeResolver
-{
+final class AnnotationTypeResolver {
     /**
      * @return String in format {@code "{["huhu"]:number, ["baum"]:string}"}
      */

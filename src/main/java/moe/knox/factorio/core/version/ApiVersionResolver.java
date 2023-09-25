@@ -14,12 +14,13 @@ import java.util.stream.Collectors;
 
 /**
  * Return collection of supported api versions
+ *
  * @see FactorioApiVersion
  */
 public final class ApiVersionResolver {
+    final private static String versionsHtmlPage = "https://lua-api.factorio.com/";
     final private SemVer minimalSupportedVersion = new SemVer("1.1.62", 1, 1, 62);
     final private SemVer maximalSupportedVersion = new SemVer("1.2.0", 1, 2, 0);
-    final private static String versionsHtmlPage = "https://lua-api.factorio.com/";
 
     public ApiVersionCollection supportedVersions() throws IOException {
         TreeSet<SemVer> allSupportedVersions = allVersions()
@@ -44,8 +45,7 @@ public final class ApiVersionResolver {
         return version.compareTo(minimalSupportedVersion) > 0 && version.compareTo(maximalSupportedVersion) < 0;
     }
 
-    private Set<SemVer> allVersions()  throws IOException
-    {
+    private Set<SemVer> allVersions() throws IOException {
         var versions = new TreeSet<SemVer>();
 
         Document mainPageDoc = Jsoup.connect(versionsHtmlPage).get();

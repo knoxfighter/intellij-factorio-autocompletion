@@ -6,19 +6,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 public record FactorioApiVersion(String version, boolean latest) implements Comparable<FactorioApiVersion> {
-    @Override
-    public String toString() {
-        return version;
-    }
-
-    public static FactorioApiVersion createVersion(String version)
-    {
+    public static FactorioApiVersion createVersion(String version) {
         return new FactorioApiVersion(version, false);
     }
 
-    public static FactorioApiVersion createLatestVersion(String version)
-    {
+    public static FactorioApiVersion createLatestVersion(String version) {
         return new FactorioApiVersion(version, true);
+    }
+
+    @Override
+    public String toString() {
+        return version;
     }
 
     @Override

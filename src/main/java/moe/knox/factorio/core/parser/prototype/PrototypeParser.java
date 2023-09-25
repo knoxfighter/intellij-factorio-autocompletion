@@ -8,11 +8,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.util.io.FileUtil;
 import com.tang.intellij.lua.search.SearchContext;
+import moe.knox.factorio.core.FactorioPrototypeState;
 import moe.knox.factorio.core.NotificationService;
 import moe.knox.factorio.core.parser.Parser;
-import moe.knox.factorio.intellij.FactorioState;
-import moe.knox.factorio.core.FactorioPrototypeState;
 import moe.knox.factorio.intellij.FactorioLibraryProvider;
+import moe.knox.factorio.intellij.FactorioState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jsoup.HttpStatusException;
@@ -32,16 +32,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PrototypeParser extends Parser {
     public static final String prototypeRootPath = PathManager.getPluginsPath() + "/factorio_autocompletion/factorio_prototypes/";
-    private static final String prototypeLibPath = prototypeRootPath + "library/";
     public static final String prototypesBaseLink = "https://wiki.factorio.com";
-
-    private static AtomicBoolean downloadInProgress = new AtomicBoolean(false);
-
-    private FactorioState config;
-    private ProgressIndicator indicator;
-    private String saveDir;
-
-    private static List<String> rootTypes = new ArrayList<>() {{
+    private static final String prototypeLibPath = prototypeRootPath + "library/";
+    private static final AtomicBoolean downloadInProgress = new AtomicBoolean(false);
+    private static final List<String> rootTypes = new ArrayList<>() {{
         add("float");
         add("double");
         add("int");
@@ -58,18 +52,20 @@ public class PrototypeParser extends Parser {
         add("LocalisedString");
         add("bool");
     }};
-
-    private static List<String> prototypeTypeWhitelist = new ArrayList<>() {{
+    private static final List<String> prototypeTypeWhitelist = new ArrayList<>() {{
         add("Types/ItemProductPrototype");
         add("Types/ItemToPlace");
         add("Types/DamagePrototype");
     }};
-
+    private FactorioState config;
+    private ProgressIndicator indicator;
+    private final String saveDir;
     /**
      * map of all propertyTypes `typeName` > `link`
      */
-    private Map<String, String> propertyTypes = new HashMap<>();
-
+    private final Map<String, String> propertyTypes = new HashMap<>();
+    private double curTodo = 0;
+    private double maxTodo = 0;
 
     public PrototypeParser(@Nullable Project project, @NlsContexts.ProgressTitle @NotNull String title, @NotNull String saveDir) {
         super(project, title, false);
@@ -132,9 +128,6 @@ public class PrototypeParser extends Parser {
             }
         }
     }
-    private double curTodo = 0;
-    private double maxTodo = 0;
-
 
     private void updateIndicator() {
         indicator.setFraction(curTodo / maxTodo);

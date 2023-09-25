@@ -3,8 +3,8 @@ package moe.knox.factorio.tang.file.resolver;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import moe.knox.factorio.intellij.FactorioState;
 import moe.knox.factorio.core.LuaLibDownloader;
+import moe.knox.factorio.intellij.FactorioState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

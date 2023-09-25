@@ -38,7 +38,9 @@
     },
     "dependencies": {
       "type": "array",
-      "default": ["0.12"],
+      "default": [
+        "0.12"
+      ],
       "description": "Mods that this mod depends on or is incompatible with. If this mod depends on another, the other mod will load first, see Data-Lifecycle. An empty array allows get around the default and have no dependencies at all.",
       "items": {
         "type": "string",
@@ -46,5 +48,10 @@
       }
     }
   },
-  "required": ["name", "version", "title", "author"]
+  "required": [
+    "name",
+    "version",
+    "title",
+    "author"
+  ]
 }

@@ -27,8 +27,7 @@ public class PrototypeTableCompletionProvider extends CompletionProvider<Complet
         PsiElement element = parameters.getPosition();
         PsiElement indexExprCanditade = element.getParent().getParent();
 
-        if (indexExprCanditade instanceof LuaIndexExpr) {
-            LuaIndexExpr indexExpr = (LuaIndexExpr) indexExprCanditade;
+        if (indexExprCanditade instanceof LuaIndexExpr indexExpr) {
 
             Project project = indexExpr.getProject();
             SearchContext searchContext = SearchContext.Companion.get(project);

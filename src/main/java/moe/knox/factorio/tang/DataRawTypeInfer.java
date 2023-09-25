@@ -11,8 +11,8 @@ import com.tang.intellij.lua.psi.search.LuaShortNamesManager;
 import com.tang.intellij.lua.search.SearchContext;
 import com.tang.intellij.lua.ty.ITy;
 import com.tang.intellij.lua.ty.Ty;
-import moe.knox.factorio.intellij.FactorioState;
 import moe.knox.factorio.core.util.FactorioTreeUtil;
+import moe.knox.factorio.intellij.FactorioState;
 import org.jetbrains.annotations.NotNull;
 
 public class DataRawTypeInfer implements ILuaTypeInfer {

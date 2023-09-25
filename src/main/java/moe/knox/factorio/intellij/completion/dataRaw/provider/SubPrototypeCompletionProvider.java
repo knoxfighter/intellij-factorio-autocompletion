@@ -14,8 +14,8 @@ import com.intellij.util.indexing.FileBasedIndex;
 import com.tang.intellij.lua.editor.completion.LuaLookupElement;
 import com.tang.intellij.lua.psi.LuaIndexExpr;
 import moe.knox.factorio.core.PrototypesService;
-import moe.knox.factorio.intellij.PrototypeFileIndexer;
 import moe.knox.factorio.core.util.FactorioTreeUtil;
+import moe.knox.factorio.intellij.PrototypeFileIndexer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

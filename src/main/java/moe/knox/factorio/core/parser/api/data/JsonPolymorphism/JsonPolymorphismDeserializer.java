@@ -37,7 +37,7 @@ public class JsonPolymorphismDeserializer<T> implements JsonDeserializer<T> {
             return res;
         }
 
-        Field field = getAnnotatedFieldForType((String)srcFieldVal, type);
+        Field field = getAnnotatedFieldForType((String) srcFieldVal, type);
 
         if (field == null) {
             return res;

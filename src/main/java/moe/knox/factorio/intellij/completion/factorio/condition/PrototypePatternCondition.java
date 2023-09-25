@@ -44,8 +44,7 @@ public class PrototypePatternCondition extends PatternCondition<PsiElement> {
             if (localElement != null) {
                 LuaCallExpr callExpr = (LuaCallExpr) localElement;
                 for (PsiElement callExprChild : callExpr.getChildren()) {
-                    if (callExprChild instanceof LuaIndexExpr) {
-                        LuaIndexExpr indexExpr = (LuaIndexExpr) callExprChild;
+                    if (callExprChild instanceof LuaIndexExpr indexExpr) {
                         if (indexExpr.getText().equals("data:extend")) {
                             return true;
                         }

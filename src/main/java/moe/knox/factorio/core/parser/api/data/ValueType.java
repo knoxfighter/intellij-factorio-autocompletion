@@ -5,11 +5,14 @@ import com.google.gson.annotations.SerializedName;
 import moe.knox.factorio.core.parser.api.data.desirealizer.ValueTypeJsonDeserializer;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @JsonAdapter(ValueTypeJsonDeserializer.class)
 public interface ValueType extends Arrangeable {
-    HashMap<String, Class<? extends ValueType>> TYPES_PER_NATIVE_NAME = new HashMap<>(){{
+    HashMap<String, Class<? extends ValueType>> TYPES_PER_NATIVE_NAME = new HashMap<>() {{
         put("simple", Simple.class);
         put("array", Array.class);
         put("literal", Literal.class);
@@ -27,35 +30,45 @@ public interface ValueType extends Arrangeable {
     private static Map<Class<? extends ValueType>, String> nativeNamesPerType() {
         Map<Class<? extends ValueType>, String> reversedMap = new HashMap<>();
 
-        for(Map.Entry<String, Class<? extends ValueType>> entry : TYPES_PER_NATIVE_NAME.entrySet()){
+        for (Map.Entry<String, Class<? extends ValueType>> entry : TYPES_PER_NATIVE_NAME.entrySet()) {
             reversedMap.put(entry.getValue(), entry.getKey());
         }
 
         return reversedMap;
     }
 
-    default String getDescription() { return ""; };
+    default String getDescription() {
+        return "";
+    }
 
     @Override
-    default void arrangeElements() {}
+    default void arrangeElements() {
+    }
 
     default String getNativeName() {
         return nativeNamesPerType().get(getClass());
     }
 
-    record Simple(String value) implements ValueType {}
+    record Simple(String value) implements ValueType {
+    }
 
-    record Array(ValueType value) implements ValueType {}
+    record Array(ValueType value) implements ValueType {
+    }
 
     record Literal(String value, String description) implements ValueType {
-        public String getDescription() { return description; }
+        public String getDescription() {
+            return description;
+        }
     }
 
     record Type(String value, String description) implements ValueType {
-        public String getDescription() { return description; }
+        public String getDescription() {
+            return description;
+        }
     }
 
-    record Function(List<ValueType> parameters) implements ValueType {}
+    record Function(List<ValueType> parameters) implements ValueType {
+    }
 
     record Tuple(List<TypeTupleParameter> parameters) implements ValueType {
         public record TypeTupleParameter(String name, int order, String description, ValueType type, boolean optional) {
@@ -63,6 +76,11 @@ public interface ValueType extends Arrangeable {
     }
 
     record Struct(List<StructAttribute> attributes) implements ValueType {
+        @Override
+        public void arrangeElements() {
+            attributes.sort(Comparator.comparingDouble(attribute -> attribute.order));
+        }
+
         public record StructAttribute(
                 String name,
                 int order,
@@ -73,18 +91,16 @@ public interface ValueType extends Arrangeable {
                 boolean write
         ) {
         }
-
-        @Override
-        public void arrangeElements() {
-            attributes.sort(Comparator.comparingDouble(attribute -> attribute.order));
-        }
     }
 
-    record Union(List<ValueType> options, @SerializedName("full_format") boolean fullFormat) implements ValueType {}
+    record Union(List<ValueType> options, @SerializedName("full_format") boolean fullFormat) implements ValueType {
+    }
 
-    record Dictionary(ValueType key, ValueType value) implements ValueType {}
+    record Dictionary(ValueType key, ValueType value) implements ValueType {
+    }
 
-    record LuaCustomTable(ValueType key, ValueType value) implements ValueType {}
+    record LuaCustomTable(ValueType key, ValueType value) implements ValueType {
+    }
 
     record Table(
             List<Parameter> parameters,
@@ -97,7 +113,9 @@ public interface ValueType extends Arrangeable {
             @Nullable
             String variantParameterDescription
     ) implements ValueType {
-        public String getDescription() { return variantParameterDescription; }
+        public String getDescription() {
+            return variantParameterDescription;
+        }
 
         @Override
         public void arrangeElements() {
@@ -110,7 +128,9 @@ public interface ValueType extends Arrangeable {
         }
     }
 
-    record LuaLazyLoadedValue(ValueType value) implements ValueType {}
+    record LuaLazyLoadedValue(ValueType value) implements ValueType {
+    }
 
-    record Unknown() implements ValueType {}
+    record Unknown() implements ValueType {
+    }
 }

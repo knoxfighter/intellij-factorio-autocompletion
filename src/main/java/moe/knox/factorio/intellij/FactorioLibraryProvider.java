@@ -23,17 +23,26 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.io.File;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 
 public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
+    public static void reload() {
+        WriteAction.run(() -> {
+            Project[] openProjects = ProjectManagerEx.getInstanceEx().getOpenProjects();
+            for (Project openProject : openProjects) {
+                ProjectRootManagerEx.getInstanceEx(openProject).makeRootsChange(EmptyRunnable.getInstance(), false, true);
+            }
+
+            StubIndex.getInstance().forceRebuild(new Throwable("Factorio API changed"));
+        });
+    }
+
     @NotNull
     @Override
     public Collection<SyntheticLibrary> getAdditionalProjectLibraries(@NotNull Project project) {
         // Do nothing, if integration is deactivated
         if (!FactorioState.getInstance(project).integrationActive) {
-            return Arrays.asList();
+            return List.of();
         }
 
         String jarPath = PathUtil.getJarPathForClass(FactorioLibraryProvider.class);
@@ -87,17 +96,6 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
         return new FactorioLibrary(protoDir, libraryName);
     }
 
-    public static void reload() {
-        WriteAction.run(() -> {
-            Project[] openProjects = ProjectManagerEx.getInstanceEx().getOpenProjects();
-            for (Project openProject : openProjects) {
-                ProjectRootManagerEx.getInstanceEx(openProject).makeRootsChange(EmptyRunnable.getInstance(), false, true);
-            }
-
-            StubIndex.getInstance().forceRebuild(new Throwable("Factorio API changed"));
-        });
-    }
-
     class FactorioLibrary extends SyntheticLibrary implements ItemPresentation {
         VirtualFile root;
         String factorioApiVersion;
@@ -114,13 +112,13 @@ public class FactorioLibraryProvider extends AdditionalLibraryRootsProvider {
 
         @Override
         public boolean equals(Object o) {
-            return o instanceof FactorioLibrary && ((FactorioLibrary) o).root == root;
+            return o instanceof FactorioLibrary && ((FactorioLibrary) o).root.equals(root);
         }
 
         @NotNull
         @Override
         public Collection<VirtualFile> getSourceRoots() {
-            return Arrays.asList(root);
+            return Collections.singletonList(root);
         }
 
         @Nullable
