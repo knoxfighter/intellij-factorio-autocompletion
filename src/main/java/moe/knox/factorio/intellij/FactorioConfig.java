@@ -9,6 +9,7 @@ import moe.knox.factorio.core.parser.api.ApiParser;
 import moe.knox.factorio.core.parser.prototype.PrototypeParser;
 import moe.knox.factorio.core.version.ApiVersionResolver;
 import moe.knox.factorio.core.version.FactorioApiVersion;
+import moe.knox.factorio.intellij.library.service.LuaLibService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -114,8 +115,8 @@ public class FactorioConfig implements SearchableConfigurable {
 
         if (isVersionChanged()) {
             ApiParser.removeCurrentAPI(project);
-            LuaLibDownloader.removeCurrentLualib(project);
-            LuaLibDownloader.checkForUpdate(project);
+            LuaLibService.getInstance(project).removeLuaLibFiles();
+            LuaLibService.getInstance(project).checkForUpdate();
         }
 
         reloadButton.setEnabled(enableFactorioIntegrationCheckBox.isSelected());
@@ -130,13 +131,13 @@ public class FactorioConfig implements SearchableConfigurable {
     private void removeParsedLibraries() {
         ApiParser.removeCurrentAPI(project);
         PrototypeParser.removeCurrentPrototypes();
-        LuaLibDownloader.removeCurrentLualib(project);
+        LuaLibService.getInstance(project).removeLuaLibFiles();
     }
 
     private void updateLibraries() {
         ApiParser.checkForUpdate(project);
         PrototypeParser.getCurrentPrototypeLink(project);
-        LuaLibDownloader.checkForUpdate(project);
+        LuaLibService.getInstance(project).checkForUpdate();
     }
 
     private boolean isUseLatestVersion() {

@@ -3,12 +3,12 @@ package moe.knox.factorio.tang.file.resolver;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import moe.knox.factorio.core.LuaLibDownloader;
 import moe.knox.factorio.intellij.FactorioState;
+import moe.knox.factorio.intellij.library.service.LuaLibService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
+import java.nio.file.Path;
 
 public class FactorioLualib extends FactorioFileResolver {
     @Nullable
@@ -19,10 +19,9 @@ public class FactorioLualib extends FactorioFileResolver {
             return null;
         }
 
-
-        String currentLualibLink = LuaLibDownloader.getCurrentLualibLink(project);
-        if (currentLualibLink != null) {
-            VirtualFile libraryFile = VfsUtil.findFileByIoFile(new File(currentLualibLink), true);
+        Path currentLuaLibPath = LuaLibService.getInstance(project).getCurrentLuaLibPath();
+        if (currentLuaLibPath != null) {
+            VirtualFile libraryFile = VfsUtil.findFileByIoFile(currentLuaLibPath.toFile(), true);
             return findFile(shortUrl, libraryFile, extNames);
         }
 
