@@ -1,5 +1,9 @@
 name: Project CI
-on: [push]
+on:
+  pull_request: # all PRs
+  push:
+    branches:
+    - master
 env:
   JAVA_DISTRIBUTION: "temurin"
   JAVA_VERSION: "17"
@@ -27,7 +31,13 @@ jobs:
         with:
           gradle-version: wrapper
       - name: Compile project
+        id: gradle
         run: ./gradlew testClasses
+      - name: Upload build reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-reports
+          path: build/reports/
       - name: Run JUnit
         run: ./gradlew test
       - name: Archive JUnit result
@@ -49,12 +59,12 @@ jobs:
       - run: git fetch --all
       - name: Run SonarQube analysis with Quality Gates
         if: github.ref != 'refs/heads/master'
-        run: ./gradlew sonarqube
+        run: ./gradlew sonar
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Run SonarQube analysis
         if: github.ref == 'refs/heads/master'
-        run: ./gradlew sonarqube
+        run: ./gradlew sonar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

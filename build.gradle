@@ -12,23 +12,23 @@ plugins {
 group 'moe.knox.factorio'
 version '1.4.0-IDEA231-eap-2'
 
-sourceCompatibility = JavaVersion.VERSION_17
-
-repositories {
-    mavenCentral()
-    maven {
-        url = uri("https://jitpack.io")
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
+repositories {
+    mavenCentral()
+    maven { url = uri("https://jitpack.io") }
+}
+
 dependencies {
-    implementation 'org.jsoup:jsoup:1.15.3'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.0'
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher") {
-        because("Only needed to run tests in a version of IntelliJ IDEA that bundles older versions")
-    }
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
     implementation 'com.github.Marcono1234:gson-record-type-adapter-factory:v0.2.0'
+    implementation 'org.jsoup:jsoup:1.15.3'
 }
 
 ext.getPluginChangelog = { ->
@@ -84,18 +84,34 @@ patchPluginXml {
 test {
     useJUnitPlatform()
 
+    reports {
+        junitXml.outputLocation = layout.buildDirectory.dir('reports/junit/xml')
+        html.outputLocation = layout.buildDirectory.dir('reports/junit/html')
+    }
+
     finalizedBy jacocoTestReport
 
     systemProperty("junit.jupiter.execution.parallel.enabled", true)
     systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
+
+    jacoco {
+        // https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin-faq.html#jacoco-reports-0-coverage
+        includeNoLocationClasses = true
+        excludes = ["jdk.internal.*"]
+    }
 }
 
 jacocoTestReport {
     dependsOn test
+    classDirectories.setFrom(instrumentCode)
     reports {
         xml.required = true
         xml.outputLocation = layout.buildDirectory.file('reports/jacoco/report.xml')
         html.required = true
         html.outputLocation = layout.buildDirectory.dir('reports/jacoco/html')
     }
+}
+
+jacocoTestCoverageVerification {
+    classDirectories.setFrom(instrumentCode)
 }
