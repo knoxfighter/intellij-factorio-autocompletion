@@ -1,17 +1,14 @@
 package moe.knox.factorio.core;
 
-import com.google.gson.Gson;
 import com.intellij.openapi.util.io.FileUtil;
 import lombok.CustomLog;
 import moe.knox.factorio.core.version.FactorioApiVersion;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -99,44 +96,8 @@ final public class LuaLibDownloader {
         }
     }
 
-    private RefTag[] downloadTags() throws GettingTagException {
-        RefTag[] tags;
-
-        try {
-            URL url = new URL(luaLibGithubTagsLink);
-            try(InputStreamReader inputStream = new InputStreamReader(url.openStream())) {
-                Gson gson = new Gson();
-                tags = gson.fromJson(inputStream, RefTag[].class);
-            }
-        } catch (Throwable e) {
-            throw new GettingTagException(e);
-        }
-
-        if (tags.length == 0) {
-            throw new GettingTagException();
-        }
-
-        return tags;
-    }
-
-    private @NotNull RefTag getTag(FactorioApiVersion selectedVersion) throws GettingTagException {
-        RefTag[] tags = downloadTags();
-        RefTag tagForVersion = null;
-
-        for (RefTag tag : tags) {
-            if (tag.ref.substring(tag.ref.lastIndexOf("/") + 1).equals(selectedVersion.version())) {
-                tagForVersion = tag;
-                break;
-            }
-        }
-
-        return Objects.requireNonNull(tagForVersion);
-    }
-
     /**
      * When an update is available it will also remove the old one and start the download of the new one.
-     *
-     * @param selectedVersion
      * @return true when an update is available or the API not existent
      */
     public boolean checkForUpdate(FactorioApiVersion selectedVersion) throws GettingTagException {
@@ -144,11 +105,5 @@ final public class LuaLibDownloader {
         Path corePrototypeVersionPath = corePrototypeRootPath.resolve(selectedVersion.version());
 
         return !luaLibVersionPath.toFile().exists() || !corePrototypeVersionPath.toFile().exists();
-    }
-
-    private static class RefTag {
-        String ref;
-        String mode_id;
-        String url;
     }
 }
