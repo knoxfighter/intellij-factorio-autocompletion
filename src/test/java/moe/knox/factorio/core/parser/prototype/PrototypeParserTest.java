@@ -1,43 +1,27 @@
 package moe.knox.factorio.core.parser.prototype;
 
-import junit.framework.TestCase;
 import moe.knox.factorio.core.version.ApiVersionResolver;
 import moe.knox.factorio.core.version.FactorioApiVersion;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Set;
 
 public class PrototypeParserTest {
-    private static Path tempDir;
     private PrototypeParser prototypeParser;
-
-    @BeforeAll
-    protected static void setUpAll(@TempDir(cleanup = CleanupMode.NEVER) Path tempDirArg)
-    {
-        tempDir = tempDirArg;
-    }
+    private FactorioApiVersion version;
 
     @BeforeEach
-    protected void setUp() {
-        Path prototypeParserRootPath = tempDir.resolve("prototypes");
-
-        prototypeParser = new PrototypeParser(prototypeParserRootPath);
+    protected void setUp(@TempDir(cleanup = CleanupMode.NEVER) Path tempDir) throws IOException {
+        prototypeParser = new PrototypeParser(tempDir);
+        version = (new ApiVersionResolver()).supportedVersions().latestVersion();
     }
 
-    public static Set<FactorioApiVersion> providerVersions() throws IOException {
-        return (new ApiVersionResolver()).supportedVersions();
-    }
+    void parse(@TempDir(cleanup = CleanupMode.NEVER) Path tempDirArg) throws IOException {
+        prototypeParser = new PrototypeParser(tempDirArg);
 
-    @ParameterizedTest
-    @MethodSource("providerVersions")
-    void parse(FactorioApiVersion version) throws IOException {
         prototypeParser.parse(version);
     }
 }
