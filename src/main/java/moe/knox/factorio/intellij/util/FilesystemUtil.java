@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 
 public class FilesystemUtil {
-    private static final PluginId PLUGIN_ID = PluginId.getId("moe.knox.factorio.autocompletion");
+    private static final PluginId PLUGIN_ID = PluginId.getId("serieznyi.factorio.autocompletion");
 
     public static @NotNull Path getPluginDir()
     {
