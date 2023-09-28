@@ -5,8 +5,8 @@ import com.intellij.openapi.startup.StartupActivity;
 import moe.knox.factorio.core.LuaLibDownloader;
 import moe.knox.factorio.core.PrototypesService;
 import moe.knox.factorio.core.parser.api.ApiParser;
-import moe.knox.factorio.core.parser.prototype.PrototypeParser;
 import moe.knox.factorio.intellij.library.service.LuaLibService;
+import moe.knox.factorio.intellij.library.service.PrototypeService;
 import org.jetbrains.annotations.NotNull;
 
 public class FactorioStartupActivity implements StartupActivity {
@@ -19,9 +19,8 @@ public class FactorioStartupActivity implements StartupActivity {
             ApiParser.checkForUpdate(project);
 
             if (update) {
-                // reload Prototypes
-                PrototypeParser.removeCurrentPrototypes();
-                PrototypeParser.getCurrentPrototypeLink(project);
+                PrototypeService.getInstance(project).removeCurrentPrototypes();
+                PrototypeService.getInstance(project).checkForUpdate();
             }
 
             // reload core/base prototypes
